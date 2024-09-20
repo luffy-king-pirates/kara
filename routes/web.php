@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+Route::get('/brands', [App\Http\Controllers\BrandsController::class, 'index'])->name('brands');
+
+Route::get('/currencies', [App\Http\Controllers\CurrenciesController::class, 'index'])->name('currencies');
+
+Route::get('/customers', [App\Http\Controllers\CustomersController::class, 'index'])->name('customers');
+
+Route::get('/item-categories', [App\Http\Controllers\ItemCategoriesController::class, 'index'])->name('item-categories');
+
+Route::get('/months', [App\Http\Controllers\MonthsController::class, 'index'])->name('months');
+
+Route::get('/product-countries', [App\Http\Controllers\ProductCountriesController::class, 'index'])->name('product-countries');
+
+Route::get('/stock-types', [App\Http\Controllers\StockTypesController::class, 'index'])->name('stock-types');
+
+Route::get('/suppliers', [App\Http\Controllers\SuppliersController::class, 'index'])->name('suppliers');
+
+Route::get('/units', [App\Http\Controllers\UnitsController::class, 'index'])->name('units');
+
+Route::get('/years', [App\Http\Controllers\YearsController::class, 'index'])->name('years');
+
+
