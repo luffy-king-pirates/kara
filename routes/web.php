@@ -11,7 +11,7 @@ use App\Http\Controllers\CurrenciesController;
 use App\Http\Controllers\YearsController;
 use App\Http\Controllers\ProductCountriesController;
 
-
+use App\Http\Controllers\BrandsController;
 
 // Public route: accessible by everyone
 Route::get('/', function () {
@@ -25,8 +25,7 @@ Auth::routes();
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-    Route::get('/brands', [App\Http\Controllers\BrandsController::class, 'index'])->name('brands');
-    Route::get('/currencies', [App\Http\Controllers\CurrenciesController::class, 'index'])->name('currencies');
+
     Route::get('/customers', [App\Http\Controllers\CustomersController::class, 'index'])->name('customers');
     Route::get('/item-categories', [App\Http\Controllers\ItemCategoriesController::class, 'index'])->name('item-categories');
     Route::get('/months', [App\Http\Controllers\MonthsController::class, 'index'])->name('months');
@@ -39,5 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('currencies', CurrenciesController::class);
     Route::resource('years', YearsController::class);
     Route::resource('countries', ProductCountriesController::class);
+    Route::resource('brands', BrandsController::class);
+
 
 });
