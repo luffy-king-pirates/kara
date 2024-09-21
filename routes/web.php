@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\CurrenciesController;
 
 use App\Http\Controllers\YearsController;
+use App\Http\Controllers\ProductCountriesController;
 
 
 
@@ -29,7 +30,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customers', [App\Http\Controllers\CustomersController::class, 'index'])->name('customers');
     Route::get('/item-categories', [App\Http\Controllers\ItemCategoriesController::class, 'index'])->name('item-categories');
     Route::get('/months', [App\Http\Controllers\MonthsController::class, 'index'])->name('months');
-    Route::get('/product-countries', [App\Http\Controllers\ProductCountriesController::class, 'index'])->name('product-countries');
     Route::get('/stock-types', [App\Http\Controllers\StockTypesController::class, 'index'])->name('stock-types');
     Route::get('/suppliers', [App\Http\Controllers\SuppliersController::class, 'index'])->name('suppliers');
 
@@ -38,5 +38,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('currencies', CurrenciesController::class);
     Route::resource('years', YearsController::class);
+    Route::resource('countries', ProductCountriesController::class);
 
 });

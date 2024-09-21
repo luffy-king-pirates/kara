@@ -393,7 +393,7 @@ return [
                 [
                     'icon' => 'fas fa-fw fa-globe',
                     'text' => 'Product Countries',
-                    'url' => 'product-countries',
+                    'url' => 'countries',
                 ],
 
                 [
