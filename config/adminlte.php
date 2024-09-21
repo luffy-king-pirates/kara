@@ -378,7 +378,7 @@ return [
                 [
                     'icon' => 'fas fa-fw fa-tags',
                     'text' => 'Item Categories',
-                    'url' => 'item-categories',
+                    'url' => 'categories',
                 ],
                 [
                     'icon' => 'fas fa-fw fa-dollar-sign',
