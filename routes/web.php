@@ -6,7 +6,7 @@ use App\Http\Controllers\UnitsController;
 
 use App\Exports\UnitsExport;
 use Maatwebsite\Excel\Facades\Excel;
-
+use App\Http\Controllers\CurrenciesController;
 
 
 // Public route: accessible by everyone
@@ -33,7 +33,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/export/units', [UnitsController::class, 'export'])->name('settings.units.export');
     Route::resource('units', UnitsController::class);
 
-
+    Route::resource('currencies', CurrenciesController::class);
 
     Route::get('/years', [App\Http\Controllers\YearsController::class, 'index'])->name('years');
 });
