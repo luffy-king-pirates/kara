@@ -310,11 +310,12 @@ return [
             'type' => 'sidebar-menu-search',
             'text' => 'search',
         ],
-        // [
-        //     'text' => 'blog',
-        //     'url' => 'admin/blog',
-        //     'can' => 'manage-blog',
-        // ],
+        [
+            'text' => 'Users',
+            'url' => 'users',
+            'icon' => 'fas fa-fw fa-user', // Font Awesome icon for user
+        ],
+
         // [
         //     'text' => 'pages',
         //     'url' => 'admin/pages',
