@@ -404,7 +404,7 @@ return [
                 [
                     'icon' => 'fas fa-fw fa-boxes',
                     'text' => 'Stock Types',
-                    'url' => 'stock-types',
+                    'url' => 'type',
                 ],
                 [
                     'icon' => 'fas fa-fw fa-calendar year-icon',
