@@ -13,7 +13,7 @@ use App\Http\Controllers\ProductCountriesController;
 
 use App\Http\Controllers\BrandsController;
 use App\Http\Controllers\MonthsController;
-
+use App\Http\Controllers\CustomersController;
 // Public route: accessible by everyone
 Route::get('/', function () {
     return view('auth.login');
@@ -27,7 +27,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 
-    Route::get('/customers', [App\Http\Controllers\CustomersController::class, 'index'])->name('customers');
     Route::get('/item-categories', [App\Http\Controllers\ItemCategoriesController::class, 'index'])->name('item-categories');
     Route::get('/stock-types', [App\Http\Controllers\StockTypesController::class, 'index'])->name('stock-types');
     Route::get('/suppliers', [App\Http\Controllers\SuppliersController::class, 'index'])->name('suppliers');
@@ -40,6 +39,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('countries', ProductCountriesController::class);
     Route::resource('brands', BrandsController::class);
     Route::resource('months', MonthsController::class);
+    Route::resource('customers', CustomersController::class);
+
+
 
 
 });
