@@ -43,7 +43,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/years', [App\Http\Controllers\YearsController::class, 'export'])->name('years.export');
         Route::get('/type', [App\Http\Controllers\StockTypesController::class, 'export'])->name('type.export');
         Route::get('/brands', [App\Http\Controllers\BrandsController::class, 'export'])->name('brands.export');
-
+        Route::get('/categories', [App\Http\Controllers\CategoriesController::class, 'export'])->name('categories.export');
     });
     Route::resource('units', UnitsController::class);
     Route::resource('currencies', CurrenciesController::class);

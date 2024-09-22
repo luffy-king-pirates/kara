@@ -12,6 +12,7 @@
 @section('content')
     <!-- Add Category Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addCategoryBtn">Add Category</a>
+        <button  id="apply-filter" class="btn btn-success">Export Result in  Excel</button>
 
     <!-- DataTable for Categories -->
     <table class="table table-bordered" id="categories-table">
@@ -286,6 +287,33 @@
                     }
                 });
             });
+            const filterButton = document.getElementById('apply-filter');
+
+// Select all the filter input elements
+const filters = {
+    id: document.getElementById('filter-id'),
+    categorie_name: document.getElementById('filter-categorie-name'), // Updated to 'categorie_name'
+    created_at: document.getElementById('filter-created-at'),
+    updated_at: document.getElementById('filter-updated-at'),
+    created_by: document.getElementById('filter-created-by'),
+    updated_by: document.getElementById('filter-updated-by'),
+};
+
+// Add event listener to the filter button
+filterButton.addEventListener('click', function() {
+    // Build the query string from the filter inputs
+    let queryString = '?';
+
+    for (let key in filters) {
+        const value = filters[key].value;
+        if (value) {
+            queryString += `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+        }
+    }
+
+    // Redirect the page with the updated filters in the query string
+    window.open('/export/categories' + queryString.slice(0, -1), '_blank'); // Update the URL to '/export/categories'
+});
         });
     </script>
 
