@@ -42,6 +42,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/units', [App\Http\Controllers\UnitsController::class, 'export'])->name('units.export');
         Route::get('/years', [App\Http\Controllers\YearsController::class, 'export'])->name('years.export');
         Route::get('/type', [App\Http\Controllers\StockTypesController::class, 'export'])->name('type.export');
+        Route::get('/brands', [App\Http\Controllers\BrandsController::class, 'export'])->name('brands.export');
+
     });
     Route::resource('units', UnitsController::class);
     Route::resource('currencies', CurrenciesController::class);
