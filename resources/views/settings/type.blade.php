@@ -12,6 +12,7 @@
 @section('content')
     <!-- Add Stock Type Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addStockTypeBtn">Add Stock Type</a>
+        <button  id="apply-filter" class="btn btn-success">Export Result in  Excel</button>
 
     <!-- DataTable for Stock Types -->
     <table class="table table-bordered" id="stock-types-table">
@@ -290,6 +291,35 @@
                     }
                 });
             });
+
+            const filterButton = document.getElementById('apply-filter');
+
+// Select all the filter input elements
+const filters = {
+    id: document.getElementById('filter-id'),
+    stock_type_name: document.getElementById('filter-stock-type-name'), // Updated field
+    created_at: document.getElementById('filter-created-at'),
+    updated_at: document.getElementById('filter-updated-at'),
+    created_by: document.getElementById('filter-created-by'),
+    updated_by: document.getElementById('filter-updated-by'),
+};
+
+// Add event listener to the filter button
+filterButton.addEventListener('click', function() {
+    // Build the query string from the filter inputs
+    let queryString = '?';
+
+    for (let key in filters) {
+        const value = filters[key].value;
+        if (value) {
+            queryString += `${key}=${value}&`;
+        }
+    }
+
+    // Redirect the page with the updated filters in the query string
+    window.open('/export/type' + queryString.slice(0, -1), '_blank');
+});
+
         });
     </script>
 @stop

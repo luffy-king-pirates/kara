@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\StockTypesExport; // Assuming you've updated the export class
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class StockTypesController extends Controller
 {
     // Show the Stock Types view
@@ -108,29 +109,83 @@ class StockTypesController extends Controller
     }
 
     // Export stock types data to Excel
-    public function export(Request $request)
-    {
-        $stockTypesQuery = StockTypes::with(['createdByUser:id,name', 'updatedByUser:id,name']);
+// Export stock types data to Excel
+public function export(Request $request)
+{
+    // Query and apply filters manually using conditional where clauses
+    $stockTypes = StockTypes::query()
+        ->with(['createdByUser', 'updatedByUser']) // Eager load relationships
+        ->when($request->stock_type_name, function ($query, $stock_type_name) {
+            return $query->where('stock_type_name', 'like', '%' . $stock_type_name . '%');
+        })
+        ->when($request->created_at, function ($query, $created_at) {
+            return $query->whereDate('created_at', $created_at);
+        })
+        ->when($request->updated_at, function ($query, $updated_at) {
+            return $query->whereDate('updated_at', $updated_at);
+        })
+        ->when($request->created_by, function ($query, $created_by) {
+            return $query->where('created_by', $created_by);
+        })
+        ->when($request->updated_by, function ($query, $updated_by) {
+            return $query->where('updated_by', $updated_by);
+        })
+        ->when($request->search['value'] ?? null, function ($query, $searchValue) {
+            return $query->where(function($q) use ($searchValue) {
+                $q->where('stock_type_name', 'like', "%$searchValue%")
+                  ->orWhereHas('createdByUser', function($q) use ($searchValue) {
+                      $q->where('name', 'like', "%$searchValue%");
+                  })
+                  ->orWhereHas('updatedByUser', function($q) use ($searchValue) {
+                      $q->where('name', 'like', "%$searchValue%");
+                  });
+            });
+        })
+        ->get();
 
-        if ($request->has('stock_type_name') && $request->stock_type_name != '') {
-            $stockTypesQuery->where('stock_type_name', 'like', "%" . $request->stock_type_name . "%");
-        }
-        if ($request->has('created_by') && $request->created_by != '') {
-            $stockTypesQuery->where('created_by', $request->created_by);
-        }
-        if ($request->has('updated_by') && $request->updated_by != '') {
-            $stockTypesQuery->where('updated_by', $request->updated_by);
-        }
-        if ($request->has('created_at') && $request->created_at != '') {
-            $stockTypesQuery->whereDate('created_at', $request->created_at);
-        }
-        if ($request->has('updated_at') && $request->updated_at != '') {
-            $stockTypesQuery->whereDate('updated_at', $request->updated_at);
-        }
+    // Create a new Spreadsheet
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
 
-        $stockTypes = $stockTypesQuery->get();
-        return Excel::download(new StockTypesExport($stockTypes), 'stock_types.xlsx');
+    // Set headers for the Excel columns
+    $sheet->setCellValue('A1', 'ID');
+    $sheet->setCellValue('B1', 'Stock Type Name');
+    $sheet->setCellValue('C1', 'Created At');
+    $sheet->setCellValue('D1', 'Updated At');
+    $sheet->setCellValue('E1', 'Created By');
+    $sheet->setCellValue('F1', 'Updated By');
+
+    // Insert data from the filtered stock types model
+    $row = 2; // Starting from row 2 as row 1 has headers
+    foreach ($stockTypes as $stockType) {
+        $sheet->setCellValue('A' . $row, $stockType->id);
+        $sheet->setCellValue('B' . $row, $stockType->stock_type_name);
+
+        // Format dates for Created At and Updated At
+        $sheet->setCellValue('C' . $row, $stockType->created_at ? Carbon::parse($stockType->created_at)->format('M d, Y h:i A') : 'N/A');
+        $sheet->setCellValue('D' . $row, $stockType->updated_at ? Carbon::parse($stockType->updated_at)->format('M d, Y h:i A') : 'Not updated');
+
+        // Add user information for Created By and Updated By
+        $sheet->setCellValue('E' . $row, $stockType->createdByUser ? $stockType->createdByUser->name : 'Unknown');
+        $sheet->setCellValue('F' . $row, $stockType->updatedByUser ? $stockType->updatedByUser->name : 'Not updated');
+
+        $row++;
     }
+
+    // Write the spreadsheet to a file (in memory)
+    $writer = new Xlsx($spreadsheet);
+    $fileName = 'stock_types.xlsx';
+
+    // Prepare the response for download
+    return response()->streamDownload(function() use ($writer) {
+        $writer->save('php://output');
+    }, $fileName, [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Cache-Control' => 'max-age=0',
+        'Content-Disposition' => 'attachment; filename="stock_types.xlsx"',
+    ]);
+}
+
 
     // Edit stock type (fetch details)
     public function edit($id)
