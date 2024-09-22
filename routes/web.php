@@ -37,7 +37,11 @@ Auth::routes();
 // Secured routes: only accessible if authenticated
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-    Route::get('/export/units', [UnitsController::class, 'export'])->name('settings.units.export');
+    Route::prefix('export')->as('settings.')->group(function () {
+        // Export routes
+        Route::get('/units', [App\Http\Controllers\UnitsController::class, 'export'])->name('units.export');
+        Route::get('/years', [App\Http\Controllers\YearsController::class, 'export'])->name('years.export');
+    });
     Route::resource('units', UnitsController::class);
     Route::resource('currencies', CurrenciesController::class);
     Route::resource('years', YearsController::class);

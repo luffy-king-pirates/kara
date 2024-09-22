@@ -10,7 +10,8 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\YearsExport; // Update the export class
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class YearsController extends Controller
 {
     // Show the Years view
@@ -111,27 +112,69 @@ class YearsController extends Controller
     // Export years data to Excel
     public function export(Request $request)
     {
-        $yearsQuery = Years::with(['createdByUser:id,name', 'updatedByUser:id,name']); // Update to your actual model
+        // Query and apply filters manually using conditional where clauses
+        $years = Years::query()
+            ->with(['createdByUser', 'updatedByUser']) // Eager load relationships
+            ->when($request->year_name, function ($query, $year_name) {
+                return $query->where('year_name', 'like', '%' . $year_name . '%');
+            })
+            ->when($request->created_at, function ($query, $created_at) {
+                return $query->whereDate('created_at', $created_at);
+            })
+            ->when($request->updated_at, function ($query, $updated_at) {
+                return $query->whereDate('updated_at', $updated_at);
+            })
+            ->when($request->created_by, function ($query, $created_by) {
+                return $query->where('created_by', $created_by);
+            })
+            ->when($request->updated_by, function ($query, $updated_by) {
+                return $query->where('updated_by', $updated_by);
+            })
+            ->get();
 
-        if ($request->has('year_name') && $request->year_name != '') {
-            $yearsQuery->where('year_name', 'like', "%" . $request->year_name . "%");
-        }
-        if ($request->has('created_by') && $request->created_by != '') {
-            $yearsQuery->where('created_by', $request->created_by);
-        }
-        if ($request->has('updated_by') && $request->updated_by != '') {
-            $yearsQuery->where('updated_by', $request->updated_by);
-        }
-        if ($request->has('created_at') && $request->created_at != '') {
-            $yearsQuery->whereDate('created_at', $request->created_at);
-        }
-        if ($request->has('updated_at') && $request->updated_at != '') {
-            $yearsQuery->whereDate('updated_at', $request->updated_at);
+        // Create a new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers for the Excel columns
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Year Name');
+        $sheet->setCellValue('C1', 'Created At');
+        $sheet->setCellValue('D1', 'Updated At');
+        $sheet->setCellValue('E1', 'Created By');
+        $sheet->setCellValue('F1', 'Updated By');
+
+        // Insert data from the filtered Years model
+        $row = 2; // Starting from row 2 as row 1 has headers
+        foreach ($years as $year) {
+            $sheet->setCellValue('A' . $row, $year->id);
+            $sheet->setCellValue('B' . $row, $year->year_name);
+
+            // Format dates for Created At and Updated At
+            $sheet->setCellValue('C' . $row, $year->created_at ? Carbon::parse($year->created_at)->format('M d, Y h:i A') : 'N/A');
+            $sheet->setCellValue('D' . $row, $year->updated_at ? Carbon::parse($year->updated_at)->format('M d, Y h:i A') : 'Not updated');
+
+            // Add user information for Created By and Updated By
+            $sheet->setCellValue('E' . $row, $year->createdByUser ? $year->createdByUser->name : 'Unknown');
+            $sheet->setCellValue('F' . $row, $year->updatedByUser ? $year->updatedByUser->name : 'Not updated');
+
+            $row++;
         }
 
-        $years = $yearsQuery->get();
-        return Excel::download(new YearsExport($years), 'years.xlsx'); // Update the export class
+        // Write the spreadsheet to a file (in memory)
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'years.xlsx';
+
+        // Prepare the response for download
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+            'Content-Disposition' => 'attachment; filename="years.xlsx"',
+        ]);
     }
+
 
     // Edit year (fetch details)
     public function edit($id)
