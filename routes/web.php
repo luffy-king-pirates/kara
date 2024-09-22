@@ -22,6 +22,9 @@ use App\Http\Controllers\RoleController;
 
 
 use App\Http\Controllers\SuppliersController;
+use App\Http\Controllers\UserAssignRoleController;
+
+
 
 // Public route: accessible by everyone
 Route::get('/', function () {
@@ -48,6 +51,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
 
     Route::resource('suppliers', SuppliersController::class);
+    Route::resource('assignedRoles', UserAssignRoleController::class);
+
 
 
 

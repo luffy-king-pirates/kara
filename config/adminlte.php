@@ -390,6 +390,13 @@ return [
 
 
                 ],
+                [
+                    'icon' => 'fas fa-fw fa-user-shield',
+                    'text' => 'Assigned Role',
+                    'url' => 'assignedRoles',
+
+
+                ],
             ]],
         [
             'text' => 'Setting',
