@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Units;
+use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\UnitsExport;
+use App\Exports\RolesExport; // Ensure this export class exists
 use Illuminate\Support\Facades\Log;
-class UnitsController extends Controller
+
+class RoleController extends Controller
 {
-    // Show the Units view
+    // Show the Roles view
     public function index(Request $request)
     {
         $users = User::all();
         Log::info($request->ajax());
         if ($request->ajax()) {
-            $units = Units::with(['createdByUser:id,name', 'updatedByUser:id,name'])
-                ->select(['id', 'unit_name', 'created_at', 'updated_at', 'created_by', 'updated_by']);
+            $roles = Role::with(['createdByUser:id,name', 'updatedByUser:id,name'])
+                ->select(['id', 'role_name', 'created_at', 'updated_at', 'created_by', 'updated_by']);
 
-            return DataTables::of($units)
+            return DataTables::of($roles)
                 ->addColumn('created_at', function ($row) {
                     return Carbon::parse($row->created_at)->format('M d, Y h:i A');
                 })
@@ -36,15 +37,15 @@ class UnitsController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     return '
-                        <a href="javascript:void(0)" data-id="' . $row->id . '" class="btn btn-sm btn-primary edit-unit">Edit</a>
-                        <a href="javascript:void(0)" data-id="' . $row->id . '" class="btn btn-sm btn-danger delete-unit">Delete</a>
+                        <a href="javascript:void(0)" data-id="' . $row->id . '" class="btn btn-sm btn-primary edit-role">Edit</a>
+                        <a href="javascript:void(0)" data-id="' . $row->id . '" class="btn btn-sm btn-danger delete-role">Delete</a>
                     ';
                 })
                 ->filter(function ($query) use ($request) {
                     if ($request->has('search') && $request->search['value'] != '') {
                         $searchValue = $request->search['value'];
                         $query->where(function($q) use ($searchValue) {
-                            $q->where('unit_name', 'like', "%$searchValue%")
+                            $q->where('role_name', 'like', "%$searchValue%")
                               ->orWhereHas('createdByUser', function($q) use ($searchValue) {
                                   $q->where('name', 'like', "%$searchValue%");
                               })
@@ -54,8 +55,8 @@ class UnitsController extends Controller
                         });
                     }
 
-                    if ($request->has('unit_name') && $request->unit_name != '') {
-                        $query->where('unit_name', 'like', "%" . $request->unit_name . "%");
+                    if ($request->has('role_name') && $request->role_name != '') {
+                        $query->where('role_name', 'like', "%" . $request->role_name . "%");
                     }
                     if ($request->has('created_at') && $request->created_at != '') {
                         $query->whereDate('created_at', $request->created_at);
@@ -73,79 +74,78 @@ class UnitsController extends Controller
                 ->make(true);
         }
 
-        return view('settings.units', compact('users'));
+        return view('security.role', compact('users')); // Adjusted to point to the roles view
     }
 
-
-    // Store new unit
+    // Store new role
     public function store(Request $request)
     {
         $request->validate([
-            'unit_name' => 'required|string|max:50|unique:units,unit_name',
+            'role_name' => 'required|string|max:50|unique:roles,role_name', // Changed units to roles
         ]);
 
-        $unit = new Units();
-        $unit->unit_name = $request->input('unit_name');
-        $unit->created_by = auth()->user()->id;
-        $unit->updated_by = auth()->user()->id;
-        $unit->save();
+        $role = new Role(); // Change from Units to Role
+        $role->role_name = $request->input('role_name');
+        $role->created_by = auth()->user()->id;
+        $role->updated_by = auth()->user()->id;
+        $role->save();
 
         return response()->json(['success' => true]);
     }
 
-    // Update existing unit
+    // Update existing role
     public function update(Request $request, $id)
     {
-        $unit = Units::findOrFail($id);
+        $role = Role::findOrFail($id); // Change from Units to Role
 
         $request->validate([
-            'unit_name' => 'required|string|max:50|unique:units,unit_name,' . $id,
+            'role_name' => 'required|string|max:50|unique:roles,role_name,' . $id, // Changed units to roles
         ]);
 
-        $unit->unit_name = $request->input('unit_name');
-        $unit->updated_by = auth()->user()->id;
-        $unit->save();
+        $role->role_name = $request->input('role_name');
+        $role->updated_by = auth()->user()->id;
+        $role->save();
 
         return response()->json(['success' => true]);
     }
 
-    // Export units data to Excel
+    // Export roles data to Excel
     public function export(Request $request)
     {
-        $unitsQuery = Units::with(['createdByUser:id,name', 'updatedByUser:id,name']);
+        $rolesQuery = Role::with(['createdByUser:id,name', 'updatedByUser:id,name']);
 
-        if ($request->has('unit_name') && $request->unit_name != '') {
-            $unitsQuery->where('unit_name', 'like', "%" . $request->unit_name . "%");
+        if ($request->has('role_name') && $request->role_name != '') {
+            $rolesQuery->where('role_name', 'like', "%" . $request->role_name . "%");
         }
         if ($request->has('created_by') && $request->created_by != '') {
-            $unitsQuery->where('created_by', $request->created_by);
+            $rolesQuery->where('created_by', $request->created_by);
         }
         if ($request->has('updated_by') && $request->updated_by != '') {
-            $unitsQuery->where('updated_by', $request->updated_by);
+            $rolesQuery->where('updated_by', $request->updated_by);
         }
         if ($request->has('created_at') && $request->created_at != '') {
-            $unitsQuery->whereDate('created_at', $request->created_at);
+            $rolesQuery->whereDate('created_at', $request->created_at);
         }
         if ($request->has('updated_at') && $request->updated_at != '') {
-            $unitsQuery->whereDate('updated_at', $request->updated_at);
+            $rolesQuery->whereDate('updated_at', $request->updated_at);
         }
 
-        $units = $unitsQuery->get();
-        return Excel::download(new UnitsExport($units), 'units.xlsx');
+        $roles = $rolesQuery->get();
+        return Excel::download(new RolesExport($roles), 'roles.xlsx'); // Ensure this export class exists
     }
 
-    // Edit unit (fetch details)
+    // Edit role (fetch details)
     public function edit($id)
     {
-        $unit = Units::findOrFail($id);
-        return response()->json($unit);
+        $role = Role::findOrFail($id); // Change from Units to Role
+        return response()->json($role);
     }
 
-    // Delete unit
+    // Delete role
     public function destroy($id)
     {
-        $unit = Units::findOrFail($id);
-        $unit->delete();
+        $role = Role::findOrFail($id); // Change from Units to Role
+        $role->delete();
 
         return response()->json(['success' => true]);
     }

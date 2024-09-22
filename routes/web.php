@@ -16,6 +16,10 @@ use App\Http\Controllers\MonthsController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\StockTypesController;
+use App\Http\Controllers\UsersController;
+use App\Http\Controllers\RoleController;
+
+
 
 use App\Http\Controllers\SuppliersController;
 
@@ -40,6 +44,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('customers', CustomersController::class);
     Route::resource('categories', CategoriesController::class);
     Route::resource('type', StockTypesController::class);
+    Route::resource('users', UsersController::class);
+    Route::resource('roles', RoleController::class);
+
     Route::resource('suppliers', SuppliersController::class);
 
 
