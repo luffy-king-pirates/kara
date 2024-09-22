@@ -17,25 +17,21 @@
     <table class="table table-bordered" id="users-table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>First Name</th>
-                <th>Middle Name</th>
-                <th>Last Name</th>
-                <th>Phone Number</th>
-                <th>Email</th>
-                <th>User Name</th>
                 <th>Profile Picture</th>
-                <th>Created At</th>
-                <th>Updated At</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+
+
                 <th>Action</th>
             </tr>
             <tr>
                 <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th><input type="text" id="filter-first-name" class="form-control" placeholder="First Name"></th>
-                <th><input type="text" id="filter-middle-name" class="form-control" placeholder="Middle Name"></th>
-                <th><input type="text" id="filter-last-name" class="form-control" placeholder="Last Name"></th>
-                <th><input type="text" id="filter-phone" class="form-control" placeholder="Phone Number"></th>
+                <th><input type="text" id="filter-name" class="form-control" placeholder="Name"></th>
                 <th><input type="text" id="filter-email" class="form-control" placeholder="Email"></th>
+                <th><input type="text" id="filter-phone" class="form-control" placeholder="Phone"></th>
+                <th></th>
 
                 <th></th>
             </tr>
@@ -44,54 +40,64 @@
 
     <!-- Modal for Add/Edit User -->
     <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="userModalLabel">Add User</h5>
+                    <h5 class="modal-title" id="userModalLabel">Add/Edit User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="userForm" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="user_id" id="user-id">
-                        <div class="mb-3">
-                            <label for="first_name" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" required
-                                maxlength="50">
+
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label for="name" class="form-label">User Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label for="middle_name" class="form-label">Middle Name</label>
+                                <input type="text" class="form-control" id="middle_name" name="middle_name">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="middle_name" class="form-label">Middle Name</label>
-                            <input type="text" class="form-control" id="middle_name" name="middle_name" maxlength="50">
+
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="last_name" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" required
-                                maxlength="50">
+
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="text" class="form-control" id="phone" name="phone" required>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" id="phone" name="phone" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                            <div id="email_error" class="text-danger"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="name" class="form-label">User Name</label>
-                            <input type="text" class="form-control" id="name" name="name" required
-                                maxlength="50">
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required
-                                minlength="8">
-                        </div>
+
                         <div class="mb-3">
                             <label for="profile_picture" class="form-label">Profile Picture</label>
                             <input type="file" class="form-control" id="profile_picture" name="profile_picture"
                                 accept="image/*">
+                            <img id="preview" src="#" alt="Profile Picture" class="mt-2"
+                                style="display: none; max-width: 100px;" />
+                            <button type="button" id="removePicture" class="btn btn-danger btn-sm mt-2"
+                                style="display: none;">Remove</button>
                         </div>
+
                         <button type="submit" id="saveUserBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
                 </div>
@@ -139,7 +145,6 @@
             </div>
         </div>
     </div>
-
 @stop
 
 @section('js')
@@ -148,69 +153,44 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(function() {
-            console.log("AJAX URL:", "{{ route('users.index') }}");
             var table = $('#users-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-
                     url: "{{ route('users.index') }}",
                     data: function(d) {
-                        d.first_name = $('#filter-first-name').val();
-                        d.middle_name = $('#filter-middle-name').val();
-                        d.last_name = $('#filter-last-name').val();
-                        d.phone = $('#filter-phone').val();
+                        d.name = $('#filter-name').val();
                         d.email = $('#filter-email').val();
-
-                    },
-                    success: function(data) {
-                        console.log('Server response:', data); // Check what the server is sending
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error('AJAX Error:', textStatus, errorThrown);
-                    },
-
-
+                        d.phone = $('#filter-phone').val();
+                        d.created_at = $('#filter-created-at').val();
+                        d.updated_at = $('#filter-updated-at').val();
+                    }
                 },
                 columns: [{
+                        data: 'profile_picture',
+                        name: 'profile_picture',
+                        render: function(data, type, row) {
+                            console.log("data = ", data)
+                            return data ?
+                                `<img src="${data}" alt="Profile Picture" style="max-width: 50px; max-height: 50px;">` :
+                                '<img src="https://res.cloudinary.com/dwzht4utm/image/upload/v1727019534/images_b5ws3b.jpg" alt="Profile Picture" style="max-width: 50px; max-height: 50px; ';
+                        }
+                    },
+                    {
                         data: 'id',
                         name: 'id'
-                    },
-                    {
-                        data: 'first_name',
-                        name: 'first_name'
-                    },
-                    {
-                        data: 'middle_name',
-                        name: 'middle_name'
-                    },
-                    {
-                        data: 'last_name',
-                        name: 'last_name'
-                    },
-                    {
-                        data: 'phone',
-                        name: 'phone'
-                    },
-                    {
-                        data: 'email',
-                        name: 'email'
                     },
                     {
                         data: 'name',
                         name: 'name'
                     },
                     {
-                        data: 'profile_picture',
-                        name: 'profile_picture',
-                        render: function(data) {
-                            console.log(data); // Check what data is being received
-                            if (data) {
-                                return `<img src="/storage/${data}" width="50" height="50" alt="Profile Picture">`;
-                            } else {
-                                return '<span>No image</span>';
-                            }
-                        }
+                        data: 'email',
+                        name: 'email'
+                    },
+                    {
+                        data: 'phone',
+                        name: 'phone'
                     },
 
 
@@ -218,75 +198,150 @@
                         data: 'action',
                         name: 'action',
                         orderable: false,
-                        searchable: false
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return `
+                                <button class="btn btn-primary edit-user" data-id="${row.id}">Edit</button>
+                                <button class="btn btn-danger delete-user" data-id="${row.id}">Delete</button>
+                            `;
+                        }
                     }
                 ]
             });
 
-            // Filtering logic
-            $('#filter-first-name, #filter-middle-name, #filter-last-name, #filter-phone, #filter-email')
+            // Filter functionality
+            $('#filter-id, #filter-name, #filter-email, #filter-phone, #filter-created-at, #filter-updated-at')
                 .on('keyup change', function() {
                     table.draw();
                 });
 
-            // Form submission
-            $('#userForm').on('submit', function(e) {
+            // Add User button click
+            $('#addUserBtn').click(function() {
+                $('#userForm')[0].reset();
+                $('#user-id').val('');
+                $('#preview').hide();
+                $('#removePicture').hide();
+                $('#userModal').modal('show');
+                $('#saveUserBtn').attr('disabled', true);
+            });
+
+            // Enable/Disable Save button based on input fields
+            $('#first_name, #last_name, #email, #phone').on('input', function() {
+                var isValid = $('#first_name').val().trim() && $('#last_name').val().trim() &&
+                    $('#email').val().trim() && $('#phone').val().trim();
+                $('#saveUserBtn').attr('disabled', !isValid);
+            });
+
+            // Profile Picture Preview and Remove
+            $('#profile_picture').change(function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#preview').attr('src', e.target.result).show();
+                        $('#removePicture').show();
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            $('#removePicture').click(function() {
+                $('#profile_picture').val(null);
+                $('#preview').hide();
+                $(this).hide();
+            });
+
+            // Save User (AJAX Request)
+            $('#userForm').submit(function(e) {
                 e.preventDefault();
-                var formData = new FormData(this);
+
+                let formData = new FormData(this);
+                console.log(formData.get('profile_picture'))
+                // Include _method field for PUT requests if updating a user
+                let userId = $('#user-id').val();
+                if (userId) {
+                    formData.append('_method', 'PUT');
+                }
+
+                let url = userId ? "{{ route('users.update', '') }}/" + userId :
+                    "{{ route('users.store') }}";
+                let method = userId ? 'POST' :
+                'POST'; // POST method, as Laravel will interpret _method as PUT for update
 
                 $.ajax({
-                    type: 'POST',
-                    url: "{{ route('users.store') }}",
+                    url: url,
+                    method: method,
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function(response) {
-                        if (response.success) {
-                            $('#userModal').modal('hide');
-                            table.ajax.reload();
-                            $('#successToast').toast('show');
-                        } else {
-                            $('#errorToastMessage').text(response.message);
-                            $('#errorToast').toast('show');
-                        }
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    error: function(error) {
-                        $('#errorToastMessage').text(
-                            'An error occurred while saving the user.');
-                        $('#errorToast').toast('show');
+                    success: function(response) {
+                        $('#userModal').modal('hide');
+                        $('#users-table').DataTable().ajax.reload();
+                        showSuccessToast();
+                    },
+                    error: function(response) {
+                        showErrorToast(response.responseJSON.message);
                     }
                 });
             });
 
-            // Add User Button Click
-            $('#addUserBtn').on('click', function() {
-                $('#userForm')[0].reset();
-                $('#userModalLabel').text('Add User');
-                $('#user-id').val('');
-                $('#userModal').modal('show');
+            // Edit User button click
+            $(document).on('click', '.edit-user', function() {
+                var userId = $(this).data('id');
+                $.get('/users/' + userId + '/edit', function(data) {
+                    console.log(" data.profile_picture = ", '/storage' + data.profile_picture)
+                    $('#user-id').val(data.id);
+                    $('#first_name').val(data.first_name);
+                    $('#middle_name').val(data.middle_name);
+                    $('#last_name').val(data.last_name);
+                    $('#name').val(data.name);
+                    $('#email').val(data.email);
+                    $('#phone').val(data.phone);
+                    $('#profile_picture').val('');
+                    $('#preview').attr('src', '/storage/' + data.profile_picture).show();
+                    $('#removePicture').show();
+                    $('#userModal').modal('show');
+                    $('#saveUserBtn').attr('disabled', false);
+                });
             });
 
-            // Handle email validation and enable save button
-            $('#email').on('keyup', function() {
-                var email = $(this).val();
-                if (validateEmail(email)) {
-                    $('#email_error').text('');
-                    $('#saveUserBtn').prop('disabled', false);
-                } else {
-                    $('#email_error').text('Invalid email address.');
-                    $('#saveUserBtn').prop('disabled', true);
-                }
+            // Delete User button click
+            $(document).on('click', '.delete-user', function() {
+                var userId = $(this).data('id');
+                $('#deleteUserModal').modal('show');
+                $('#confirmDeleteUser').off('click').on('click', function() {
+                    $.ajax({
+                        url: "{{ route('users.destroy', '') }}/" + userId,
+                        method: 'DELETE',
+                           data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                        success: function() {
+                            $('#deleteUserModal').modal('hide');
+                            $('#users-table').DataTable().ajax.reload();
+                            showSuccessToast('User deleted successfully!');
+                        },
+                        error: function() {
+                            showErrorToast('Error deleting user.');
+                        }
+                    });
+                });
             });
 
-            function validateEmail(email) {
-                var re = /\S+@\S+\.\S+/;
-                return re.test(email);
+            function showSuccessToast(message = 'User saved successfully!') {
+                $('#successToast .toast-body').text(message);
+                var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                successToast.show();
             }
 
-            // Confirm deletion
-            $('#confirmDeleteUser').on('click', function() {
-                // Add AJAX request for deletion here
-            });
+            function showErrorToast(message) {
+                $('#errorToast .toast-body').text(message);
+                var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
+                errorToast.show();
+            }
         });
     </script>
 @stop

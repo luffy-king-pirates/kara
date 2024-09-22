@@ -17,6 +17,8 @@ use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\StockTypesController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\RoleController;
+
 
 // Public route: accessible by everyone
 Route::get('/', function () {
@@ -46,6 +48,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('categories', CategoriesController::class);
     Route::resource('type', StockTypesController::class);
     Route::resource('users', UsersController::class);
+    Route::resource('roles', RoleController::class);
+
+
 
 
 

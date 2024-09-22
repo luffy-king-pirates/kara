@@ -25,7 +25,9 @@ class User extends Authenticatable
         'middle_name',
         'last_name',
         'phone',
-        'profile_picture'
+        'profile_picture',
+        'created_at',
+        'updated_at'
     ];
 
     /**
@@ -50,4 +52,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function adminlte_image()
+    {
+        return $this->profile_picture ? 'storage/' . $this->profile_picture : 'path/to/default/image.png'; // Adjust the path as needed
+    }
+
+
 }

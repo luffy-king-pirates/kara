@@ -23,6 +23,7 @@
 </head>
 <body>
     <div id="app">
+    
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
@@ -54,9 +55,13 @@
                                 </li>
                             @endif
                         @else
+
                             <li class="nav-item dropdown">
+                            hello
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }}
+                                    dsssdsd
+                                    {{ Auth::user()->profile_picture}}
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">

@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\Auth;
 
 return [
 
@@ -14,7 +15,7 @@ return [
     |
     */
 
-    'title' => 'AdminLTE 3',
+    'title' => 'Kara',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -136,7 +137,8 @@ return [
     'usermenu_enabled' => true,
     'usermenu_header' => false,
     'usermenu_header_class' => 'bg-primary',
-    'usermenu_image' => false,
+   'usermenu_image' => 'path/to/default/image.png',
+
     'usermenu_desc' => false,
     'usermenu_profile_url' => false,
 
@@ -301,6 +303,11 @@ return [
             'topnav_right' => true,
         ],
         [
+            'type' => 'navbar-user',
+            'topnav_right' => true,
+            'text' => 'ok', // Display user's name
+        ],
+        [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
@@ -373,6 +380,18 @@ return [
         //     ],
         // ],
         [
+            'text' => 'Security & Roles',
+            'icon' => 'fas fa-shield-alt',
+            'submenu' => [
+                [
+                    'icon' => 'fas fa-fw fa-user-shield',
+                    'text' => 'User roles',
+                    'url' => 'roles',
+
+
+                ],
+            ]],
+        [
             'text' => 'Setting',
             'icon' => 'fas fa-fw fa-cog',
             'submenu' => [
@@ -380,6 +399,8 @@ return [
                     'icon' => 'fas fa-fw fa-tags',
                     'text' => 'Item Categories',
                     'url' => 'categories',
+                    'can' => 'view-categories'
+
                 ],
                 [
                     'icon' => 'fas fa-fw fa-dollar-sign',

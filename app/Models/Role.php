@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Years extends Model
+class Role extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'year_name',
+        'role_name',
         'created_by',
-        'updated_at',
+        'updated_by',
         'created_at',
         'updated_by'
     ];
-       // Relationship for the user who created the unit
+   // Relationship for the user who created the unit
 public function createdByUser() {
     return $this->belongsTo(User::class, 'created_by');
 }
