@@ -67,19 +67,30 @@
                     <form id="currencyForm">
                         @csrf
                         <input type="hidden" name="currency_id" id="currency-id">
-                        <div class="mb-3">
-                            <label for="currencie_name" class="form-label">Currency Name</label>
+                        <div class="mb-3 position-relative">
+                            <label for="currencie_name" class="form-label">Currency Name <span
+                                    class="text-danger">*</span></label>
+
+                            <!-- Input field with required attribute -->
                             <input type="text" class="form-control" id="currencie_name" name="currencie_name" required
-                                maxlength="50">
-                            <div id="currencie_name_error" class="text-danger"></div>
+                                maxlength="50" placeholder="Enter the currency name">
+
                             <!-- Error message for currency name -->
+                            <div id="currencie_name_error" class="text-danger"></div>
                         </div>
-                        <div class="mb-3">
-                            <label for="currencie_value" class="form-label">Currency Value</label>
-                            <input type="number" class="form-control" id="currencie_value" name="currencie_value" required>
-                            <div id="currencie_value_error" class="text-danger"></div>
+
+                        <div class="mb-3 position-relative">
+                            <label for="currencie_value" class="form-label">Currency Value <span
+                                    class="text-danger">*</span></label>
+
+                            <!-- Input field with required attribute for numeric values -->
+                            <input type="number" class="form-control" id="currencie_value" name="currencie_value" required
+                                placeholder="Enter the currency value">
+
                             <!-- Error message for currency value -->
+                            <div id="currencie_value_error" class="text-danger"></div>
                         </div>
+
                         <button type="submit" id="saveCurrencyBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
                 </div>
@@ -204,7 +215,7 @@
                 var currencyNameValue = $('#currencie_name').val().trim();
                 var currencyValueValue = $('#currencie_value').val().trim();
                 $('#saveCurrencyBtn').attr('disabled', !(currencyNameValue &&
-                currencyValueValue)); // Enable button only if both fields have values
+                    currencyValueValue)); // Enable button only if both fields have values
             });
 
             // Edit Currency button click
@@ -217,7 +228,7 @@
                     $('#currencyModal').modal('show');
                     $('#saveCurrencyBtn').attr('disabled', false); // Enable Save button during edit
                     $('#currencie_name_error, #currencie_value_error').text(
-                    ''); // Clear error messages
+                        ''); // Clear error messages
                 });
             });
 
@@ -247,11 +258,11 @@
                             var errors = xhr.responseJSON.errors;
                             if (errors.currencie_name) {
                                 $('#currencie_name_error').text(errors.currencie_name[
-                                0]); // Display error for currency name
+                                    0]); // Display error for currency name
                             }
                             if (errors.currencie_value) {
                                 $('#currencie_value_error').text(errors.currencie_value[
-                                0]); // Display error for currency value
+                                    0]); // Display error for currency value
                             }
                         } else {
                             // General error message
@@ -328,13 +339,13 @@
                     const value = filters[key].value;
                     if (value) {
                         queryString +=
-                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                            `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
                     }
                 }
 
                 // Redirect the page with the updated filters in the query string
                 window.open('/export/currencies' + queryString.slice(0, -1),
-                '_blank'); // Update the URL to '/export/currencies'
+                    '_blank'); // Update the URL to '/export/currencies'
             });
 
         });

@@ -11,7 +11,7 @@
 @section('content')
     <!-- Add Brand Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addBrandBtn">Add Brand</a>
-        <button  id="apply-filter" class="btn btn-success">Export Result in  Excel</button>
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for Brands -->
     <table class="table table-bordered" id="brands-table">
         <thead>
@@ -62,11 +62,15 @@
                     <form id="brandForm">
                         @csrf
                         <input type="hidden" name="brand_id" id="brand-id">
-                        <div class="mb-3">
-                            <label for="brand_name" class="form-label">Brand Name</label>
+                        <div class="mb-3 position-relative">
+                            <label for="brand_name" class="form-label">Brand Name <span class="text-danger">*</span></label>
+
+                            <!-- Input field with required attribute -->
                             <input type="text" class="form-control" id="brand_name" name="brand_name" required
-                                maxlength="50">
-                            <div id="brand_name_error" class="text-danger"></div> <!-- Error message for brand name -->
+                                maxlength="50" placeholder="Enter your brand name">
+
+                            <!-- Error message for brand name -->
+                            <div id="brand_name_error" class="text-danger"></div>
                         </div>
                         <button type="submit" id="saveBrandBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
@@ -135,13 +139,30 @@
                         d.updated_by = $('#filter-updated-by').val();
                     }
                 },
-                columns: [
-                    { data: 'id', name: 'id' },
-                    { data: 'brand_name', name: 'brand_name' },
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'updated_at', name: 'updated_at' },
-                    { data: 'created_by', name: 'created_by' },
-                    { data: 'updated_by', name: 'updated_by' },
+                columns: [{
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'brand_name',
+                        name: 'brand_name'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'updated_at',
+                        name: 'updated_at'
+                    },
+                    {
+                        data: 'created_by',
+                        name: 'created_by'
+                    },
+                    {
+                        data: 'updated_by',
+                        name: 'updated_by'
+                    },
                     {
                         data: 'action',
                         name: 'action',
@@ -214,7 +235,8 @@
                     error: function(xhr) {
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             if (xhr.responseJSON.errors.brand_name) {
-                                $('#brand_name_error').text(xhr.responseJSON.errors.brand_name[0]);
+                                $('#brand_name_error').text(xhr.responseJSON.errors.brand_name[
+                                    0]);
                             }
                         }
                         $('#errorToastMessage').text('Error saving the brand.');
@@ -236,7 +258,9 @@
                 $.ajax({
                     type: 'DELETE',
                     url: `/brands/${id}`, // Correct URL for deleting brand
-                    data: { _token: "{{ csrf_token() }}" }, // Ensure CSRF token is included
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    }, // Ensure CSRF token is included
                     success: function(response) {
                         $('#deleteBrandModal').modal('hide');
                         $('#successToast').toast('show');
@@ -252,32 +276,54 @@
 
             const filterButton = document.getElementById('apply-filter');
 
-// Select all the filter input elements
-const filters = {
-    id: document.getElementById('filter-id'),
-    brand_name: document.getElementById('filter-brand-name'), // Updated to 'brand_name'
-    created_at: document.getElementById('filter-created-at'),
-    updated_at: document.getElementById('filter-updated-at'),
-    created_by: document.getElementById('filter-created-by'),
-    updated_by: document.getElementById('filter-updated-by'),
-};
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                brand_name: document.getElementById('filter-brand-name'), // Updated to 'brand_name'
+                created_at: document.getElementById('filter-created-at'),
+                updated_at: document.getElementById('filter-updated-at'),
+                created_by: document.getElementById('filter-created-by'),
+                updated_by: document.getElementById('filter-updated-by'),
+            };
 
-// Add event listener to the filter button
-filterButton.addEventListener('click', function() {
-    // Build the query string from the filter inputs
-    let queryString = '?';
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
 
-    for (let key in filters) {
-        const value = filters[key].value;
-        if (value) {
-            queryString += `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
-        }
-    }
+                for (let key in filters) {
+                    const value = filters[key].value;
+                    if (value) {
+                        queryString +=
+                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                    }
+                }
 
-    // Redirect the page with the updated filters in the query string
-    window.open('/export/brands' + queryString.slice(0, -1), '_blank'); // Update the URL to '/export/brands'
-});
+                // Redirect the page with the updated filters in the query string
+                window.open('/export/brands' + queryString.slice(0, -1),
+                '_blank'); // Update the URL to '/export/brands'
+            });
 
+            function validateBrandName() {
+                const brandNameInput = document.getElementById('brand_name');
+                const errorDiv = document.getElementById('brand_name_error');
+                const counterDiv = document.getElementById('brand_name_counter');
+                const maxLength = brandNameInput.maxLength;
+
+                // Update character counter
+                const currentLength = brandNameInput.value.length;
+                counterDiv.textContent = `${currentLength} / ${maxLength} characters`;
+
+                // Example validation: brand name must be at least 3 characters
+                if (currentLength < 3) {
+                    brandNameInput.classList.add('is-invalid');
+                    errorDiv.textContent = 'Brand name must be at least 3 characters.';
+                } else {
+                    brandNameInput.classList.remove('is-invalid');
+                    brandNameInput.classList.add('is-valid');
+                    errorDiv.textContent = ''; // Clear error message
+                }
+            }
         });
     </script>
 @stop

@@ -13,7 +13,7 @@
     <!-- Add Unit Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addUnitBtn">Add Unit</a>
 
-        <button  id="apply-filter" class="btn btn-success">Export Result in  Excel</button>
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
 
     <!-- DataTable for Units -->
     <table class="table table-bordered" id="units-table">
@@ -65,11 +65,15 @@
                     <form id="unitForm">
                         @csrf
                         <input type="hidden" name="unit_id" id="unit-id">
-                        <div class="mb-3">
-                            <label for="unit_name" class="form-label">Unit Name</label>
+                        <div class="mb-3 position-relative">
+                            <label for="unit_name" class="form-label">Unit Name <span class="text-danger">*</span></label>
+
+                            <!-- Input field with required attribute -->
                             <input type="text" class="form-control" id="unit_name" name="unit_name" required
-                                maxlength="50">
-                            <div id="unit_name_error" class="text-danger"></div> <!-- Error message for unit name -->
+                                maxlength="50" placeholder="Enter the unit name">
+
+                            <!-- Error message for unit name -->
+                            <div id="unit_name_error" class="text-danger"></div>
                         </div>
                         <button type="submit" id="saveUnitBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
@@ -298,34 +302,34 @@
                 });
             });
 
-             const filterButton = document.getElementById('apply-filter');
+            const filterButton = document.getElementById('apply-filter');
 
-    // Select all the filter input elements
-    const filters = {
-        id: document.getElementById('filter-id'),
-        unit_name: document.getElementById('filter-unit-name'),
-        created_at: document.getElementById('filter-created-at'),
-        updated_at: document.getElementById('filter-updated-at'),
-        created_by: document.getElementById('filter-created-by'),
-        updated_by: document.getElementById('filter-updated-by'),
-    };
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                unit_name: document.getElementById('filter-unit-name'),
+                created_at: document.getElementById('filter-created-at'),
+                updated_at: document.getElementById('filter-updated-at'),
+                created_by: document.getElementById('filter-created-by'),
+                updated_by: document.getElementById('filter-updated-by'),
+            };
 
-    // Add event listener to the filter button
-    filterButton.addEventListener('click', function() {
-        // Build the query string from the filter inputs
-        let queryString = '?';
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
 
-        for (let key in filters) {
-            const value = filters[key].value;
-            if (value) {
-                queryString += `${key}=${value}&`;
-            }
-        }
+                for (let key in filters) {
+                    const value = filters[key].value;
+                    if (value) {
+                        queryString += `${key}=${value}&`;
+                    }
+                }
 
-        // Redirect the page with the updated filters in the query string
+                // Redirect the page with the updated filters in the query string
 
-       window.open('/export/units' + queryString.slice(0, -1), '_blank');
-    });
+                window.open('/export/units' + queryString.slice(0, -1), '_blank');
+            });
         });
     </script>
 

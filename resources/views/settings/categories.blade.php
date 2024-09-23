@@ -12,7 +12,7 @@
 @section('content')
     <!-- Add Category Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addCategoryBtn">Add Category</a>
-        <button  id="apply-filter" class="btn btn-success">Export Result in  Excel</button>
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
 
     <!-- DataTable for Categories -->
     <table class="table table-bordered" id="categories-table">
@@ -64,11 +64,16 @@
                     <form id="categoryForm">
                         @csrf
                         <input type="hidden" name="categorie_id" id="categorie-id">
-                        <div class="mb-3">
-                            <label for="categorie_name" class="form-label">Category Name</label>
+                        <div class="mb-3 position-relative">
+                            <label for="categorie_name" class="form-label">Category Name <span
+                                    class="text-danger">*</span></label>
+
+                            <!-- Input field with required attribute -->
                             <input type="text" class="form-control" id="categorie_name" name="categorie_name" required
-                                maxlength="50">
-                            <div id="categorie_name_error" class="text-danger"></div> <!-- Error message for category name -->
+                                maxlength="50" placeholder="Enter the category name">
+
+                            <!-- Error message for category name -->
+                            <div id="categorie_name_error" class="text-danger"></div>
                         </div>
                         <button type="submit" id="saveCategoryBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
@@ -78,7 +83,8 @@
     </div>
 
     <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -221,7 +227,8 @@
                 e.preventDefault();
                 var formData = $(this).serialize();
                 var method = $('#categorie-id').val() ? 'PUT' : 'POST';
-                var url = method === 'POST' ? "{{ route('categories.store') }}" : '/categories/' + $('#categorie-id').val();
+                var url = method === 'POST' ? "{{ route('categories.store') }}" : '/categories/' + $(
+                    '#categorie-id').val();
 
                 $.ajax({
                     type: method,
@@ -232,22 +239,26 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             if (errors.categorie_name) {
-                                $('#categorie_name_error').text(errors.categorie_name[0]); // Display error for category name
+                                $('#categorie_name_error').text(errors.categorie_name[
+                                0]); // Display error for category name
                             }
                         } else {
                             // General error message
                             $('#categorie_name_error').text('An unexpected error occurred.');
 
                             // Show error toast with a general error message
-                            var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                            var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                            var errorToast = new bootstrap.Toast(document.getElementById(
+                                'errorToast'));
+                            var errorMessage = xhr.responseJSON?.message ||
+                                'An error occurred while processing your request.';
                             $('#errorToastMessage').text('Error: ' + errorMessage);
                             errorToast.show();
                         }
@@ -275,13 +286,16 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         // General error handling
-                        var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                        var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                        var errorToast = new bootstrap.Toast(document.getElementById(
+                            'errorToast'));
+                        var errorMessage = xhr.responseJSON?.message ||
+                            'An error occurred while processing your request.';
                         $('#errorToastMessage').text('Error: ' + errorMessage);
                         errorToast.show();
                     }
@@ -289,31 +303,33 @@
             });
             const filterButton = document.getElementById('apply-filter');
 
-// Select all the filter input elements
-const filters = {
-    id: document.getElementById('filter-id'),
-    categorie_name: document.getElementById('filter-categorie-name'), // Updated to 'categorie_name'
-    created_at: document.getElementById('filter-created-at'),
-    updated_at: document.getElementById('filter-updated-at'),
-    created_by: document.getElementById('filter-created-by'),
-    updated_by: document.getElementById('filter-updated-by'),
-};
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                categorie_name: document.getElementById('filter-categorie-name'), // Updated to 'categorie_name'
+                created_at: document.getElementById('filter-created-at'),
+                updated_at: document.getElementById('filter-updated-at'),
+                created_by: document.getElementById('filter-created-by'),
+                updated_by: document.getElementById('filter-updated-by'),
+            };
 
-// Add event listener to the filter button
-filterButton.addEventListener('click', function() {
-    // Build the query string from the filter inputs
-    let queryString = '?';
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
 
-    for (let key in filters) {
-        const value = filters[key].value;
-        if (value) {
-            queryString += `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
-        }
-    }
+                for (let key in filters) {
+                    const value = filters[key].value;
+                    if (value) {
+                        queryString +=
+                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                    }
+                }
 
-    // Redirect the page with the updated filters in the query string
-    window.open('/export/categories' + queryString.slice(0, -1), '_blank'); // Update the URL to '/export/categories'
-});
+                // Redirect the page with the updated filters in the query string
+                window.open('/export/categories' + queryString.slice(0, -1),
+                '_blank'); // Update the URL to '/export/categories'
+            });
         });
     </script>
 

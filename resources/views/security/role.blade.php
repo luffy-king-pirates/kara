@@ -64,11 +64,15 @@
                     <form id="roleForm">
                         @csrf
                         <input type="hidden" name="role_id" id="role-id">
-                        <div class="mb-3">
-                            <label for="role_name" class="form-label">Role Name</label>
+                        <div class="mb-3 position-relative">
+                            <label for="role_name" class="form-label">Role Name <span class="text-danger">*</span></label>
+
+                            <!-- Input field with required attribute -->
                             <input type="text" class="form-control" id="role_name" name="role_name" required
-                                maxlength="50">
-                            <div id="role_name_error" class="text-danger"></div> <!-- Error message for role name -->
+                                maxlength="50" placeholder="Enter the role name">
+
+                            <!-- Error message for role name -->
+                            <div id="role_name_error" class="text-danger"></div>
                         </div>
                         <button type="submit" id="saveRoleBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
@@ -217,7 +221,7 @@
                 var formData = $(this).serialize();
                 var method = $('#role-id').val() ? 'PUT' : 'POST';
                 var url = method === 'POST' ? "{{ route('roles.store') }}" : '/roles/' + $('#role-id')
-            .val();
+                    .val();
 
                 $.ajax({
                     type: method,
@@ -237,7 +241,7 @@
                             var errors = xhr.responseJSON.errors;
                             if (errors.role_name) {
                                 $('#role_name_error').text(errors.role_name[
-                                0]); // Display error for role name
+                                    0]); // Display error for role name
                             }
                         } else {
                             // General error message
@@ -309,13 +313,13 @@
                     const value = filters[key].value;
                     if (value) {
                         queryString +=
-                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                            `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
                     }
                 }
 
                 // Redirect the page with the updated filters in the query string (or perform AJAX request)
                 window.open('/export/roles' + queryString.slice(0, -1),
-                '_blank'); // Update the URL to your export route
+                    '_blank'); // Update the URL to your export route
             });
 
         });

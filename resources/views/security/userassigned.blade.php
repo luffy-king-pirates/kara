@@ -62,8 +62,8 @@
                         @csrf
                         <input type="hidden" name="unit_id" id="unit-id">
 
-                        <div class="mb-3">
-                            <label for="user_id" class="form-label">User</label>
+                        <div class="mb-3 position-relative">
+                            <label for="user_id" class="form-label">User <span class="text-danger">*</span></label>
                             <select class="form-control" id="user_id" name="user_id" required>
                                 <option value="">Select User</option>
                                 @foreach ($users as $user)
@@ -73,8 +73,8 @@
                             <div id="user_id_error" class="text-danger"></div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="role_id" class="form-label">Role</label>
+                        <div class="mb-3 position-relative">
+                            <label for="role_id" class="form-label">Role <span class="text-danger">*</span></label>
                             <select class="form-control" id="role_id" name="role_id" required>
                                 <option value="">Select Role</option>
                                 @foreach ($roles as $role)
@@ -153,12 +153,26 @@
                         d.updated_by = $('#filter-updated-by').val();
                     }
                 },
-                columns: [
-                    { data: 'id', name: 'id' },
-                    { data: 'user', name: 'user.name' },  // Assuming 'user' relation in your Unit model
-                    { data: 'role', name: 'role.role_name' },  // Assuming 'role' relation in your Unit model
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'updated_at', name: 'updated_at' },
+                columns: [{
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'user',
+                        name: 'user.name'
+                    }, // Assuming 'user' relation in your Unit model
+                    {
+                        data: 'role',
+                        name: 'role.role_name'
+                    }, // Assuming 'role' relation in your Unit model
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'updated_at',
+                        name: 'updated_at'
+                    },
                     {
                         data: 'action',
                         name: 'action',
@@ -195,7 +209,8 @@
                 var userIdValue = $('#user_id').val();
                 var roleIdValue = $('#role_id').val();
                 if (userIdValue && roleIdValue) {
-                    $('#saveUnitBtn').attr('disabled', false); // Enable button when both dropdowns have values
+                    $('#saveUnitBtn').attr('disabled',
+                    false); // Enable button when both dropdowns have values
                 } else {
                     $('#saveUnitBtn').attr('disabled', true); // Disable button if either is empty
                 }
@@ -220,7 +235,8 @@
                 e.preventDefault();
                 var formData = $(this).serialize();
                 var method = $('#unit-id').val() ? 'PUT' : 'POST';
-                var url = method === 'POST' ? "{{ route('assignedRoles.store') }}" : '/assignedRoles/' + $('#unit-id').val();
+                var url = method === 'POST' ? "{{ route('assignedRoles.store') }}" : '/assignedRoles/' + $(
+                    '#unit-id').val();
 
                 $.ajax({
                     type: method,
@@ -231,17 +247,20 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             if (errors.user_id) {
-                                $('#user_id_error').text(errors.user_id[0]); // Display error for user selection
+                                $('#user_id_error').text(errors.user_id[
+                                0]); // Display error for user selection
                             }
                             if (errors.role_id) {
-                                $('#role_id_error').text(errors.role_id[0]); // Display error for role selection
+                                $('#role_id_error').text(errors.role_id[
+                                0]); // Display error for role selection
                             }
                         } else {
                             $('#user_id_error').text('An unexpected error occurred.');
@@ -271,48 +290,53 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         // General error handling
-                        var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                        var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                        var errorToast = new bootstrap.Toast(document.getElementById(
+                            'errorToast'));
+                        var errorMessage = xhr.responseJSON?.message ||
+                            'An error occurred while processing your request.';
                         $('#errorToastMessage').text('Error: ' + errorMessage);
                         errorToast.show();
                     }
                 });
             });
 
-    // Select the submit button
-    const submitButton = document.getElementById('apply-filter'); // Replace with your actual button ID
+            // Select the submit button
+            const submitButton = document.getElementById('apply-filter'); // Replace with your actual button ID
 
-    // Select all the user and role input elements
-    const inputs = {
-        user_id: document.getElementById('user_id'),
-        role_id: document.getElementById('role_id'),
-    };
+            // Select all the user and role input elements
+            const inputs = {
+                user_id: document.getElementById('user_id'),
+                role_id: document.getElementById('role_id'),
+            };
 
-    // Add event listener to the submit button
-    submitButton.addEventListener('click', function() {
-        // Build the query string from the input values
-        let queryString = '?';
+            // Add event listener to the submit button
+            submitButton.addEventListener('click', function() {
+                // Build the query string from the input values
+                let queryString = '?';
 
-        for (let key in inputs) {
-            const value = inputs[key].value;
-            if (value) {
-                queryString += `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
-            } else {
-                // Display an error message if any input is empty
-                document.getElementById(`${key}_error`).innerText = `Please select a ${key.replace('_', ' ')}.`;
-            }
-        }
+                for (let key in inputs) {
+                    const value = inputs[key].value;
+                    if (value) {
+                        queryString +=
+                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                    } else {
+                        // Display an error message if any input is empty
+                        document.getElementById(`${key}_error`).innerText =
+                            `Please select a ${key.replace('_', ' ')}.`;
+                    }
+                }
 
 
-            // Redirect the page with the updated filters in the query string (or perform AJAX request)
-            window.open('/export/assignedRoles' , '_blank'); // Update the URL to your export route
+                // Redirect the page with the updated filters in the query string (or perform AJAX request)
+                window.open('/export/assignedRoles', '_blank'); // Update the URL to your export route
 
-    });
+            });
 
 
         });

@@ -11,7 +11,7 @@
 @section('content')
     <!-- Add Month Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addMonthBtn">Add Month</a>
-  <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for Months -->
     <table class="table table-bordered" id="months-table">
         <thead>
@@ -69,12 +69,15 @@
                     <form id="monthForm">
                         @csrf
                         <input type="hidden" name="month_id" id="month-id">
-                        <div class="mb-3">
-                            <label for="month_name" class="form-label">Month Name</label>
-                             <input type="text" class="form-control" id="month_name" name="month_name" required
-                                maxlength="50">
+                        <div class="mb-3 position-relative">
+                            <label for="month_name" class="form-label">Month Name <span class="text-danger">*</span></label>
 
-                            <div id="month_name_error" class="text-danger"></div> <!-- Error message for month name -->
+                            <!-- Input field with required attribute -->
+                            <input type="text" class="form-control" id="month_name" name="month_name" required
+                                maxlength="50" placeholder="Enter the month name">
+
+                            <!-- Error message for month name -->
+                            <div id="month_name_error" class="text-danger"></div>
                         </div>
                         <button type="submit" id="saveMonthBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
@@ -143,13 +146,30 @@
                         d.updated_by = $('#filter-updated-by').val();
                     }
                 },
-                columns: [
-                    { data: 'id', name: 'id' },
-                    { data: 'month_name', name: 'month_name' },
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'updated_at', name: 'updated_at' },
-                    { data: 'created_by', name: 'created_by' },
-                    { data: 'updated_by', name: 'updated_by' },
+                columns: [{
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'month_name',
+                        name: 'month_name'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'updated_at',
+                        name: 'updated_at'
+                    },
+                    {
+                        data: 'created_by',
+                        name: 'created_by'
+                    },
+                    {
+                        data: 'updated_by',
+                        name: 'updated_by'
+                    },
                     {
                         data: 'action',
                         name: 'action',
@@ -205,7 +225,8 @@
             $('#monthForm').submit(function(e) {
                 e.preventDefault();
                 var formData = $(this).serialize();
-                var url = $('#month-id').val() ? `/months/${$('#month-id').val()}` : "{{ route('months.store') }}";
+                var url = $('#month-id').val() ? `/months/${$('#month-id').val()}` :
+                    "{{ route('months.store') }}";
                 var method = $('#month-id').val() ? 'PUT' : 'POST';
 
                 $.ajax({
@@ -236,7 +257,9 @@
                 $('#confirmDeleteMonth').off().click(function() {
                     $.ajax({
                         url: `/months/${id}`,
-                         data: { _token: "{{ csrf_token() }}" }, // Ensure CSRF token is included
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        }, // Ensure CSRF token is included
                         type: 'DELETE',
                         success: function(response) {
                             $('#deleteMonthModal').modal('hide');
@@ -244,7 +267,8 @@
                             showSuccessToast('Month deleted successfully!');
                         },
                         error: function() {
-                            showErrorToast('An error occurred while deleting the month.');
+                            showErrorToast(
+                                'An error occurred while deleting the month.');
                         }
                     });
                 });
@@ -264,30 +288,32 @@
 
             const filterButton = document.getElementById('apply-filter');
 
-// Select all the filter input elements
-const filters = {
-    id: document.getElementById('filter-id'),
-    month_name: document.getElementById('filter-month-name'),
-    created_at: document.getElementById('filter-created-at'),
-    updated_at: document.getElementById('filter-updated-at'),
-    created_by: document.getElementById('filter-created-by'),
-};
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                month_name: document.getElementById('filter-month-name'),
+                created_at: document.getElementById('filter-created-at'),
+                updated_at: document.getElementById('filter-updated-at'),
+                created_by: document.getElementById('filter-created-by'),
+            };
 
-// Add event listener to the filter button
-filterButton.addEventListener('click', function() {
-    // Build the query string from the filter inputs
-    let queryString = '?';
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
 
-    for (let key in filters) {
-        const value = filters[key].value;
-        if (value) {
-            queryString += `${key}=${encodeURIComponent(value)}&`; // Encode value for URL safety
-        }
-    }
+                for (let key in filters) {
+                    const value = filters[key].value;
+                    if (value) {
+                        queryString +=
+                        `${key}=${encodeURIComponent(value)}&`; // Encode value for URL safety
+                    }
+                }
 
-    // Redirect the page with the updated filters in the query string
-    window.open('/export/months' + queryString.slice(0, -1), '_blank'); // Adjust URL for your endpoint
-});
+                // Redirect the page with the updated filters in the query string
+                window.open('/export/months' + queryString.slice(0, -1),
+                '_blank'); // Adjust URL for your endpoint
+            });
 
         });
     </script>

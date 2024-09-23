@@ -71,34 +71,38 @@
                     <form id="supplierForm">
                         @csrf
                         <input type="hidden" name="supplier_id" id="supplier-id">
-                        <div class="mb-3">
-                            <label for="supplier_name" class="form-label">Supplier Name</label>
+                        <div class="mb-3 position-relative">
+                            <label for="supplier_name" class="form-label">Supplier Name <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="supplier_name" name="supplier_name" required
-                                maxlength="50">
+                                maxlength="50" placeholder="Enter supplier name">
                             <div id="supplier_name_error" class="text-danger"></div>
-                            <!-- Error message for supplier name -->
                         </div>
-                        <div class="mb-3">
-                            <label for="supplier_location" class="form-label">Supplier Location</label>
+
+                        <div class="mb-3 position-relative">
+                            <label for="supplier_location" class="form-label">Supplier Location <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="supplier_location" name="supplier_location"
-                                required maxlength="50">
+                                required maxlength="50" placeholder="Enter supplier location">
                             <div id="supplier_location_error" class="text-danger"></div>
-                            <!-- Error message for supplier location -->
                         </div>
-                        <div class="mb-3">
-                            <label for="supplier_contact" class="form-label">Supplier Contact</label>
+
+                        <div class="mb-3 position-relative">
+                            <label for="supplier_contact" class="form-label">Supplier Contact <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="supplier_contact" name="supplier_contact"
-                                required maxlength="50">
+                                required maxlength="50" placeholder="Enter supplier contact">
                             <div id="supplier_contact_error" class="text-danger"></div>
-                            <!-- Error message for supplier contact -->
                         </div>
-                        <div class="mb-3">
-                            <label for="supplier_reference" class="form-label">Supplier Reference</label>
+
+                        <div class="mb-3 position-relative">
+                            <label for="supplier_reference" class="form-label">Supplier Reference <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="supplier_reference" name="supplier_reference"
-                                required maxlength="50">
+                                required maxlength="50" placeholder="Enter supplier reference">
                             <div id="supplier_reference_error" class="text-danger"></div>
-                            <!-- Error message for supplier reference -->
                         </div>
+
                         <button type="submit" id="saveSupplierBtn" class="btn btn-primary" disabled>Save
                             changes</button>
                     </form>
@@ -389,7 +393,7 @@
                     const value = filters[key].value;
                     if (value) {
                         queryString +=
-                        `${key}=${encodeURIComponent(value)}&`; // Encode value for URL safety
+                            `${key}=${encodeURIComponent(value)}&`; // Encode value for URL safety
                     }
                 }
 
@@ -398,7 +402,7 @@
 
                 // Redirect the page with the updated filters in the query string
                 window.open('/export/suppliers' + finalQueryString,
-                '_blank'); // Adjust URL for your export endpoint
+                    '_blank'); // Adjust URL for your export endpoint
             });
 
         });

@@ -53,41 +53,53 @@
 
                         <div class="row">
                             <div class="mb-3 col-md-6">
-                                <label for="name" class="form-label">User Name</label>
-                                <input type="text" class="form-control" id="name" name="name" required>
+                                <label for="name" class="form-label">User Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" required
+                                    placeholder="Enter your username">
+                                <div class="form-text">This will be your display name.</div>
                             </div>
                             <div class="mb-3 col-md-6">
-                                <label for="first_name" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                <label for="first_name" class="form-label">First Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required
+                                    placeholder="Enter your first name">
                             </div>
                             <div class="mb-3 col-md-6">
                                 <label for="middle_name" class="form-label">Middle Name</label>
-                                <input type="text" class="form-control" id="middle_name" name="middle_name">
+                                <input type="text" class="form-control" id="middle_name" name="middle_name"
+                                    placeholder="Optional">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="mb-3 col-md-6">
-                                <label for="last_name" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                <label for="last_name" class="form-label">Last Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required
+                                    placeholder="Enter your last name">
                             </div>
                             <div class="mb-3 col-md-6">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" required
+                                    placeholder="example@domain.com">
+                                <div class="form-text">We'll never share your email with anyone else.</div>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="mb-3 col-md-6">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
+                                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                    placeholder="Create a password">
+                                <div class="form-text">Must be at least 8 characters.</div>
                             </div>
                             <div class="mb-3 col-md-6">
-                                <label for="phone" class="form-label">Phone</label>
-                                <input type="text" class="form-control" id="phone" name="phone" required>
+                                <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="phone" name="phone" required
+                                    placeholder="Enter your phone number">
                             </div>
                         </div>
-
                         <div class="mb-3">
                             <label for="profile_picture" class="form-label">Profile Picture</label>
                             <input type="file" class="form-control" id="profile_picture" name="profile_picture"
@@ -362,13 +374,13 @@
                     const value = filters[key].value.trim(); // Get the trimmed value
                     if (value) {
                         queryString +=
-                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                            `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
                     }
                 }
 
                 // Redirect the page with the updated filters in the query string (or perform AJAX request)
                 window.open('/export/users' + queryString.slice(0, -1),
-                '_blank'); // Update the URL to your export route
+                    '_blank'); // Update the URL to your export route
             });
 
         });
