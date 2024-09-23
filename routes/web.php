@@ -49,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/customers', [App\Http\Controllers\CustomersController::class, 'export'])->name('customers.export');
         Route::get('/months', [App\Http\Controllers\MonthsController::class, 'export'])->name('months.export');
         Route::get('/roles', [App\Http\Controllers\RoleController::class, 'export'])->name('roles.export');
+        Route::get('/suppliers', [App\Http\Controllers\SuppliersController::class, 'export'])->name('suppliers.export');
 
 
     });
