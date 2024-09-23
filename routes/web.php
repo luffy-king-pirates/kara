@@ -48,6 +48,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/currencies', [App\Http\Controllers\CurrenciesController::class, 'export'])->name('currencies.export');
         Route::get('/customers', [App\Http\Controllers\CustomersController::class, 'export'])->name('customers.export');
         Route::get('/months', [App\Http\Controllers\MonthsController::class, 'export'])->name('months.export');
+        Route::get('/roles', [App\Http\Controllers\RoleController::class, 'export'])->name('roles.export');
+
 
     });
     Route::resource('units', UnitsController::class);
