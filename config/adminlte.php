@@ -138,7 +138,7 @@ return [
     'usermenu_header' => false,
     'usermenu_header_class' => 'bg-primary',
    'usermenu_image' => 'path/to/default/image.png',
-    
+
     'usermenu_desc' => true,
     'usermenu_profile_url' => false,
 
@@ -391,7 +391,7 @@ return [
 
                 ],
                 [
-                    'icon' => 'fas fa-fw fa-user-shield',
+                    'icon' => 'fas fa-fw fa-user-check',
                     'text' => 'Assigned Role',
                     'url' => 'assignedRoles',
 
