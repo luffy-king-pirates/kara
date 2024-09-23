@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\MonthsExport; // Update the export class
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class MonthsController extends Controller
 {
     // Show the Months view
@@ -110,27 +111,86 @@ class MonthsController extends Controller
     // Export months data to Excel
     public function export(Request $request)
     {
-        $monthsQuery = Month::with(['createdByUser:id,name', 'updatedByUser:id,name']); // Update to your actual model
+        // Query and apply filters manually using conditional where clauses
+        $months = Month::query()
+            ->with(['createdByUser', 'updatedByUser']) // Eager load relationships
+            ->when($request->search['value'] ?? null, function ($query, $searchValue) {
+                return $query->where(function($q) use ($searchValue) {
+                    $q->where('month_name', 'like', "%$searchValue%")
+                      ->orWhereHas('createdByUser', function($q) use ($searchValue) {
+                          $q->where('name', 'like', "%$searchValue%");
+                      })
+                      ->orWhereHas('updatedByUser', function($q) use ($searchValue) {
+                          $q->where('name', 'like', "%$searchValue%");
+                      });
+                });
+            })
+            ->when($request->month_name, function ($query, $month_name) {
+                return $query->where('month_name', 'like', '%' . $month_name . '%');
+            })
+            ->when($request->created_at, function ($query, $created_at) {
+                return $query->whereDate('created_at', $created_at);
+            })
+            ->when($request->updated_at, function ($query, $updated_at) {
+                return $query->whereDate('updated_at', $updated_at);
+            })
+            ->when($request->created_by, function ($query, $created_by) {
+                return $query->where('created_by', $created_by);
+            })
+            ->when($request->updated_by, function ($query, $updated_by) {
+                return $query->where('updated_by', $updated_by);
+            })
+            ->get();
 
-        if ($request->has('month_name') && $request->month_name != '') {
-            $monthsQuery->where('month_name', 'like', "%" . $request->month_name . "%");
-        }
-        if ($request->has('created_by') && $request->created_by != '') {
-            $monthsQuery->where('created_by', $request->created_by);
-        }
-        if ($request->has('updated_by') && $request->updated_by != '') {
-            $monthsQuery->where('updated_by', $request->updated_by);
-        }
-        if ($request->has('created_at') && $request->created_at != '') {
-            $monthsQuery->whereDate('created_at', $request->created_at);
-        }
-        if ($request->has('updated_at') && $request->updated_at != '') {
-            $monthsQuery->whereDate('updated_at', $request->updated_at);
+        // Check if no results found
+        if ($months->isEmpty()) {
+            return response()->streamDownload(function() {
+                echo "No data available for export.";
+            }, 'months.xlsx', [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Cache-Control' => 'max-age=0',
+                'Content-Disposition' => 'attachment; filename="months.xlsx"',
+            ]);
         }
 
-        $months = $monthsQuery->get();
-        return Excel::download(new MonthsExport($months), 'months.xlsx'); // Update the export class
+        // Create a new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers for the Excel columns
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Month Name');
+        $sheet->setCellValue('C1', 'Created At');
+        $sheet->setCellValue('D1', 'Updated At');
+        $sheet->setCellValue('E1', 'Created By');
+        $sheet->setCellValue('F1', 'Updated By');
+
+        // Insert data from the filtered months model
+        $row = 2; // Starting from row 2 as row 1 has headers
+        foreach ($months as $month) {
+            $sheet->setCellValue('A' . $row, $month->id);
+            $sheet->setCellValue('B' . $row, $month->month_name);
+            $sheet->setCellValue('C' . $row, $month->created_at ? Carbon::parse($month->created_at)->format('M d, Y h:i A') : 'N/A');
+            $sheet->setCellValue('D' . $row, $month->updated_at ? Carbon::parse($month->updated_at)->format('M d, Y h:i A') : 'Not updated');
+            $sheet->setCellValue('E' . $row, $month->createdByUser ? $month->createdByUser->name : 'Unknown');
+            $sheet->setCellValue('F' . $row, $month->updatedByUser ? $month->updatedByUser->name : 'Not updated');
+            $row++;
+        }
+
+        // Write the spreadsheet to a file (in memory)
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'months_' . now()->format('Y-m-d') . '.xlsx'; // Custom file name
+
+        // Prepare the response for download
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
     }
+
 
     // Edit month (fetch details)
     public function edit($id)

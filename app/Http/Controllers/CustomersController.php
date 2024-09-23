@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CustomersExport; // Your export class for customers
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class CustomersController extends Controller
 {
     // Show the Customers view
@@ -147,9 +148,61 @@ public function update(Request $request, $id)
     // Export customers data to Excel
     public function export(Request $request)
     {
-        return Excel::download(new CustomersExport, 'customers.xlsx');
-    }
+        // Query and apply filters manually using conditional where clauses for currencies
+        $currencies = Customers::all()
+            ;
 
+        // Check if no results found
+        if ($currencies->isEmpty()) {
+            return response()->streamDownload(function() {
+                echo "No data available for export.";
+            }, 'currencies.xlsx', [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Cache-Control' => 'max-age=0',
+                'Content-Disposition' => 'attachment; filename="currencies.xlsx"',
+            ]);
+        }
+
+        // Create a new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers for the Excel columns
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Currency Name');
+        $sheet->setCellValue('C1', 'Currency Value');
+        $sheet->setCellValue('D1', 'Created At');
+        $sheet->setCellValue('E1', 'Updated At');
+        $sheet->setCellValue('F1', 'Created By');
+        $sheet->setCellValue('G1', 'Updated By');
+
+        // Insert data from the filtered currencies model
+        $row = 2; // Starting from row 2 as row 1 has headers
+        foreach ($currencies as $currency) {
+            $sheet->setCellValue('A' . $row, $currency->id);
+            $sheet->setCellValue('B' . $row, $currency->currencie_name);
+            $sheet->setCellValue('C' . $row, $currency->currencie_value);
+            $sheet->setCellValue('D' . $row, $currency->created_at ? Carbon::parse($currency->created_at)->format('M d, Y h:i A') : 'N/A');
+            $sheet->setCellValue('E' . $row, $currency->updated_at ? Carbon::parse($currency->updated_at)->format('M d, Y h:i A') : 'Not updated');
+            $sheet->setCellValue('F' . $row, $currency->createdByUser ? $currency->createdByUser->name : 'Unknown');
+            $sheet->setCellValue('G' . $row, $currency->updatedByUser ? $currency->updatedByUser->name : 'Not updated');
+
+            $row++;
+        }
+
+        // Write the spreadsheet to a file (in memory)
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'customers_' . now()->format('Y-m-d') . '.xlsx'; // Custom file name
+
+        // Prepare the response for download
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
+    }
     // Edit customer (fetch details)
     public function edit($id)
     {
