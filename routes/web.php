@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/months', [App\Http\Controllers\MonthsController::class, 'export'])->name('months.export');
         Route::get('/roles', [App\Http\Controllers\RoleController::class, 'export'])->name('roles.export');
         Route::get('/suppliers', [App\Http\Controllers\SuppliersController::class, 'export'])->name('suppliers.export');
+        Route::get('/assignedRoles', [App\Http\Controllers\UserAssignRoleController::class, 'export'])->name('assignedRoles.export');
 
 
     });

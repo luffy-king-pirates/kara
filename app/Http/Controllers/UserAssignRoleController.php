@@ -8,7 +8,8 @@ use App\Models\UserAssignRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class UserAssignRoleController extends Controller
 {
     // Show the User Assign Role view
@@ -89,4 +90,61 @@ class UserAssignRoleController extends Controller
 
         return response()->json(['success' => true]);
     }
+    public function export(Request $request)
+    {
+        // Start building the query for UserAssignRole model
+        $query = UserAssignRole::query()
+            ->with(['user:id,name', 'role:id,role_name']); // Eager load relationships for user and role
+
+        // Check if the search parameter is present
+        if ($request->has('search') && $request->search['value'] != '') {
+            $searchValue = $request->search['value'];
+            $query->where(function ($q) use ($searchValue) {
+                // Filter by user's name
+                $q->whereHas('user', function ($q) use ($searchValue) {
+                    $q->where('name', 'like', "%$searchValue%");
+                })
+                // Filter by role's name
+                ->orWhereHas('role', function ($q) use ($searchValue) {
+                    $q->where('role_name', 'like', "%$searchValue%");
+                });
+            });
+        }
+
+        // Execute the query and get the results
+        $results = $query->get();
+
+        // Create a new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers for the Excel columns
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'User Name');
+        $sheet->setCellValue('C1', 'Role');
+
+        // Insert data from the filtered results
+        $row = 2; // Starting from row 2 as row 1 has headers
+        foreach ($results as $item) {
+            $sheet->setCellValue('A' . $row, $item->id);
+            $sheet->setCellValue('B' . $row, $item->user ? $item->user->name : 'N/A');
+            $sheet->setCellValue('C' . $row, $item->role ? $item->role->role_name : 'N/A');
+            $row++;
+        }
+
+        // Write the spreadsheet to a file (in memory)
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'user_assigned_role.xlsx';
+
+        // Prepare the response for download
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+            'Content-Disposition' => 'attachment; filename="exported_data.xlsx"',
+        ]);
+    }
+
+
 }
