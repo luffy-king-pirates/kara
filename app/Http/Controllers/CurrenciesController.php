@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CurrenciesExport;
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class CurrenciesController extends Controller
 {
     // Show the Currencies view
@@ -117,27 +118,92 @@ class CurrenciesController extends Controller
     // Export currencies data to Excel
     public function export(Request $request)
     {
-        $currenciesQuery = Currency::with(['createdByUser:id,name', 'updatedByUser:id,name']);
+        // Query and apply filters manually using conditional where clauses for currencies
+        $currencies = Currency::query()
+            ->with(['createdByUser', 'updatedByUser']) // Eager load relationships for created/updated users
+            ->when($request->currencie_name, function ($query, $currencie_name) {
+                return $query->where('currencie_name', 'like', '%' . $currencie_name . '%');
+            })
+            ->when($request->currencie_value, function ($query, $currencie_value) {
+                return $query->where('currencie_value', $currencie_value);
+            })
+            ->when($request->created_at, function ($query, $created_at) {
+                return $query->whereDate('created_at', $created_at);
+            })
+            ->when($request->updated_at, function ($query, $updated_at) {
+                return $query->whereDate('updated_at', $updated_at);
+            })
+            ->when($request->created_by, function ($query, $created_by) {
+                return $query->where('created_by', $created_by);
+            })
+            ->when($request->updated_by, function ($query, $updated_by) {
+                return $query->where('updated_by', $updated_by);
+            })
+            ->when($request->search['value'] ?? null, function ($query, $searchValue) {
+                return $query->where(function($q) use ($searchValue) {
+                    $q->where('currencie_name', 'like', "%$searchValue%")
+                      ->orWhereHas('createdByUser', function($q) use ($searchValue) {
+                          $q->where('name', 'like', "%$searchValue%");
+                      })
+                      ->orWhereHas('updatedByUser', function($q) use ($searchValue) {
+                          $q->where('name', 'like', "%$searchValue%");
+                      });
+                });
+            })
+            ->get();
 
-        if ($request->has('currencie_name') && $request->currencie_name != '') {
-            $currenciesQuery->where('currencie_name', 'like', "%" . $request->currencie_name . "%");
-        }
-        if ($request->has('created_by') && $request->created_by != '') {
-            $currenciesQuery->where('created_by', $request->created_by);
-        }
-        if ($request->has('updated_by') && $request->updated_by != '') {
-            $currenciesQuery->where('updated_by', $request->updated_by);
-        }
-        if ($request->has('created_at') && $request->created_at != '') {
-            $currenciesQuery->whereDate('created_at', $request->created_at);
-        }
-        if ($request->has('updated_at') && $request->updated_at != '') {
-            $currenciesQuery->whereDate('updated_at', $request->updated_at);
+        // Check if no results found
+        if ($currencies->isEmpty()) {
+            return response()->streamDownload(function() {
+                echo "No data available for export.";
+            }, 'currencies.xlsx', [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Cache-Control' => 'max-age=0',
+                'Content-Disposition' => 'attachment; filename="currencies.xlsx"',
+            ]);
         }
 
-        $currencies = $currenciesQuery->get();
-        return Excel::download(new CurrenciesExport($currencies), 'currencies.xlsx');
+        // Create a new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers for the Excel columns
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Currency Name');
+        $sheet->setCellValue('C1', 'Currency Value');
+        $sheet->setCellValue('D1', 'Created At');
+        $sheet->setCellValue('E1', 'Updated At');
+        $sheet->setCellValue('F1', 'Created By');
+        $sheet->setCellValue('G1', 'Updated By');
+
+        // Insert data from the filtered currencies model
+        $row = 2; // Starting from row 2 as row 1 has headers
+        foreach ($currencies as $currency) {
+            $sheet->setCellValue('A' . $row, $currency->id);
+            $sheet->setCellValue('B' . $row, $currency->currencie_name);
+            $sheet->setCellValue('C' . $row, $currency->currencie_value);
+            $sheet->setCellValue('D' . $row, $currency->created_at ? Carbon::parse($currency->created_at)->format('M d, Y h:i A') : 'N/A');
+            $sheet->setCellValue('E' . $row, $currency->updated_at ? Carbon::parse($currency->updated_at)->format('M d, Y h:i A') : 'Not updated');
+            $sheet->setCellValue('F' . $row, $currency->createdByUser ? $currency->createdByUser->name : 'Unknown');
+            $sheet->setCellValue('G' . $row, $currency->updatedByUser ? $currency->updatedByUser->name : 'Not updated');
+
+            $row++;
+        }
+
+        // Write the spreadsheet to a file (in memory)
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'currencies_' . now()->format('Y-m-d') . '.xlsx'; // Custom file name
+
+        // Prepare the response for download
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
     }
+
 
     // Edit currency (fetch details)
     public function edit($id)
