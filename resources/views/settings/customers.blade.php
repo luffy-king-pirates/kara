@@ -12,7 +12,7 @@
 @section('content')
     <!-- Add Customer Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addCustomerBtn">Add Customer</a>
-
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for Customers -->
     <table class="table table-bordered" id="customers-table">
         <thead>
@@ -344,6 +344,12 @@
                 $('#errorToastMessage').text(message);
                 $('#errorToast').toast('show');
             }
+               const filterButton = document.getElementById('apply-filter');
+                   filterButton.addEventListener('click', function() {
+                       window.open('/export/customers' ,
+                '_blank');
+                   })
+
         });
     </script>
 @stop

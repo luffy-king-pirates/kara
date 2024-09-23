@@ -12,6 +12,7 @@
 @section('content')
     <!-- Add Currency Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addCurrencyBtn">Add Currency</a>
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
 
     <!-- DataTable for Currencies -->
     <table class="table table-bordered" id="currencies-table">
@@ -29,7 +30,8 @@
             <tr>
                 <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
                 <th><input type="text" id="filter-currencie-name" class="form-control" placeholder="Currency Name"></th>
-                <th><input type="number" id="filter-currencie-value" class="form-control" placeholder="Currency Value"></th>
+                <th><input type="number" id="filter-currencie-value" class="form-control" placeholder="Currency Value">
+                </th>
                 <th><input type="date" id="filter-created-at" class="form-control"></th>
                 <th><input type="date" id="filter-updated-at" class="form-control"></th>
                 <th>
@@ -67,13 +69,16 @@
                         <input type="hidden" name="currency_id" id="currency-id">
                         <div class="mb-3">
                             <label for="currencie_name" class="form-label">Currency Name</label>
-                            <input type="text" class="form-control" id="currencie_name" name="currencie_name" required maxlength="50">
-                            <div id="currencie_name_error" class="text-danger"></div> <!-- Error message for currency name -->
+                            <input type="text" class="form-control" id="currencie_name" name="currencie_name" required
+                                maxlength="50">
+                            <div id="currencie_name_error" class="text-danger"></div>
+                            <!-- Error message for currency name -->
                         </div>
                         <div class="mb-3">
                             <label for="currencie_value" class="form-label">Currency Value</label>
                             <input type="number" class="form-control" id="currencie_value" name="currencie_value" required>
-                            <div id="currencie_value_error" class="text-danger"></div> <!-- Error message for currency value -->
+                            <div id="currencie_value_error" class="text-danger"></div>
+                            <!-- Error message for currency value -->
                         </div>
                         <button type="submit" id="saveCurrencyBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
@@ -83,7 +88,8 @@
     </div>
 
     <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteCurrencyModal" tabindex="-1" aria-labelledby="deleteCurrencyModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteCurrencyModal" tabindex="-1" aria-labelledby="deleteCurrencyModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -103,17 +109,21 @@
 
     <!-- Toasts for Success/Error Messages -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">Currency saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
 
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
     </div>
@@ -139,14 +149,27 @@
                         d.updated_by = $('#filter-updated-by').val();
                     }
                 },
-                columns: [
-                    { data: 'id' },
-                    { data: 'currencie_name' },
-                    { data: 'currencie_value' },
-                    { data: 'created_at' },
-                    { data: 'updated_at' },
-                    { data: 'created_by' },
-                    { data: 'updated_by' },
+                columns: [{
+                        data: 'id'
+                    },
+                    {
+                        data: 'currencie_name'
+                    },
+                    {
+                        data: 'currencie_value'
+                    },
+                    {
+                        data: 'created_at'
+                    },
+                    {
+                        data: 'updated_at'
+                    },
+                    {
+                        data: 'created_by'
+                    },
+                    {
+                        data: 'updated_by'
+                    },
                     {
                         data: 'action',
                         orderable: false,
@@ -180,7 +203,8 @@
             $('#currencie_name, #currencie_value').on('input', function() {
                 var currencyNameValue = $('#currencie_name').val().trim();
                 var currencyValueValue = $('#currencie_value').val().trim();
-                $('#saveCurrencyBtn').attr('disabled', !(currencyNameValue && currencyValueValue)); // Enable button only if both fields have values
+                $('#saveCurrencyBtn').attr('disabled', !(currencyNameValue &&
+                currencyValueValue)); // Enable button only if both fields have values
             });
 
             // Edit Currency button click
@@ -192,7 +216,8 @@
                     $('#currencie_value').val(data.currencie_value);
                     $('#currencyModal').modal('show');
                     $('#saveCurrencyBtn').attr('disabled', false); // Enable Save button during edit
-                    $('#currencie_name_error, #currencie_value_error').text(''); // Clear error messages
+                    $('#currencie_name_error, #currencie_value_error').text(
+                    ''); // Clear error messages
                 });
             });
 
@@ -201,7 +226,8 @@
                 e.preventDefault();
                 var formData = $(this).serialize();
                 var method = $('#currency-id').val() ? 'PUT' : 'POST';
-                var url = method === 'POST' ? "{{ route('currencies.store') }}" : '/currencies/' + $('#currency-id').val();
+                var url = method === 'POST' ? "{{ route('currencies.store') }}" : '/currencies/' + $(
+                    '#currency-id').val();
 
                 $.ajax({
                     type: method,
@@ -212,25 +238,31 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             if (errors.currencie_name) {
-                                $('#currencie_name_error').text(errors.currencie_name[0]); // Display error for currency name
+                                $('#currencie_name_error').text(errors.currencie_name[
+                                0]); // Display error for currency name
                             }
                             if (errors.currencie_value) {
-                                $('#currencie_value_error').text(errors.currencie_value[0]); // Display error for currency value
+                                $('#currencie_value_error').text(errors.currencie_value[
+                                0]); // Display error for currency value
                             }
                         } else {
                             // General error message
-                            $('#currencie_name_error, #currencie_value_error').text('An unexpected error occurred.');
+                            $('#currencie_name_error, #currencie_value_error').text(
+                                'An unexpected error occurred.');
 
                             // Show error toast with a general error message
-                            var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                            var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                            var errorToast = new bootstrap.Toast(document.getElementById(
+                                'errorToast'));
+                            var errorMessage = xhr.responseJSON?.message ||
+                                'An error occurred while processing your request.';
                             $('#errorToastMessage').text('Error: ' + errorMessage);
                             errorToast.show();
                         }
@@ -258,18 +290,53 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         // General error handling
-                        var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                        var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                        var errorToast = new bootstrap.Toast(document.getElementById(
+                            'errorToast'));
+                        var errorMessage = xhr.responseJSON?.message ||
+                            'An error occurred while processing your request.';
                         $('#errorToastMessage').text('Error: ' + errorMessage);
                         errorToast.show();
                     }
                 });
             });
+
+            const filterButton = document.getElementById('apply-filter');
+
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                currencie_name: document.getElementById('filter-currencie-name'), // Currency Name field
+                currencie_value: document.getElementById('filter-currencie-value'), // Currency Value field
+                created_at: document.getElementById('filter-created-at'),
+                updated_at: document.getElementById('filter-updated-at'),
+                created_by: document.getElementById('filter-created-by'),
+                updated_by: document.getElementById('filter-updated-by'),
+            };
+
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
+
+                for (let key in filters) {
+                    const value = filters[key].value;
+                    if (value) {
+                        queryString +=
+                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                    }
+                }
+
+                // Redirect the page with the updated filters in the query string
+                window.open('/export/currencies' + queryString.slice(0, -1),
+                '_blank'); // Update the URL to '/export/currencies'
+            });
+
         });
     </script>
 @stop

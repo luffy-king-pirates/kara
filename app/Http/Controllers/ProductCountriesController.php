@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CountriesExport;  // Update the export class if you have one
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class ProductCountriesController extends Controller
 {
     // Show the Countries view
@@ -108,29 +109,93 @@ class ProductCountriesController extends Controller
     }
 
     // Export countries data to Excel
-    public function export(Request $request)
-    {
-        $countriesQuery = Countries::with(['createdByUser:id,name', 'updatedByUser:id,name']);  // Update the model
+   // Export countries data to Excel
+public function export(Request $request)
+{
+    // Query and apply filters manually using conditional where clauses
+    $countries = Countries::query()
+        ->with(['createdByUser', 'updatedByUser']) // Eager load relationships
+        ->when($request->id, function ($query, $id) {
+            return $query->where('id', $id);
+        })
+        ->when($request->country_name, function ($query, $country_name) {
+            return $query->where('country_name', 'like', '%' . $country_name . '%');
+        })
+        ->when($request->created_at, function ($query, $created_at) {
+            return $query->whereDate('created_at', $created_at);
+        })
+        ->when($request->updated_at, function ($query, $updated_at) {
+            return $query->whereDate('updated_at', $updated_at);
+        })
+        ->when($request->created_by, function ($query, $created_by) {
+            return $query->where('created_by', $created_by);
+        })
+        ->when($request->updated_by, function ($query, $updated_by) {
+            return $query->where('updated_by', $updated_by);
+        })
+        ->when($request->search['value'] ?? null, function ($query, $searchValue) {
+            return $query->where(function($q) use ($searchValue) {
+                $q->where('country_name', 'like', "%$searchValue%")
+                  ->orWhereHas('createdByUser', function($q) use ($searchValue) {
+                      $q->where('name', 'like', "%$searchValue%");
+                  })
+                  ->orWhereHas('updatedByUser', function($q) use ($searchValue) {
+                      $q->where('name', 'like', "%$searchValue%");
+                  });
+            });
+        })
+        ->get();
 
-        if ($request->has('country_name') && $request->country_name != '') {  // Update field name
-            $countriesQuery->where('country_name', 'like', "%" . $request->country_name . "%");
-        }
-        if ($request->has('created_by') && $request->created_by != '') {
-            $countriesQuery->where('created_by', $request->created_by);
-        }
-        if ($request->has('updated_by') && $request->updated_by != '') {
-            $countriesQuery->where('updated_by', $request->updated_by);
-        }
-        if ($request->has('created_at') && $request->created_at != '') {
-            $countriesQuery->whereDate('created_at', $request->created_at);
-        }
-        if ($request->has('updated_at') && $request->updated_at != '') {
-            $countriesQuery->whereDate('updated_at', $request->updated_at);
-        }
-
-        $countries = $countriesQuery->get();
-        return Excel::download(new CountriesExport($countries), 'countries.xlsx');  // Update export file if needed
+    // Check if no results found
+    if ($countries->isEmpty()) {
+        return response()->streamDownload(function() {
+            echo "No data available for export.";
+        }, 'countries.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+            'Content-Disposition' => 'attachment; filename="countries.xlsx"',
+        ]);
     }
+
+    // Create a new Spreadsheet
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Set headers for the Excel columns
+    $sheet->setCellValue('A1', 'ID');
+    $sheet->setCellValue('B1', 'Country Name');
+    $sheet->setCellValue('C1', 'Created At');
+    $sheet->setCellValue('D1', 'Updated At');
+    $sheet->setCellValue('E1', 'Created By');
+    $sheet->setCellValue('F1', 'Updated By');
+
+    // Insert data from the filtered countries model
+    $row = 2; // Starting from row 2 as row 1 has headers
+    foreach ($countries as $country) {
+        $sheet->setCellValue('A' . $row, $country->id);
+        $sheet->setCellValue('B' . $row, $country->country_name);
+        $sheet->setCellValue('C' . $row, $country->created_at ? Carbon::parse($country->created_at)->format('M d, Y h:i A') : 'N/A');
+        $sheet->setCellValue('D' . $row, $country->updated_at ? Carbon::parse($country->updated_at)->format('M d, Y h:i A') : 'Not updated');
+        $sheet->setCellValue('E' . $row, $country->createdByUser ? $country->createdByUser->name : 'Unknown');
+        $sheet->setCellValue('F' . $row, $country->updatedByUser ? $country->updatedByUser->name : 'Not updated');
+
+        $row++;
+    }
+
+    // Write the spreadsheet to a file (in memory)
+    $writer = new Xlsx($spreadsheet);
+    $fileName = 'countries_' . now()->format('Y-m-d') . '.xlsx'; // Custom file name
+
+    // Prepare the response for download
+    return response()->streamDownload(function() use ($writer) {
+        $writer->save('php://output');
+    }, $fileName, [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Cache-Control' => 'max-age=0',
+        'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+    ]);
+}
+
 
     // Edit country (fetch details)
     public function edit($id)

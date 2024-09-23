@@ -12,6 +12,7 @@
 @section('content')
     <!-- Add Year Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addYearBtn">Add Year</a>
+      <button  id="apply-filter" class="btn btn-success">Export Result in  Excel</button>
 
     <!-- DataTable for Years -->
     <table class="table table-bordered" id="years-table">
@@ -257,6 +258,38 @@
                     }
                 });
             });
+
+               const filterButton = document.getElementById('apply-filter');
+
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                year_name: document.getElementById(
+                'filter-year-name'), // Updated from 'unit_name' to 'year_name'
+                created_at: document.getElementById('filter-created-at'),
+                updated_at: document.getElementById('filter-updated-at'),
+                created_by: document.getElementById('filter-created-by'),
+                updated_by: document.getElementById('filter-updated-by'),
+            };
+
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
+
+                for (let key in filters) {
+                    const value = filters[key].value;
+                    if (value) {
+                        queryString +=
+                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                    }
+                }
+
+                // Redirect the page with the updated filters in the query string
+                window.open('/export/years' + queryString.slice(0, -1),
+                '_blank'); // Update the URL to '/export/years'
+            });
+
         });
     </script>
 @stop

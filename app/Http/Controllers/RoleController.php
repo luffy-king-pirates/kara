@@ -10,7 +10,8 @@ use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\RolesExport; // Ensure this export class exists
 use Illuminate\Support\Facades\Log;
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class RoleController extends Controller
 {
     // Show the Roles view
@@ -112,27 +113,86 @@ class RoleController extends Controller
     // Export roles data to Excel
     public function export(Request $request)
     {
-        $rolesQuery = Role::with(['createdByUser:id,name', 'updatedByUser:id,name']);
+        // Query and apply filters manually using conditional where clauses
+        $roles = Role::query()
+            ->with(['createdByUser', 'updatedByUser']) // Eager load relationships
+            ->when($request->search['value'] ?? null, function ($query, $searchValue) {
+                return $query->where(function($q) use ($searchValue) {
+                    $q->where('role_name', 'like', "%$searchValue%")
+                      ->orWhereHas('createdByUser', function($q) use ($searchValue) {
+                          $q->where('name', 'like', "%$searchValue%");
+                      })
+                      ->orWhereHas('updatedByUser', function($q) use ($searchValue) {
+                          $q->where('name', 'like', "%$searchValue%");
+                      });
+                });
+            })
+            ->when($request->role_name, function ($query, $role_name) {
+                return $query->where('role_name', 'like', '%' . $role_name . '%');
+            })
+            ->when($request->created_at, function ($query, $created_at) {
+                return $query->whereDate('created_at', $created_at);
+            })
+            ->when($request->updated_at, function ($query, $updated_at) {
+                return $query->whereDate('updated_at', $updated_at);
+            })
+            ->when($request->created_by, function ($query, $created_by) {
+                return $query->where('created_by', $created_by);
+            })
+            ->when($request->updated_by, function ($query, $updated_by) {
+                return $query->where('updated_by', $updated_by);
+            })
+            ->get();
 
-        if ($request->has('role_name') && $request->role_name != '') {
-            $rolesQuery->where('role_name', 'like', "%" . $request->role_name . "%");
-        }
-        if ($request->has('created_by') && $request->created_by != '') {
-            $rolesQuery->where('created_by', $request->created_by);
-        }
-        if ($request->has('updated_by') && $request->updated_by != '') {
-            $rolesQuery->where('updated_by', $request->updated_by);
-        }
-        if ($request->has('created_at') && $request->created_at != '') {
-            $rolesQuery->whereDate('created_at', $request->created_at);
-        }
-        if ($request->has('updated_at') && $request->updated_at != '') {
-            $rolesQuery->whereDate('updated_at', $request->updated_at);
+        // Check if no results found
+        if ($roles->isEmpty()) {
+            return response()->streamDownload(function() {
+                echo "No data available for export.";
+            }, 'roles.xlsx', [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Cache-Control' => 'max-age=0',
+                'Content-Disposition' => 'attachment; filename="roles.xlsx"',
+            ]);
         }
 
-        $roles = $rolesQuery->get();
-        return Excel::download(new RolesExport($roles), 'roles.xlsx'); // Ensure this export class exists
+        // Create a new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers for the Excel columns
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Role Name');
+        $sheet->setCellValue('C1', 'Created At');
+        $sheet->setCellValue('D1', 'Updated At');
+        $sheet->setCellValue('E1', 'Created By');
+        $sheet->setCellValue('F1', 'Updated By');
+
+        // Insert data from the filtered roles model
+        $row = 2; // Starting from row 2 as row 1 has headers
+        foreach ($roles as $role) {
+            $sheet->setCellValue('A' . $row, $role->id);
+            $sheet->setCellValue('B' . $row, $role->role_name);
+            $sheet->setCellValue('C' . $row, $role->created_at ? Carbon::parse($role->created_at)->format('M d, Y h:i A') : 'N/A');
+            $sheet->setCellValue('D' . $row, $role->updated_at ? Carbon::parse($role->updated_at)->format('M d, Y h:i A') : 'Not updated');
+            $sheet->setCellValue('E' . $row, $role->createdByUser ? $role->createdByUser->name : 'Unknown');
+            $sheet->setCellValue('F' . $row, $role->updatedByUser ? $role->updatedByUser->name : 'Not updated');
+            $row++;
+        }
+
+        // Write the spreadsheet to a file (in memory)
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'roles_' . now()->format('Y-m-d') . '.xlsx'; // Custom file name
+
+        // Prepare the response for download
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
     }
+
 
     // Edit role (fetch details)
     public function edit($id)

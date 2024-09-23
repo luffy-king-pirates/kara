@@ -11,7 +11,7 @@
 @section('content')
     <!-- Add Month Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addMonthBtn">Add Month</a>
-
+  <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for Months -->
     <table class="table table-bordered" id="months-table">
         <thead>
@@ -261,6 +261,34 @@
                 $('#errorToastMessage').text(message);
                 $('#errorToast').toast('show');
             }
+
+            const filterButton = document.getElementById('apply-filter');
+
+// Select all the filter input elements
+const filters = {
+    id: document.getElementById('filter-id'),
+    month_name: document.getElementById('filter-month-name'),
+    created_at: document.getElementById('filter-created-at'),
+    updated_at: document.getElementById('filter-updated-at'),
+    created_by: document.getElementById('filter-created-by'),
+};
+
+// Add event listener to the filter button
+filterButton.addEventListener('click', function() {
+    // Build the query string from the filter inputs
+    let queryString = '?';
+
+    for (let key in filters) {
+        const value = filters[key].value;
+        if (value) {
+            queryString += `${key}=${encodeURIComponent(value)}&`; // Encode value for URL safety
+        }
+    }
+
+    // Redirect the page with the updated filters in the query string
+    window.open('/export/months' + queryString.slice(0, -1), '_blank'); // Adjust URL for your endpoint
+});
+
         });
     </script>
 @stop

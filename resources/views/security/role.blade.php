@@ -12,6 +12,7 @@
 @section('content')
     <!-- Add Role Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addRoleBtn">Add Role</a>
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
 
     <!-- DataTable for Roles -->
     <table class="table table-bordered" id="roles-table">
@@ -65,7 +66,8 @@
                         <input type="hidden" name="role_id" id="role-id">
                         <div class="mb-3">
                             <label for="role_name" class="form-label">Role Name</label>
-                            <input type="text" class="form-control" id="role_name" name="role_name" required maxlength="50">
+                            <input type="text" class="form-control" id="role_name" name="role_name" required
+                                maxlength="50">
                             <div id="role_name_error" class="text-danger"></div> <!-- Error message for role name -->
                         </div>
                         <button type="submit" id="saveRoleBtn" class="btn btn-primary" disabled>Save changes</button>
@@ -96,17 +98,21 @@
 
     <!-- Toasts for Success/Error Messages -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">Role saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
 
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
     </div>
@@ -133,14 +139,35 @@
                         d.updated_by = $('#filter-updated-by').val();
                     }
                 },
-                columns: [
-                    { data: 'id', name: 'id' },
-                    { data: 'role_name', name: 'role_name' },
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'updated_at', name: 'updated_at' },
-                    { data: 'created_by', name: 'created_by' },
-                    { data: 'updated_by', name: 'updated_by' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false,
+                columns: [{
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'role_name',
+                        name: 'role_name'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'updated_at',
+                        name: 'updated_at'
+                    },
+                    {
+                        data: 'created_by',
+                        name: 'created_by'
+                    },
+                    {
+                        data: 'updated_by',
+                        name: 'updated_by'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false,
                         render: function(data, type, row) {
                             return `
                             <button class="btn btn-primary edit-role" data-id="${row.id}">Edit</button>
@@ -189,7 +216,8 @@
                 e.preventDefault();
                 var formData = $(this).serialize();
                 var method = $('#role-id').val() ? 'PUT' : 'POST';
-                var url = method === 'POST' ? "{{ route('roles.store') }}" : '/roles/' + $('#role-id').val();
+                var url = method === 'POST' ? "{{ route('roles.store') }}" : '/roles/' + $('#role-id')
+            .val();
 
                 $.ajax({
                     type: method,
@@ -200,20 +228,24 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             if (errors.role_name) {
-                                $('#role_name_error').text(errors.role_name[0]); // Display error for role name
+                                $('#role_name_error').text(errors.role_name[
+                                0]); // Display error for role name
                             }
                         } else {
                             // General error message
                             $('#role_name_error').text('An unexpected error occurred.');
-                            var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                            var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                            var errorToast = new bootstrap.Toast(document.getElementById(
+                                'errorToast'));
+                            var errorMessage = xhr.responseJSON?.message ||
+                                'An error occurred while processing your request.';
                             $('#errorToastMessage').text('Error: ' + errorMessage);
                             errorToast.show();
                         }
@@ -241,17 +273,51 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
-                        var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                        var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                        var errorToast = new bootstrap.Toast(document.getElementById(
+                            'errorToast'));
+                        var errorMessage = xhr.responseJSON?.message ||
+                            'An error occurred while processing your request.';
                         $('#errorToastMessage').text('Error: ' + errorMessage);
                         errorToast.show();
                     }
                 });
             });
+            // Select the filter button
+            const filterButton = document.getElementById('apply-filter');
+
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                role_name: document.getElementById('filter-role-name'),
+                created_at: document.getElementById('filter-created-at'),
+                updated_at: document.getElementById('filter-updated-at'),
+                created_by: document.getElementById('filter-created-by'),
+                updated_by: document.getElementById('filter-updated-by'),
+            };
+
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
+
+                for (let key in filters) {
+                    const value = filters[key].value;
+                    if (value) {
+                        queryString +=
+                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                    }
+                }
+
+                // Redirect the page with the updated filters in the query string (or perform AJAX request)
+                window.open('/export/roles' + queryString.slice(0, -1),
+                '_blank'); // Update the URL to your export route
+            });
+
         });
     </script>
 

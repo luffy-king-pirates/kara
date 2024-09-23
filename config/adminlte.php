@@ -138,8 +138,8 @@ return [
     'usermenu_header' => false,
     'usermenu_header_class' => 'bg-primary',
    'usermenu_image' => 'path/to/default/image.png',
-
-    'usermenu_desc' => false,
+    
+    'usermenu_desc' => true,
     'usermenu_profile_url' => false,
 
     /*
@@ -406,7 +406,7 @@ return [
                     'icon' => 'fas fa-fw fa-tags',
                     'text' => 'Item Categories',
                     'url' => 'categories',
-                    'can' => 'view-categories'
+                    'can' => 'admin'
 
                 ],
                 [

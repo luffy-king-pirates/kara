@@ -12,7 +12,7 @@
 @section('content')
     <!-- Add User Assigned Unit Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addUnitBtn">Add User Assigned Unit</a>
-
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for User Assigned assignedRoles -->
     <table class="table table-bordered" id="assignedRoles-table">
         <thead>
@@ -283,6 +283,38 @@
                     }
                 });
             });
+
+    // Select the submit button
+    const submitButton = document.getElementById('apply-filter'); // Replace with your actual button ID
+
+    // Select all the user and role input elements
+    const inputs = {
+        user_id: document.getElementById('user_id'),
+        role_id: document.getElementById('role_id'),
+    };
+
+    // Add event listener to the submit button
+    submitButton.addEventListener('click', function() {
+        // Build the query string from the input values
+        let queryString = '?';
+
+        for (let key in inputs) {
+            const value = inputs[key].value;
+            if (value) {
+                queryString += `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+            } else {
+                // Display an error message if any input is empty
+                document.getElementById(`${key}_error`).innerText = `Please select a ${key.replace('_', ' ')}.`;
+            }
+        }
+
+
+            // Redirect the page with the updated filters in the query string (or perform AJAX request)
+            window.open('/export/assignedRoles' , '_blank'); // Update the URL to your export route
+
+    });
+
+
         });
     </script>
 @stop

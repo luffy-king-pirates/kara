@@ -4,14 +4,14 @@
 
 @section('content_header')
     <h1>Suppliers</h1>
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
 @stop
 
 @section('content')
     <!-- Add Supplier Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addSupplierBtn">Add Supplier</a>
-
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for Suppliers -->
     <table class="table table-bordered" id="suppliers-table">
         <thead>
@@ -99,7 +99,8 @@
                             <div id="supplier_reference_error" class="text-danger"></div>
                             <!-- Error message for supplier reference -->
                         </div>
-                        <button type="submit" id="saveSupplierBtn" class="btn btn-primary" disabled>Save changes</button>
+                        <button type="submit" id="saveSupplierBtn" class="btn btn-primary" disabled>Save
+                            changes</button>
                     </form>
                 </div>
             </div>
@@ -150,7 +151,7 @@
 @stop
 
 @section('js')
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -364,6 +365,42 @@
                     }
                 });
             });
+            const filterButton = document.getElementById('apply-filter');
+
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                supplier_name: document.getElementById('filter-supplier-name'),
+                supplier_location: document.getElementById('filter-supplier-location'),
+                supplier_contact: document.getElementById('filter-supplier-contact'),
+                supplier_reference: document.getElementById('filter-supplier-reference'),
+                created_at: document.getElementById('filter-created-at'),
+                updated_at: document.getElementById('filter-updated-at'),
+                created_by: document.getElementById('filter-created-by'),
+                updated_by: document.getElementById('filter-updated-by')
+            };
+
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
+
+                for (let key in filters) {
+                    const value = filters[key].value;
+                    if (value) {
+                        queryString +=
+                        `${key}=${encodeURIComponent(value)}&`; // Encode value for URL safety
+                    }
+                }
+
+                // Remove the last '&' and ensure the URL is correct for the export
+                const finalQueryString = queryString.slice(0, -1);
+
+                // Redirect the page with the updated filters in the query string
+                window.open('/export/suppliers' + finalQueryString,
+                '_blank'); // Adjust URL for your export endpoint
+            });
+
         });
     </script>
 

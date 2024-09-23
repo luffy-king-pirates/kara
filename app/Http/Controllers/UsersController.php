@@ -11,7 +11,8 @@ use App\Exports\UsersExport;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class UsersController extends Controller
 {
     // Show the Users view
@@ -148,17 +149,76 @@ class UsersController extends Controller
     // Export users data to Excel
     public function export(Request $request)
     {
-        $usersQuery = User::query();
+        // Start building the query for your model (replace YourModel with the actual model)
+        $query = User::query(); // Replace YourModel with the actual model name
+         // Eager load relationships if necessary
+
+        // Apply search filters
+        if ($request->has('search') && $request->search['value'] != '') {
+            $searchValue = $request->search['value'];
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('first_name', 'like', "%$searchValue%")
+                  ->orWhere('middle_name', 'like', "%$searchValue%")
+                  ->orWhere('last_name', 'like', "%$searchValue%")
+                  ->orWhere('phone', 'like', "%$searchValue%")
+                  ->orWhere('email', 'like', "%$searchValue%");
+            });
+        }
 
         if ($request->has('first_name') && $request->first_name != '') {
-            $usersQuery->where('first_name', 'like', "%" . $request->first_name . "%");
-        }
-        if ($request->has('created_at') && $request->created_at != '') {
-            $usersQuery->whereDate('created_at', $request->created_at);
+            $query->where('first_name', 'like', "%" . $request->first_name . "%");
         }
 
-        $users = $usersQuery->get();
-        return Excel::download(new UsersExport($users), 'users.xlsx');
+        // Execute the query and get the results
+        $results = $query->get();
+
+        // Create a new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers for the Excel columns
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'First Name');
+        $sheet->setCellValue('C1', 'Middle Name');
+        $sheet->setCellValue('D1', 'Last Name');
+        $sheet->setCellValue('E1', 'Phone');
+        $sheet->setCellValue('F1', 'Email');
+        $sheet->setCellValue('G1', 'Profile Image');
+
+        // Insert data from the filtered results
+        $row = 2; // Starting from row 2 as row 1 has headers
+        foreach ($results as $item) {
+            $sheet->setCellValue('A' . $row, $item->id);
+            $sheet->setCellValue('B' . $row, $item->first_name);
+            $sheet->setCellValue('C' . $row, $item->middle_name);
+            $sheet->setCellValue('D' . $row, $item->last_name);
+            $sheet->setCellValue('E' . $row, $item->phone);
+            $sheet->setCellValue('F' . $row, $item->email);
+
+            // Add the profile image if it exists
+            if ($item->profile_picture) {
+
+                    $sheet->setCellValue('G' . $row, $item->profile_picture);
+
+            } else {
+                $sheet->setCellValue('G' . $row, 'No Image'); // Placeholder if no image exists
+            }
+
+            $row++;
+        }
+
+        // Write the spreadsheet to a file (in memory)
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'users.xlsx';
+
+        // Prepare the response for download
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
     }
 
     // Edit user (fetch details)
