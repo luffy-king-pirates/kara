@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/roles', [App\Http\Controllers\RoleController::class, 'export'])->name('roles.export');
         Route::get('/suppliers', [App\Http\Controllers\SuppliersController::class, 'export'])->name('suppliers.export');
         Route::get('/assignedRoles', [App\Http\Controllers\UserAssignRoleController::class, 'export'])->name('assignedRoles.export');
+        Route::get('/users', [App\Http\Controllers\UsersController::class, 'export'])->name('users.export');
 
 
     });

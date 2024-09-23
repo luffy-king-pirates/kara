@@ -12,7 +12,7 @@
 @section('content')
     <!-- Add User Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addUserBtn">Add User</a>
-
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for Users -->
     <table class="table table-bordered" id="users-table">
         <thead>
@@ -266,7 +266,7 @@
                 let url = userId ? "{{ route('users.update', '') }}/" + userId :
                     "{{ route('users.store') }}";
                 let method = userId ? 'POST' :
-                'POST'; // POST method, as Laravel will interpret _method as PUT for update
+                    'POST'; // POST method, as Laravel will interpret _method as PUT for update
 
                 $.ajax({
                     url: url,
@@ -316,9 +316,9 @@
                     $.ajax({
                         url: "{{ route('users.destroy', '') }}/" + userId,
                         method: 'DELETE',
-                           data: {
-                        _token: '{{ csrf_token() }}'
-                    },
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
                         success: function() {
                             $('#deleteUserModal').modal('hide');
                             $('#users-table').DataTable().ajax.reload();
@@ -342,6 +342,35 @@
                 var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
                 errorToast.show();
             }
+            // Select the filter button
+            const filterButton = document.getElementById('apply-filter');
+
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                name: document.getElementById('filter-name'),
+                email: document.getElementById('filter-email'),
+                phone: document.getElementById('filter-phone'),
+            };
+
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
+
+                for (let key in filters) {
+                    const value = filters[key].value.trim(); // Get the trimmed value
+                    if (value) {
+                        queryString +=
+                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                    }
+                }
+
+                // Redirect the page with the updated filters in the query string (or perform AJAX request)
+                window.open('/export/users' + queryString.slice(0, -1),
+                '_blank'); // Update the URL to your export route
+            });
+
         });
     </script>
 @stop
