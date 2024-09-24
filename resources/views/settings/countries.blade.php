@@ -3,16 +3,15 @@
 @section('title', 'Countries')
 
 @section('content_header')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-
     <h1>Countries</h1>
 @stop
 
 @section('content')
     <!-- Add Country Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addCountryBtn">Add Country</a>
-     <button  id="apply-filter" class="btn btn-success">Export Result in  Excel</button>
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @include('partials.filter-countries', ['users' => $users])
+
     <!-- DataTable for Countries -->
     <table class="table table-bordered" id="countries-table">
         <thead>
@@ -25,29 +24,7 @@
                 <th>Updated By</th>
                 <th>Action</th>
             </tr>
-            <tr>
-                <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th><input type="text" id="filter-country-name" class="form-control" placeholder="Country Name"></th>
-                <th><input type="date" id="filter-created-at" class="form-control"></th>
-                <th><input type="date" id="filter-updated-at" class="form-control"></th>
-                <th>
-                    <select id="filter-created-by" class="form-control">
-                        <option value="">Select Creator</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th>
-                    <select id="filter-updated-by" class="form-control">
-                        <option value="">Select Updater</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th></th>
-            </tr>
+
         </thead>
     </table>
 
@@ -63,11 +40,16 @@
                     <form id="countryForm">
                         @csrf
                         <input type="hidden" name="country_id" id="country-id">
-                        <div class="mb-3">
-                            <label for="country_name" class="form-label">Country Name</label>
+                        <div class="mb-3 position-relative">
+                            <label for="country_name" class="form-label">Country Name <span
+                                    class="text-danger">*</span></label>
+
+                            <!-- Input field with required attribute -->
                             <input type="text" class="form-control" id="country_name" name="country_name" required
-                                maxlength="50">
-                            <div id="country_name_error" class="text-danger"></div> <!-- Error message for country name -->
+                                maxlength="50" placeholder="Enter the country name">
+
+                            <!-- Error message for country name -->
+                            <div id="country_name_error" class="text-danger"></div>
                         </div>
                         <button type="submit" id="saveCountryBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
@@ -77,7 +59,8 @@
     </div>
 
     <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteCountryModal" tabindex="-1" aria-labelledby="deleteCountryModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteCountryModal" tabindex="-1" aria-labelledby="deleteCountryModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -118,14 +101,13 @@
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('partials.import-cdn')
     <script>
         $(function() {
             var table = $('#countries-table').DataTable({
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: {
                     url: "{{ route('countries.index') }}",
                     data: function(d) {
@@ -172,8 +154,22 @@
                         `;
                         }
                     }
-                ]
+                ],
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
+
+            // Add the buttons to the table
+            table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
+
 
             // Filter functionality
             $('#filter-id, #filter-country-name, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')
@@ -217,7 +213,8 @@
                 e.preventDefault();
                 var formData = $(this).serialize();
                 var method = $('#country-id').val() ? 'PUT' : 'POST';
-                var url = method === 'POST' ? "{{ route('countries.store') }}" : '/countries/' + $('#country-id').val();
+                var url = method === 'POST' ? "{{ route('countries.store') }}" : '/countries/' + $(
+                    '#country-id').val();
 
                 $.ajax({
                     type: method,
@@ -228,22 +225,26 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             if (errors.country_name) {
-                                $('#country_name_error').text(errors.country_name[0]); // Display error for country name
+                                $('#country_name_error').text(errors.country_name[
+                                    0]); // Display error for country name
                             }
                         } else {
                             // General error message
                             $('#country_name_error').text('An unexpected error occurred.');
 
                             // Show error toast with a general error message
-                            var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                            var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                            var errorToast = new bootstrap.Toast(document.getElementById(
+                                'errorToast'));
+                            var errorMessage = xhr.responseJSON?.message ||
+                                'An error occurred while processing your request.';
                             $('#errorToastMessage').text('Error: ' + errorMessage);
                             errorToast.show();
                         }
@@ -271,13 +272,16 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         // General error handling
-                        var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                        var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                        var errorToast = new bootstrap.Toast(document.getElementById(
+                            'errorToast'));
+                        var errorMessage = xhr.responseJSON?.message ||
+                            'An error occurred while processing your request.';
                         $('#errorToastMessage').text('Error: ' + errorMessage);
                         errorToast.show();
                     }
@@ -285,31 +289,33 @@
             });
             const filterButton = document.getElementById('apply-filter');
 
-// Select all the filter input elements
-const filters = {
-    id: document.getElementById('filter-id'),
-    country_name: document.getElementById('filter-country-name'),
-    created_at: document.getElementById('filter-created-at'),
-    updated_at: document.getElementById('filter-updated-at'),
-    created_by: document.getElementById('filter-created-by'),
-    updated_by: document.getElementById('filter-updated-by'),
-};
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                country_name: document.getElementById('filter-country-name'),
+                created_at: document.getElementById('filter-created-at'),
+                updated_at: document.getElementById('filter-updated-at'),
+                created_by: document.getElementById('filter-created-by'),
+                updated_by: document.getElementById('filter-updated-by'),
+            };
 
-// Add event listener to the filter button
-filterButton.addEventListener('click', function() {
-    // Build the query string from the filter inputs
-    let queryString = '?';
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
 
-    for (let key in filters) {
-        const value = filters[key].value;
-        if (value) {
-            queryString += `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
-        }
-    }
+                for (let key in filters) {
+                    const value = filters[key].value;
+                    if (value) {
+                        queryString +=
+                            `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                    }
+                }
 
-    // Redirect the page with the updated filters in the query string
-    window.open('/export/countries' + queryString.slice(0, -1), '_blank'); // Update the URL to '/export/countries'
-});
+                // Redirect the page with the updated filters in the query string
+                window.open('/export/countries' + queryString.slice(0, -1),
+                    '_blank'); // Update the URL to '/export/countries'
+            });
 
         });
     </script>

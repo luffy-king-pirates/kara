@@ -3,9 +3,6 @@
 @section('title', 'Currencies')
 
 @section('content_header')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-
     <h1>Currencies</h1>
 @stop
 
@@ -13,7 +10,7 @@
     <!-- Add Currency Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addCurrencyBtn">Add Currency</a>
     <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-
+    @include('partials.filter-currencies', ['users' => $users])
     <!-- DataTable for Currencies -->
     <table class="table table-bordered" id="currencies-table">
         <thead>
@@ -27,31 +24,7 @@
                 <th>Updated By</th>
                 <th>Action</th>
             </tr>
-            <tr>
-                <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th><input type="text" id="filter-currencie-name" class="form-control" placeholder="Currency Name"></th>
-                <th><input type="number" id="filter-currencie-value" class="form-control" placeholder="Currency Value">
-                </th>
-                <th><input type="date" id="filter-created-at" class="form-control"></th>
-                <th><input type="date" id="filter-updated-at" class="form-control"></th>
-                <th>
-                    <select id="filter-created-by" class="form-control">
-                        <option value="">Select Creator</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th>
-                    <select id="filter-updated-by" class="form-control">
-                        <option value="">Select Updater</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th></th>
-            </tr>
+
         </thead>
     </table>
 
@@ -67,19 +40,30 @@
                     <form id="currencyForm">
                         @csrf
                         <input type="hidden" name="currency_id" id="currency-id">
-                        <div class="mb-3">
-                            <label for="currencie_name" class="form-label">Currency Name</label>
+                        <div class="mb-3 position-relative">
+                            <label for="currencie_name" class="form-label">Currency Name <span
+                                    class="text-danger">*</span></label>
+
+                            <!-- Input field with required attribute -->
                             <input type="text" class="form-control" id="currencie_name" name="currencie_name" required
-                                maxlength="50">
-                            <div id="currencie_name_error" class="text-danger"></div>
+                                maxlength="50" placeholder="Enter the currency name">
+
                             <!-- Error message for currency name -->
+                            <div id="currencie_name_error" class="text-danger"></div>
                         </div>
-                        <div class="mb-3">
-                            <label for="currencie_value" class="form-label">Currency Value</label>
-                            <input type="number" class="form-control" id="currencie_value" name="currencie_value" required>
-                            <div id="currencie_value_error" class="text-danger"></div>
+
+                        <div class="mb-3 position-relative">
+                            <label for="currencie_value" class="form-label">Currency Value <span
+                                    class="text-danger">*</span></label>
+
+                            <!-- Input field with required attribute for numeric values -->
+                            <input type="number" class="form-control" id="currencie_value" name="currencie_value" required
+                                placeholder="Enter the currency value">
+
                             <!-- Error message for currency value -->
+                            <div id="currencie_value_error" class="text-danger"></div>
                         </div>
+
                         <button type="submit" id="saveCurrencyBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
                 </div>
@@ -130,14 +114,13 @@
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('partials.import-cdn')
     <script>
         $(function() {
             var table = $('#currencies-table').DataTable({
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: {
                     url: "{{ route('currencies.index') }}",
                     data: function(d) {
@@ -181,8 +164,22 @@
                             `;
                         }
                     }
-                ]
+                ],
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
+
+            // Add the buttons to the table
+            table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
+
 
             // Filter functionality
             $('#filter-id, #filter-currencie-name, #filter-currencie-value, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')
@@ -204,7 +201,7 @@
                 var currencyNameValue = $('#currencie_name').val().trim();
                 var currencyValueValue = $('#currencie_value').val().trim();
                 $('#saveCurrencyBtn').attr('disabled', !(currencyNameValue &&
-                currencyValueValue)); // Enable button only if both fields have values
+                    currencyValueValue)); // Enable button only if both fields have values
             });
 
             // Edit Currency button click
@@ -217,7 +214,7 @@
                     $('#currencyModal').modal('show');
                     $('#saveCurrencyBtn').attr('disabled', false); // Enable Save button during edit
                     $('#currencie_name_error, #currencie_value_error').text(
-                    ''); // Clear error messages
+                        ''); // Clear error messages
                 });
             });
 
@@ -247,11 +244,11 @@
                             var errors = xhr.responseJSON.errors;
                             if (errors.currencie_name) {
                                 $('#currencie_name_error').text(errors.currencie_name[
-                                0]); // Display error for currency name
+                                    0]); // Display error for currency name
                             }
                             if (errors.currencie_value) {
                                 $('#currencie_value_error').text(errors.currencie_value[
-                                0]); // Display error for currency value
+                                    0]); // Display error for currency value
                             }
                         } else {
                             // General error message
@@ -328,13 +325,13 @@
                     const value = filters[key].value;
                     if (value) {
                         queryString +=
-                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                            `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
                     }
                 }
 
                 // Redirect the page with the updated filters in the query string
                 window.open('/export/currencies' + queryString.slice(0, -1),
-                '_blank'); // Update the URL to '/export/currencies'
+                    '_blank'); // Update the URL to '/export/currencies'
             });
 
         });

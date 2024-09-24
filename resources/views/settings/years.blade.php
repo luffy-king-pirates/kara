@@ -3,8 +3,6 @@
 @section('title', 'Years')
 
 @section('content_header')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
 
     <h1>Years</h1>
 @stop
@@ -12,8 +10,8 @@
 @section('content')
     <!-- Add Year Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addYearBtn">Add Year</a>
-      <button  id="apply-filter" class="btn btn-success">Export Result in  Excel</button>
-
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @include('partials.filter-years', ['users' => $users])
     <!-- DataTable for Years -->
     <table class="table table-bordered" id="years-table">
         <thead>
@@ -26,29 +24,7 @@
                 <th>Updated By</th>
                 <th>Action</th>
             </tr>
-            <tr>
-                <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th><input type="number" id="filter-year-name" class="form-control" placeholder="Year"></th>
-                <th><input type="date" id="filter-created-at" class="form-control"></th>
-                <th><input type="date" id="filter-updated-at" class="form-control"></th>
-                <th>
-                    <select id="filter-created-by" class="form-control">
-                        <option value="">Select Creator</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th>
-                    <select id="filter-updated-by" class="form-control">
-                        <option value="">Select Updater</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th></th>
-            </tr>
+
         </thead>
     </table>
 
@@ -64,11 +40,17 @@
                     <form id="yearForm">
                         @csrf
                         <input type="hidden" name="year_id" id="year-id">
-                        <div class="mb-3">
-                            <label for="year_name" class="form-label">Year</label>
-                            <input type="number" class="form-control" id="year_name" name="year_name" required>
-                            <div id="year_name_error" class="text-danger"></div> <!-- Error message for year -->
+                        <div class="mb-3 position-relative">
+                            <label for="year_name" class="form-label">Year <span class="text-danger">*</span></label>
+
+                            <!-- Input field with required attribute -->
+                            <input type="number" class="form-control" id="year_name" name="year_name" required
+                                placeholder="Enter the year">
+
+                            <!-- Error message for year -->
+                            <div id="year_name_error" class="text-danger"></div>
                         </div>
+
                         <button type="submit" id="saveYearBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
                 </div>
@@ -97,31 +79,34 @@
 
     <!-- Toasts for Success/Error Messages -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">Year saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
 
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
     </div>
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('partials.import-cdn')
     <script>
         $(function() {
             var table = $('#years-table').DataTable({
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: {
                     url: "{{ route('years.index') }}",
                     data: function(d) {
@@ -132,13 +117,30 @@
                         d.updated_by = $('#filter-updated-by').val();
                     }
                 },
-                columns: [
-                    { data: 'id', name: 'id' },
-                    { data: 'year_name', name: 'year_name' },
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'updated_at', name: 'updated_at' },
-                    { data: 'created_by', name: 'created_by' },
-                    { data: 'updated_by', name: 'updated_by' },
+                columns: [{
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'year_name',
+                        name: 'year_name'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'updated_at',
+                        name: 'updated_at'
+                    },
+                    {
+                        data: 'created_by',
+                        name: 'created_by'
+                    },
+                    {
+                        data: 'updated_by',
+                        name: 'updated_by'
+                    },
                     {
                         data: 'action',
                         name: 'action',
@@ -151,8 +153,22 @@
                             `;
                         }
                     }
-                ]
+                ],
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
+
+            // Add the buttons to the table
+            table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
+
 
             // Filter functionality
             $('#filter-id, #filter-year-name, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')
@@ -172,7 +188,8 @@
             // Enable/Disable Save button based on year_name input
             $('#year_name').on('input', function() {
                 var yearNameValue = $(this).val().trim();
-                $('#saveYearBtn').attr('disabled', yearNameValue.length === 0); // Enable/Disable based on input
+                $('#saveYearBtn').attr('disabled', yearNameValue.length ===
+                    0); // Enable/Disable based on input
             });
 
             // Edit Year button click
@@ -192,7 +209,8 @@
                 e.preventDefault();
                 var formData = $(this).serialize();
                 var method = $('#year-id').val() ? 'PUT' : 'POST';
-                var url = method === 'POST' ? "{{ route('years.store') }}" : '/years/' + $('#year-id').val();
+                var url = method === 'POST' ? "{{ route('years.store') }}" : '/years/' + $('#year-id')
+                    .val();
 
                 $.ajax({
                     type: method,
@@ -203,22 +221,26 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             if (errors.year_name) {
-                                $('#year_name_error').text(errors.year_name[0]); // Display error for year
+                                $('#year_name_error').text(errors.year_name[
+                                    0]); // Display error for year
                             }
                         } else {
                             // General error message
                             $('#year_name_error').text('An unexpected error occurred.');
 
                             // Show error toast with a general error message
-                            var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                            var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                            var errorToast = new bootstrap.Toast(document.getElementById(
+                                'errorToast'));
+                            var errorMessage = xhr.responseJSON?.message ||
+                                'An error occurred while processing your request.';
                             $('#errorToastMessage').text('Error: ' + errorMessage);
                             errorToast.show();
                         }
@@ -246,26 +268,29 @@
                         table.ajax.reload();
 
                         // Show success toast
-                        var successToast = new bootstrap.Toast(document.getElementById('successToast'));
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
                         successToast.show();
                     },
                     error: function(xhr) {
                         // General error handling
-                        var errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-                        var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                        var errorToast = new bootstrap.Toast(document.getElementById(
+                            'errorToast'));
+                        var errorMessage = xhr.responseJSON?.message ||
+                            'An error occurred while processing your request.';
                         $('#errorToastMessage').text('Error: ' + errorMessage);
                         errorToast.show();
                     }
                 });
             });
 
-               const filterButton = document.getElementById('apply-filter');
+            const filterButton = document.getElementById('apply-filter');
 
             // Select all the filter input elements
             const filters = {
                 id: document.getElementById('filter-id'),
                 year_name: document.getElementById(
-                'filter-year-name'), // Updated from 'unit_name' to 'year_name'
+                    'filter-year-name'), // Updated from 'unit_name' to 'year_name'
                 created_at: document.getElementById('filter-created-at'),
                 updated_at: document.getElementById('filter-updated-at'),
                 created_by: document.getElementById('filter-created-by'),
@@ -281,13 +306,13 @@
                     const value = filters[key].value;
                     if (value) {
                         queryString +=
-                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                            `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
                     }
                 }
 
                 // Redirect the page with the updated filters in the query string
                 window.open('/export/years' + queryString.slice(0, -1),
-                '_blank'); // Update the URL to '/export/years'
+                    '_blank'); // Update the URL to '/export/years'
             });
 
         });

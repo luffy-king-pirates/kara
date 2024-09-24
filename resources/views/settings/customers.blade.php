@@ -3,9 +3,6 @@
 @section('title', 'Customers')
 
 @section('content_header')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-
     <h1>Customers</h1>
 @stop
 
@@ -143,14 +140,13 @@
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('partials.import-cdn')
     <script>
         $(function() {
             var table = $('#customers-table').DataTable({
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: {
                     url: "{{ route('customers.index') }}",
                     data: function(d) {
@@ -236,7 +232,7 @@
                         data: 'updated_at',
                         name: 'updated_at'
                     },
-                      {
+                    {
                         data: 'action',
                         name: 'action',
                         orderable: false,
@@ -248,8 +244,23 @@
                             `;
                         }
                     }
-                ]
+                ],
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
+
+            // Add the buttons to the table
+            table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
+
+
 
             // Add Customer button click
             $('#addCustomerBtn').click(function() {
@@ -263,9 +274,10 @@
             $('#customerForm').submit(function(e) {
 
 
-                  e.preventDefault();
+                e.preventDefault();
                 var formData = $(this).serialize();
-                var url = $('#customer-id').val() ? `/customers/${$('#customer-id').val()}` : "{{ route('customers.store') }}";
+                var url = $('#customer-id').val() ? `/customers/${$('#customer-id').val()}` :
+                    "{{ route('customers.store') }}";
                 var method = $('#customer-id').val() ? 'PUT' : 'POST';
 
                 $.ajax({
@@ -289,26 +301,26 @@
             });
             //edit customers
             $('body').on('click', '.edit-customers', function() {
-            var customerId = $(this).data('id');
+                var customerId = $(this).data('id');
 
-            // Send AJAX request to fetch the customer data
-            $.get(`/customers/${customerId}/edit`, function(data) {
-                // Populate the modal fields with the fetched customer data
-                $('#customer-id').val(data.id);
-                $('#customer_name').val(data.customer_name);
-                $('#customer_tin').val(data.customer_tin);
-                $('#customer_vrn').val(data.customer_vrn);
-                $('#customer_location').val(data.customer_location);
-                $('#customer_address').val(data.customer_address);
-                $('#customer_mobile').val(data.customer_mobile);
-                $('#customer_email').val(data.customer_email);
-                $('#is_active').val(data.is_active ? '1' : '0');
+                // Send AJAX request to fetch the customer data
+                $.get(`/customers/${customerId}/edit`, function(data) {
+                    // Populate the modal fields with the fetched customer data
+                    $('#customer-id').val(data.id);
+                    $('#customer_name').val(data.customer_name);
+                    $('#customer_tin').val(data.customer_tin);
+                    $('#customer_vrn').val(data.customer_vrn);
+                    $('#customer_location').val(data.customer_location);
+                    $('#customer_address').val(data.customer_address);
+                    $('#customer_mobile').val(data.customer_mobile);
+                    $('#customer_email').val(data.customer_email);
+                    $('#is_active').val(data.is_active ? '1' : '0');
 
-                // Show the modal
-                $('#customerModal').modal('show');
-                $('#saveCustomerBtn').attr('disabled', false);
+                    // Show the modal
+                    $('#customerModal').modal('show');
+                    $('#saveCustomerBtn').attr('disabled', false);
+                });
             });
-        });
 
 
             // Delete Month functionality
@@ -319,7 +331,9 @@
                 $('#confirmDeleteCustomer').off().click(function() {
                     $.ajax({
                         url: `/customers/${id}`,
-                         data: { _token: "{{ csrf_token() }}" }, // Ensure CSRF token is included
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        }, // Ensure CSRF token is included
                         type: 'DELETE',
                         success: function(response) {
                             $('#deleteCustomerModal').modal('hide');
@@ -327,13 +341,14 @@
                             showSuccessToast('Customer deleted successfully!');
                         },
                         error: function() {
-                            showErrorToast('An error occurred while deleting customer.');
+                            showErrorToast(
+                            'An error occurred while deleting customer.');
                         }
                     });
                 });
             });
 
-             // Success toast function
+            // Success toast function
             function showSuccessToast(message) {
                 $('#successToast .toast-body').text(message);
                 $('#successToast').toast('show');
@@ -344,11 +359,11 @@
                 $('#errorToastMessage').text(message);
                 $('#errorToast').toast('show');
             }
-               const filterButton = document.getElementById('apply-filter');
-                   filterButton.addEventListener('click', function() {
-                       window.open('/export/customers' ,
-                '_blank');
-                   })
+            const filterButton = document.getElementById('apply-filter');
+            filterButton.addEventListener('click', function() {
+                window.open('/export/customers',
+                    '_blank');
+            })
 
         });
     </script>

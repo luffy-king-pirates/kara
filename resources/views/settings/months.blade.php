@@ -3,15 +3,16 @@
 @section('title', 'Months')
 
 @section('content_header')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+
     <h1>Months</h1>
 @stop
 
 @section('content')
     <!-- Add Month Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addMonthBtn">Add Month</a>
-  <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @include('partials.filter-months', ['users' => $users])
+
     <!-- DataTable for Months -->
     <table class="table table-bordered" id="months-table">
         <thead>
@@ -24,36 +25,7 @@
                 <th>Updated By</th>
                 <th>Action</th>
             </tr>
-            <tr>
-                <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th>
-                    <select id="filter-month-name" class="form-control">
-                        <option value="">Select Month</option>
-                        @foreach (['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] as $month)
-                            <option value="{{ $month }}">{{ $month }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th><input type="date" id="filter-created-at" class="form-control"></th>
-                <th><input type="date" id="filter-updated-at" class="form-control"></th>
-                <th>
-                    <select id="filter-created-by" class="form-control">
-                        <option value="">Select Creator</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th>
-                    <select id="filter-updated-by" class="form-control">
-                        <option value="">Select Updater</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th></th>
-            </tr>
+
         </thead>
     </table>
 
@@ -69,12 +41,15 @@
                     <form id="monthForm">
                         @csrf
                         <input type="hidden" name="month_id" id="month-id">
-                        <div class="mb-3">
-                            <label for="month_name" class="form-label">Month Name</label>
-                             <input type="text" class="form-control" id="month_name" name="month_name" required
-                                maxlength="50">
+                        <div class="mb-3 position-relative">
+                            <label for="month_name" class="form-label">Month Name <span class="text-danger">*</span></label>
 
-                            <div id="month_name_error" class="text-danger"></div> <!-- Error message for month name -->
+                            <!-- Input field with required attribute -->
+                            <input type="text" class="form-control" id="month_name" name="month_name" required
+                                maxlength="50" placeholder="Enter the month name">
+
+                            <!-- Error message for month name -->
+                            <div id="month_name_error" class="text-danger"></div>
                         </div>
                         <button type="submit" id="saveMonthBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
@@ -125,14 +100,13 @@
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('partials.import-cdn')
     <script>
         $(function() {
             var table = $('#months-table').DataTable({
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: {
                     url: "{{ route('months.index') }}", // Ensure the correct route is used for data loading
                     data: function(d) {
@@ -143,13 +117,30 @@
                         d.updated_by = $('#filter-updated-by').val();
                     }
                 },
-                columns: [
-                    { data: 'id', name: 'id' },
-                    { data: 'month_name', name: 'month_name' },
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'updated_at', name: 'updated_at' },
-                    { data: 'created_by', name: 'created_by' },
-                    { data: 'updated_by', name: 'updated_by' },
+                columns: [{
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'month_name',
+                        name: 'month_name'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'updated_at',
+                        name: 'updated_at'
+                    },
+                    {
+                        data: 'created_by',
+                        name: 'created_by'
+                    },
+                    {
+                        data: 'updated_by',
+                        name: 'updated_by'
+                    },
                     {
                         data: 'action',
                         name: 'action',
@@ -162,8 +153,23 @@
                             `;
                         }
                     }
-                ]
+                ],
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
+
+            // Add the buttons to the table
+            table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
+
+
 
             // Filter functionality
             $('#filter-id, #filter-month-name, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')
@@ -205,7 +211,8 @@
             $('#monthForm').submit(function(e) {
                 e.preventDefault();
                 var formData = $(this).serialize();
-                var url = $('#month-id').val() ? `/months/${$('#month-id').val()}` : "{{ route('months.store') }}";
+                var url = $('#month-id').val() ? `/months/${$('#month-id').val()}` :
+                    "{{ route('months.store') }}";
                 var method = $('#month-id').val() ? 'PUT' : 'POST';
 
                 $.ajax({
@@ -236,7 +243,9 @@
                 $('#confirmDeleteMonth').off().click(function() {
                     $.ajax({
                         url: `/months/${id}`,
-                         data: { _token: "{{ csrf_token() }}" }, // Ensure CSRF token is included
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        }, // Ensure CSRF token is included
                         type: 'DELETE',
                         success: function(response) {
                             $('#deleteMonthModal').modal('hide');
@@ -244,7 +253,8 @@
                             showSuccessToast('Month deleted successfully!');
                         },
                         error: function() {
-                            showErrorToast('An error occurred while deleting the month.');
+                            showErrorToast(
+                                'An error occurred while deleting the month.');
                         }
                     });
                 });
@@ -264,30 +274,32 @@
 
             const filterButton = document.getElementById('apply-filter');
 
-// Select all the filter input elements
-const filters = {
-    id: document.getElementById('filter-id'),
-    month_name: document.getElementById('filter-month-name'),
-    created_at: document.getElementById('filter-created-at'),
-    updated_at: document.getElementById('filter-updated-at'),
-    created_by: document.getElementById('filter-created-by'),
-};
+            // Select all the filter input elements
+            const filters = {
+                id: document.getElementById('filter-id'),
+                month_name: document.getElementById('filter-month-name'),
+                created_at: document.getElementById('filter-created-at'),
+                updated_at: document.getElementById('filter-updated-at'),
+                created_by: document.getElementById('filter-created-by'),
+            };
 
-// Add event listener to the filter button
-filterButton.addEventListener('click', function() {
-    // Build the query string from the filter inputs
-    let queryString = '?';
+            // Add event listener to the filter button
+            filterButton.addEventListener('click', function() {
+                // Build the query string from the filter inputs
+                let queryString = '?';
 
-    for (let key in filters) {
-        const value = filters[key].value;
-        if (value) {
-            queryString += `${key}=${encodeURIComponent(value)}&`; // Encode value for URL safety
-        }
-    }
+                for (let key in filters) {
+                    const value = filters[key].value;
+                    if (value) {
+                        queryString +=
+                            `${key}=${encodeURIComponent(value)}&`; // Encode value for URL safety
+                    }
+                }
 
-    // Redirect the page with the updated filters in the query string
-    window.open('/export/months' + queryString.slice(0, -1), '_blank'); // Adjust URL for your endpoint
-});
+                // Redirect the page with the updated filters in the query string
+                window.open('/export/months' + queryString.slice(0, -1),
+                    '_blank'); // Adjust URL for your endpoint
+            });
 
         });
     </script>

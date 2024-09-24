@@ -3,8 +3,6 @@
 @section('title', 'Users')
 
 @section('content_header')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
 
     <h1>Users</h1>
 @stop
@@ -14,6 +12,8 @@
     <a href="javascript:void(0)" class="btn btn-success" id="addUserBtn">Add User</a>
     <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for Users -->
+    @include('partials.filter-users')
+
     <table class="table table-bordered" id="users-table">
         <thead>
             <tr>
@@ -26,15 +26,7 @@
 
                 <th>Action</th>
             </tr>
-            <tr>
-                <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th><input type="text" id="filter-name" class="form-control" placeholder="Name"></th>
-                <th><input type="text" id="filter-email" class="form-control" placeholder="Email"></th>
-                <th><input type="text" id="filter-phone" class="form-control" placeholder="Phone"></th>
-                <th></th>
 
-                <th></th>
-            </tr>
         </thead>
     </table>
 
@@ -53,41 +45,53 @@
 
                         <div class="row">
                             <div class="mb-3 col-md-6">
-                                <label for="name" class="form-label">User Name</label>
-                                <input type="text" class="form-control" id="name" name="name" required>
+                                <label for="name" class="form-label">User Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" required
+                                    placeholder="Enter your username">
+                                <div class="form-text">This will be your display name.</div>
                             </div>
                             <div class="mb-3 col-md-6">
-                                <label for="first_name" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                <label for="first_name" class="form-label">First Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required
+                                    placeholder="Enter your first name">
                             </div>
                             <div class="mb-3 col-md-6">
                                 <label for="middle_name" class="form-label">Middle Name</label>
-                                <input type="text" class="form-control" id="middle_name" name="middle_name">
+                                <input type="text" class="form-control" id="middle_name" name="middle_name"
+                                    placeholder="Optional">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="mb-3 col-md-6">
-                                <label for="last_name" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                <label for="last_name" class="form-label">Last Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required
+                                    placeholder="Enter your last name">
                             </div>
                             <div class="mb-3 col-md-6">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" required
+                                    placeholder="example@domain.com">
+                                <div class="form-text">We'll never share your email with anyone else.</div>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="mb-3 col-md-6">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
+                                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                    placeholder="Create a password">
+                                <div class="form-text">Must be at least 8 characters.</div>
                             </div>
                             <div class="mb-3 col-md-6">
-                                <label for="phone" class="form-label">Phone</label>
-                                <input type="text" class="form-control" id="phone" name="phone" required>
+                                <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="phone" name="phone" required
+                                    placeholder="Enter your phone number">
                             </div>
                         </div>
-
                         <div class="mb-3">
                             <label for="profile_picture" class="form-label">Profile Picture</label>
                             <input type="file" class="form-control" id="profile_picture" name="profile_picture"
@@ -148,14 +152,13 @@
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('partials.import-cdn')
     <script>
         $(function() {
             var table = $('#users-table').DataTable({
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: {
                     url: "{{ route('users.index') }}",
                     data: function(d) {
@@ -206,8 +209,21 @@
                             `;
                         }
                     }
-                ]
+                ],
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
+
+            // Add the buttons to the table
+            table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
 
             // Filter functionality
             $('#filter-id, #filter-name, #filter-email, #filter-phone, #filter-created-at, #filter-updated-at')
@@ -362,13 +378,13 @@
                     const value = filters[key].value.trim(); // Get the trimmed value
                     if (value) {
                         queryString +=
-                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                            `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
                     }
                 }
 
                 // Redirect the page with the updated filters in the query string (or perform AJAX request)
                 window.open('/export/users' + queryString.slice(0, -1),
-                '_blank'); // Update the URL to your export route
+                    '_blank'); // Update the URL to your export route
             });
 
         });
