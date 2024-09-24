@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+    @include('partials.filter-manage-permissions')
     <table id="permissions-table" class="table">
         <thead>
             <tr>
@@ -18,6 +19,26 @@
         </thead>
         <tbody></tbody>
     </table>
+    <!-- Toasts for Success/Error Messages -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">Permission Added successfully!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('css')
@@ -33,7 +54,17 @@
             var table = $('#permissions-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('managePermissions.index') }}",
+                responsive: true,
+                autoWidth: false,
+                ajax: {
+                    url: "{{ route('managePermissions.index') }}",
+                    data: function(d) {
+                        d.role_name = $('#filter-role-name').val();
+                        d.page = $('#filter-page').val();
+                        d.action = $('#filter-action').val();
+                    }
+                },
+
                 columns: [{
                         data: 'role_name',
                         name: 'role_name'
@@ -79,7 +110,21 @@
                         }
                     }
                 ]
+
             });
+            new $.fn.dataTable.Responsive(table);
+
+            $('#reset-filters').on('click', function() {
+                $('#filter-role-name').val('');
+                $('#filter-page').val('');
+                $('#filter-action').val('');
+                table.draw(); // Redraw the table with cleared filters
+            });
+
+              $('#filter-action, #filter-role-name, #filter-page')
+                .on('keyup change', function() {
+                    table.draw();
+                });
 
             // Save permissions when button is clicked
             $('#permissions-table').on('click', '.save-permissions', function() {
@@ -108,11 +153,18 @@
                         _token: '{{ csrf_token() }}'
                     },
                     success: function(response) {
-                        alert('Permissions updated successfully!');
+                        var successToast = new bootstrap.Toast(document.getElementById(
+                            'successToast'));
+                        successToast.show();
                         table.ajax.reload(); // Reload DataTable to reflect changes
                     },
                     error: function(xhr) {
-                        alert('An error occurred while saving permissions.');
+                        var errorToast = new bootstrap.Toast(document.getElementById(
+                            'errorToast'));
+                        var errorMessage = xhr.responseJSON?.message ||
+                            'An error occurred while processing your request.';
+                        $('#errorToastMessage').text('Error: ' + errorMessage);
+                        errorToast.show();
                     }
                 });
             });
