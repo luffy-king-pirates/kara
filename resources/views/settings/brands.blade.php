@@ -3,8 +3,7 @@
 @section('title', 'Brands')
 
 @section('content_header')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+
     <h1>Brands</h1>
 @stop
 
@@ -13,6 +12,8 @@
     <a href="javascript:void(0)" class="btn btn-success" id="addBrandBtn">Add Brand</a>
     <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for Brands -->
+    @include('partials.filter-brands', ['users' => $users])
+
     <table class="table table-bordered" id="brands-table">
         <thead>
             <tr>
@@ -121,14 +122,13 @@
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('partials.import-cdn')
     <script>
         $(function() {
             var table = $('#brands-table').DataTable({
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: {
                     url: "{{ route('brands.index') }}", // Ensure the correct route is used for data loading
                     data: function(d) {
@@ -176,7 +176,21 @@
                         }
                     }
                 ]
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
+
+            // Add the buttons to the table
+            table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
+
 
             // Filter functionality
             $('#filter-id, #filter-brand-name, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')
@@ -295,13 +309,13 @@
                     const value = filters[key].value;
                     if (value) {
                         queryString +=
-                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                            `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
                     }
                 }
 
                 // Redirect the page with the updated filters in the query string
                 window.open('/export/brands' + queryString.slice(0, -1),
-                '_blank'); // Update the URL to '/export/brands'
+                    '_blank'); // Update the URL to '/export/brands'
             });
 
             function validateBrandName() {

@@ -3,9 +3,6 @@
 @section('title', 'Countries')
 
 @section('content_header')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-
     <h1>Countries</h1>
 @stop
 
@@ -13,6 +10,8 @@
     <!-- Add Country Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addCountryBtn">Add Country</a>
     <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @include('partials.filter-countries', ['users' => $users])
+
     <!-- DataTable for Countries -->
     <table class="table table-bordered" id="countries-table">
         <thead>
@@ -25,29 +24,7 @@
                 <th>Updated By</th>
                 <th>Action</th>
             </tr>
-            <tr>
-                <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th><input type="text" id="filter-country-name" class="form-control" placeholder="Country Name"></th>
-                <th><input type="date" id="filter-created-at" class="form-control"></th>
-                <th><input type="date" id="filter-updated-at" class="form-control"></th>
-                <th>
-                    <select id="filter-created-by" class="form-control">
-                        <option value="">Select Creator</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th>
-                    <select id="filter-updated-by" class="form-control">
-                        <option value="">Select Updater</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th></th>
-            </tr>
+
         </thead>
     </table>
 
@@ -124,14 +101,13 @@
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('partials.import-cdn')
     <script>
         $(function() {
             var table = $('#countries-table').DataTable({
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: {
                     url: "{{ route('countries.index') }}",
                     data: function(d) {
@@ -178,8 +154,22 @@
                         `;
                         }
                     }
-                ]
+                ],
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
+
+            // Add the buttons to the table
+            table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
+
 
             // Filter functionality
             $('#filter-id, #filter-country-name, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')

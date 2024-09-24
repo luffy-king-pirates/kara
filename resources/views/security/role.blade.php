@@ -3,55 +3,35 @@
 @section('title', 'Roles')
 
 @section('content_header')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
 
     <h1>Roles</h1>
+
 @stop
 
 @section('content')
+
     <!-- Add Role Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addRoleBtn">Add Role</a>
     <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-
+    @include('partials.filter-role', ['users' => $users])
     <!-- DataTable for Roles -->
-    <table class="table table-bordered" id="roles-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Role Name</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Created By</th>
-                <th>Updated By</th>
-                <th>Action</th>
-            </tr>
-            <tr>
-                <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th><input type="text" id="filter-role-name" class="form-control" placeholder="Role Name"></th>
-                <th><input type="date" id="filter-created-at" class="form-control"></th>
-                <th><input type="date" id="filter-updated-at" class="form-control"></th>
-                <th>
-                    <select id="filter-created-by" class="form-control">
-                        <option value="">Select Creator</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th>
-                    <select id="filter-updated-by" class="form-control">
-                        <option value="">Select Updater</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-    </table>
+    <div class="container-fluid">
+        <table class="table table-bordered dt-responsive nowrap" id="roles-table" style="width: 100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Role Name</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Action</th>
+                </tr>
 
+            </thead>
+
+        </table>
+    </div>
     <!-- Modal for Add/Edit Role -->
     <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -124,15 +104,16 @@
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('partials.import-cdn')
+
     <script>
         $(function() {
 
             var table = $('#roles-table').DataTable({
                 processing: true,
                 serverSide: true,
+                responsive: true,
+                autoWidth: false,
                 ajax: {
                     url: "{{ route('roles.index') }}",
                     data: function(d) {
@@ -179,8 +160,18 @@
                         `;
                         }
                     }
-                ]
+                ],
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
 
             // Filter functionality
             $('#filter-id, #filter-role-name, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')

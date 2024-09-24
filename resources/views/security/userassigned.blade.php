@@ -3,13 +3,13 @@
 @section('title', 'User Assigned Role')
 
 @section('content_header')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <!-- Bootstrap CSS -->
 
     <h1>User Assigned Role</h1>
 @stop
 
 @section('content')
+
     <!-- Add User Assigned Unit Button -->
     <a href="javascript:void(0)" class="btn btn-success" id="addUnitBtn">Add User Assigned Unit</a>
     <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
@@ -24,28 +24,7 @@
                 <th>Updated At</th>
                 <th>Action</th>
             </tr>
-            <tr>
-                <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th>
-                    <select id="filter-user" class="form-control">
-                        <option value="">Select User</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th>
-                    <select id="filter-role" class="form-control">
-                        <option value="">Select Role</option>
-                        @foreach ($roles as $role)
-                            <option value="{{ $role->id }}">{{ $role->role_name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th><input type="date" id="filter-created-at" class="form-control"></th>
-                <th><input type="date" id="filter-updated-at" class="form-control"></th>
-                <th></th>
-            </tr>
+
         </thead>
     </table>
 
@@ -134,14 +113,14 @@
 @stop
 
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @include('partials.import-cdn')
+
     <script>
         $(function() {
             var table = $('#assignedRoles-table').DataTable({
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: {
                     url: "{{ route('assignedRoles.index') }}",
                     data: function(d) {
@@ -185,8 +164,21 @@
                             `;
                         }
                     }
-                ]
+                ],
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
+
+            // Add the buttons to the table
+            table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
 
             // Filter functionality
             $('#filter-id, #filter-user, #filter-role, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')
@@ -210,7 +202,7 @@
                 var roleIdValue = $('#role_id').val();
                 if (userIdValue && roleIdValue) {
                     $('#saveUnitBtn').attr('disabled',
-                    false); // Enable button when both dropdowns have values
+                        false); // Enable button when both dropdowns have values
                 } else {
                     $('#saveUnitBtn').attr('disabled', true); // Disable button if either is empty
                 }
@@ -256,11 +248,11 @@
                             var errors = xhr.responseJSON.errors;
                             if (errors.user_id) {
                                 $('#user_id_error').text(errors.user_id[
-                                0]); // Display error for user selection
+                                    0]); // Display error for user selection
                             }
                             if (errors.role_id) {
                                 $('#role_id_error').text(errors.role_id[
-                                0]); // Display error for role selection
+                                    0]); // Display error for role selection
                             }
                         } else {
                             $('#user_id_error').text('An unexpected error occurred.');
@@ -324,7 +316,7 @@
                     const value = inputs[key].value;
                     if (value) {
                         queryString +=
-                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                            `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
                     } else {
                         // Display an error message if any input is empty
                         document.getElementById(`${key}_error`).innerText =
