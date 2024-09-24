@@ -15,9 +15,19 @@ class ManagePermissionController extends Controller
 
     // Define static pages and actions
     $pages = [
-        'Dashboard' => ['create', 'read', 'update', 'delete'],
-        'Users' => ['create', 'read', 'update', 'delete'],
-        'Products' => ['create', 'read', 'update', 'delete'],
+        'brand' => ['create', 'read', 'update', 'delete'],
+        'category' => ['create', 'read', 'update', 'delete'],
+        'country' => ['create', 'read', 'update', 'delete'],
+        'currency' => ['create', 'read', 'update', 'delete'],
+        'customer' => ['create', 'read', 'update', 'delete'],
+        'month' => ['create', 'read', 'update', 'delete'],
+        'role' => ['create', 'read', 'update', 'delete'],
+        'stock-type' => ['create', 'read', 'update', 'delete'],
+        'supplier' => ['create', 'read', 'update', 'delete'],
+        'unit' => ['create', 'read', 'update', 'delete'],
+        'user' => ['create', 'read', 'update', 'delete'],
+        'year' => ['create', 'read', 'update', 'delete'],
+        'user-assigned-role' => ['create', 'read', 'update', 'delete'],
     ];
 
     // Prepare data for DataTables

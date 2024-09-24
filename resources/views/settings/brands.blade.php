@@ -9,7 +9,10 @@
 
 @section('content')
     <!-- Add Brand Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addBrandBtn">Add Brand</a>
+    @can('create-brand')
+        <a href="javascript:void(0)" class="btn btn-success" id="addBrandBtn">Add Brand</a>
+    @endcan
+
     <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for Brands -->
     @include('partials.filter-brands', ['users' => $users])
@@ -176,17 +179,9 @@
                         }
                     }
                 ]
-                colReorder: true, // Enable column reordering
-                buttons: [{
-                        extend: 'colvis', // Enable column visibility button
-                        text: 'Show/Hide Columns',
-                        titleAttr: 'Show/Hide Columns'
-                    },
-                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
-                ],
-                dom: 'Bfrtip', // Position the buttons
+
             });
-            new $.fn.dataTable.Responsive(table);
+
 
             // Add the buttons to the table
             table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
