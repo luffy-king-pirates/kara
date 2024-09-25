@@ -130,7 +130,6 @@
             var table = $('#assignedRoles-table').DataTable({
                 processing: true,
                 serverSide: true,
-                responsive: true,
                 ajax: {
                     url: "{{ route('assignedRoles.index') }}",
                     data: function(d) {
@@ -184,17 +183,9 @@
                         }
                     }
                 ],
-                colReorder: true, // Enable column reordering
-                buttons: [{
-                        extend: 'colvis', // Enable column visibility button
-                        text: 'Show/Hide Columns',
-                        titleAttr: 'Show/Hide Columns'
-                    },
-                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
-                ],
-                dom: 'Bfrtip', // Position the buttons
+
             });
-            new $.fn.dataTable.Responsive(table);
+
 
             // Add the buttons to the table
             table.buttons().container().appendTo('#assignedRoles-table_wrapper .col-md-6:eq(0)');
@@ -327,7 +318,7 @@
             };
 
             // Add event listener to the submit button
-            submitButton.addEventListener('click', function() {
+            submitButton?.addEventListener('click', function() {
                 // Build the query string from the input values
                 let queryString = '?';
 

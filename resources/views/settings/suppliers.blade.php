@@ -391,7 +391,7 @@
             };
 
             // Add event listener to the filter button
-            filterButton.addEventListener('click', function() {
+            filterButton?.addEventListener('click', function() {
                 // Build the query string from the filter inputs
                 let queryString = '?';
 

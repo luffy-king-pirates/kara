@@ -25,7 +25,7 @@ use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\UserAssignRoleController;
 use App\Http\Controllers\ManagePermissionController;
 
-
+use App\Http\Middleware\CheckPermissions;
 // Public route: accessible by everyone
 Route::get('/', function () {
     return view('auth.login');
@@ -55,7 +55,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     });
-    Route::resource('units', UnitsController::class);
+    Route::middleware([CheckPermissions::class . ':units'])->resource('units', UnitsController::class);
     Route::resource('currencies', CurrenciesController::class);
     Route::resource('years', YearsController::class);
     Route::resource('countries', ProductCountriesController::class);
