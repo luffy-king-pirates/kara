@@ -9,27 +9,32 @@
 
 @section('content')
     <!-- Add User Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addUserBtn">Add User</a>
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @can('create-user')
+        <a href="javascript:void(0)" class="btn btn-success" id="addUserBtn">Add User</a>
+    @endcan
+    @can('export-user')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
+
     <!-- DataTable for Users -->
     @include('partials.filter-users')
+    @can('read-user')
+        <table class="table table-bordered" id="users-table">
+            <thead>
+                <tr>
+                    <th>Profile Picture</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
 
-    <table class="table table-bordered" id="users-table">
-        <thead>
-            <tr>
-                <th>Profile Picture</th>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
 
+                    <th>Action</th>
+                </tr>
 
-                <th>Action</th>
-            </tr>
-
-        </thead>
-    </table>
-
+            </thead>
+        </table>
+    @endcan
     <!-- Modal for Add/Edit User -->
     <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -154,6 +159,10 @@
 @section('js')
     @include('partials.import-cdn')
     <script>
+        var canEditUser = @json($canEditUser);
+        var canDeleteUser = @json($canDeleteUser);
+    </script>
+    <script>
         $(function() {
             var table = $('#users-table').DataTable({
                 processing: true,
@@ -195,20 +204,29 @@
                         data: 'phone',
                         name: 'phone'
                     },
-
-
                     {
                         data: 'action',
                         name: 'action',
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                                <button class="btn btn-primary edit-user" data-id="${row.id}">Edit</button>
-                                <button class="btn btn-danger delete-user" data-id="${row.id}">Delete</button>
-                            `;
+                            let actionButtons = '';
+
+                            if (canEditUser) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-user" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            if (canDeleteUser) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-user" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
+
+
                 ],
                 colReorder: true, // Enable column reordering
                 buttons: [{

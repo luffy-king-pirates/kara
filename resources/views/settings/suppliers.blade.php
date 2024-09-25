@@ -9,29 +9,34 @@
 
 @section('content')
     <!-- Add Supplier Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addSupplierBtn">Add Supplier</a>
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @can('create-supplier')
+        <a href="javascript:void(0)" class="btn btn-success" id="addSupplierBtn">Add Supplier</a>
+    @endcan
+    @can('export-supplier')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
+
     <!-- DataTable for Suppliers -->
     @include('partials.filter-suppliers', ['users' => $users])
+    @can('read-supplier')
+        <table class="table table-bordered" id="suppliers-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Supplier Name</th>
+                    <th>Supplier Location</th>
+                    <th>Supplier Contact</th>
+                    <th>Supplier Reference</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Action</th>
+                </tr>
 
-    <table class="table table-bordered" id="suppliers-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Supplier Name</th>
-                <th>Supplier Location</th>
-                <th>Supplier Contact</th>
-                <th>Supplier Reference</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Created By</th>
-                <th>Updated By</th>
-                <th>Action</th>
-            </tr>
-
-        </thead>
-    </table>
-
+            </thead>
+        </table>
+    @endcan
     <!-- Modal for Add/Edit Supplier -->
     <div class="modal fade" id="supplierModal" tabindex="-1" aria-labelledby="supplierModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -130,6 +135,10 @@
 @section('js')
     @include('partials.import-cdn')
     <script>
+        var canEditSupplier = @json($canEditSupplier);
+        var canDeleteSupplier = @json($canDeleteSupplier);
+    </script>
+    <script>
         $(function() {
             var table = $('#suppliers-table').DataTable({
                 processing: true,
@@ -190,10 +199,21 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                            <button class="btn btn-primary edit-supplier" data-id="${row.id}">Edit</button>
-                            <button class="btn btn-danger delete-supplier" data-id="${row.id}">Delete</button>
-                        `;
+                            let actionButtons = '';
+
+                            // Check if the user has permission to edit the supplier
+                            if (canEditSupplier) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-supplier" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            // Check if the user has permission to delete the supplier
+                            if (canDeleteSupplier) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-supplier" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ],

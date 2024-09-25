@@ -97,6 +97,10 @@
                                     <input class="form-check-input" type="checkbox" value="delete" id="delete-${row.id}-${row.page}" ${row.permissions.includes('delete') ? 'checked' : ''}>
                                     <label class="form-check-label" for="delete-${row.id}-${row.page}">Delete</label>
                                 </div>
+                                 <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="export" id="export-${row.id}-${row.page}" ${row.permissions.includes('export') ? 'checked' : ''}>
+                                    <label class="form-check-label" for="export-${row.id}-${row.page}">Export</label>
+                                </div>
                             `;
                         }
                     },
@@ -121,7 +125,7 @@
                 table.draw(); // Redraw the table with cleared filters
             });
 
-              $('#filter-action, #filter-role-name, #filter-page')
+            $('#filter-action, #filter-role-name, #filter-page')
                 .on('keyup change', function() {
                     table.draw();
                 });

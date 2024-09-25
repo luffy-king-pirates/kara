@@ -8,26 +8,32 @@
 
 @section('content')
     <!-- Add Currency Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addCurrencyBtn">Add Currency</a>
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @can('create-currency')
+        <a href="javascript:void(0)" class="btn btn-success" id="addCurrencyBtn">Add Currency</a>
+    @endcan
+    @can('export-currency')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
+
     @include('partials.filter-currencies', ['users' => $users])
     <!-- DataTable for Currencies -->
-    <table class="table table-bordered" id="currencies-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Currency Name</th>
-                <th>Currency Value</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Created By</th>
-                <th>Updated By</th>
-                <th>Action</th>
-            </tr>
+    @can('read-currency')
+        <table class="table table-bordered" id="currencies-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Currency Name</th>
+                    <th>Currency Value</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Action</th>
+                </tr>
 
-        </thead>
-    </table>
-
+            </thead>
+        </table>
+    @endcan
     <!-- Modal for Add/Edit Currency -->
     <div class="modal fade" id="currencyModal" tabindex="-1" aria-labelledby="currencyModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -116,6 +122,10 @@
 @section('js')
     @include('partials.import-cdn')
     <script>
+        var canEditCurrency = @json($canEditCurrency);
+        var canDeleteCurrency = @json($canDeleteCurrency);
+    </script>
+    <script>
         $(function() {
             var table = $('#currencies-table').DataTable({
                 processing: true,
@@ -158,10 +168,19 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                                <button class="btn btn-primary edit-currency" data-id="${row.id}">Edit</button>
-                                <button class="btn btn-danger delete-currency" data-id="${row.id}">Delete</button>
-                            `;
+                            let actionButtons = '';
+
+                            if (canEditCurrency) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-currency" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            if (canDeleteCurrency) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-currency" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ],

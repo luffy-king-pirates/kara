@@ -9,26 +9,31 @@
 
 @section('content')
     <!-- Add Month Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addMonthBtn">Add Month</a>
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @can('create-month')
+        <a href="javascript:void(0)" class="btn btn-success" id="addMonthBtn">Add Month</a>
+    @endcan
+    @can('export-month')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
+
     @include('partials.filter-months', ['users' => $users])
+    @can('read-month')
+        <!-- DataTable for Months -->
+        <table class="table table-bordered" id="months-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Month Name</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Action</th>
+                </tr>
 
-    <!-- DataTable for Months -->
-    <table class="table table-bordered" id="months-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Month Name</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Created By</th>
-                <th>Updated By</th>
-                <th>Action</th>
-            </tr>
-
-        </thead>
-    </table>
-
+            </thead>
+        </table>
+    @endcan
     <!-- Modal for Add/Edit Month -->
     <div class="modal fade" id="monthModal" tabindex="-1" aria-labelledby="monthModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -102,6 +107,10 @@
 @section('js')
     @include('partials.import-cdn')
     <script>
+        var canEditMonth = @json($canEditMonth);
+        var canDeleteMonth = @json($canDeleteMonth);
+    </script>
+    <script>
         $(function() {
             var table = $('#months-table').DataTable({
                 processing: true,
@@ -147,10 +156,21 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                                <button class="btn btn-primary edit-month" data-id="${row.id}">Edit</button>
-                                <button class="btn btn-danger delete-month" data-id="${row.id}">Delete</button>
-                            `;
+                            let actionButtons = '';
+
+                            // Check if the user has permission to edit the month
+                            if (canEditMonth) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-month" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            // Check if the user has permission to delete the month
+                            if (canDeleteMonth) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-month" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ],

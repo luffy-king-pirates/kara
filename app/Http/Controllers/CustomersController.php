@@ -84,7 +84,11 @@ class CustomersController extends Controller
                 ->make(true);
         }
 
-        return view('settings.customers'); // Update to reflect the actual view
+        return view('settings.customers', [
+
+            'canEditCustomer' => auth()->user()->can('update-customer'),
+            'canDeleteCustomer' => auth()->user()->can('delete-customer')
+        ]);
     }
 
     // Store new customer

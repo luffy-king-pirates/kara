@@ -56,7 +56,12 @@ class UserAssignRoleController extends Controller
                 ->make(true);
         }
 
-        return view('security.userassigned', compact('users', 'roles'));
+        return view('security.userassigned', [
+            'users' => $users,
+            'roles' => $roles,
+            'canEditUserAssignedRole' => auth()->user()->can('update-user-assigned-role'),
+            'canDeleteUserAssignedRole' => auth()->user()->can('delete-user-assigned-role')
+        ]);
     }
 
     // Store or update role assignment

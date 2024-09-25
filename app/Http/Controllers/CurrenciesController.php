@@ -76,7 +76,11 @@ class CurrenciesController extends Controller
                 ->make(true);
         }
 
-        return view('settings.currencies', compact('users'));
+        return view('settings.currencies', [
+            'users' => $users,
+            'canEditCurrency' => auth()->user()->can('update-currency'),
+            'canDeleteCurrency' => auth()->user()->can('delete-currency')
+        ]);
     }
 
     // Store new currency

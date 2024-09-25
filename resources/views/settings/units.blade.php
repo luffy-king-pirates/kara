@@ -9,26 +9,31 @@
 
 @section('content')
     <!-- Add Unit Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addUnitBtn">Add Unit</a>
+    @can('create-unit')
+        <a href="javascript:void(0)" class="btn btn-success" id="addUnitBtn">Add Unit</a>
+    @endcan
+    @can('export-unit')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
 
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     @include('partials.filter-units', ['users' => $users])
     <!-- DataTable for Units -->
-    <table class="table table-bordered" id="units-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Unit Name</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Created By</th>
-                <th>Updated By</th>
-                <th>Action</th>
-            </tr>
+    @can('read-unit')
+        <table class="table table-bordered" id="units-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Unit Name</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Action</th>
+                </tr>
 
-        </thead>
-    </table>
-
+            </thead>
+        </table>
+    @endcan
     <!-- Modal for Add/Edit Unit -->
     <div class="modal fade" id="unitModal" tabindex="-1" aria-labelledby="unitModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -105,6 +110,10 @@
 @section('js')
     @include('partials.import-cdn')
     <script>
+        var canEditUnit = @json($canEditUnit);
+        var canDeleteUnit = @json($canDeleteUnit);
+    </script>
+    <script>
         $(function() {
 
             var table = $('#units-table').DataTable({
@@ -151,10 +160,21 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                            <button class="btn btn-primary edit-unit" data-id="${row.id}">Edit</button>
-                            <button class="btn btn-danger delete-unit" data-id="${row.id}">Delete</button>
-                        `;
+                            let actionButtons = '';
+
+                            // Check if the user has permission to edit the unit
+                            if (canEditUnit) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-unit" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            // Check if the user has permission to delete the unit
+                            if (canDeleteUnit) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-unit" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ],

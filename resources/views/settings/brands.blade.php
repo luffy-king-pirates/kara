@@ -12,47 +12,50 @@
     @can('create-brand')
         <a href="javascript:void(0)" class="btn btn-success" id="addBrandBtn">Add Brand</a>
     @endcan
+    @can('export-brand')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
 
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     <!-- DataTable for Brands -->
     @include('partials.filter-brands', ['users' => $users])
-
-    <table class="table table-bordered" id="brands-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Brand Name</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Created By</th>
-                <th>Updated By</th>
-                <th>Action</th>
-            </tr>
-            <tr>
-                <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th><input type="text" id="filter-brand-name" class="form-control" placeholder="Brand Name"></th>
-                <th><input type="date" id="filter-created-at" class="form-control"></th>
-                <th><input type="date" id="filter-updated-at" class="form-control"></th>
-                <th>
-                    <select id="filter-created-by" class="form-control">
-                        <option value="">Select Creator</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th>
-                    <select id="filter-updated-by" class="form-control">
-                        <option value="">Select Updater</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-    </table>
+    @can('read-brand')
+        <table class="table table-bordered" id="brands-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Brand Name</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Action</th>
+                </tr>
+                <tr>
+                    <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
+                    <th><input type="text" id="filter-brand-name" class="form-control" placeholder="Brand Name"></th>
+                    <th><input type="date" id="filter-created-at" class="form-control"></th>
+                    <th><input type="date" id="filter-updated-at" class="form-control"></th>
+                    <th>
+                        <select id="filter-created-by" class="form-control">
+                            <option value="">Select Creator</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </th>
+                    <th>
+                        <select id="filter-updated-by" class="form-control">
+                            <option value="">Select Updater</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+        </table>
+    @endcan
 
     <!-- Modal for Add/Edit Brand -->
     <div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="brandModalLabel" aria-hidden="true">
@@ -127,6 +130,10 @@
 @section('js')
     @include('partials.import-cdn')
     <script>
+        var canEditBrand = @json($canEditBrand);
+        var canDeleteBrand = @json($canDeleteBrand);
+    </script>
+    <script>
         $(function() {
             var table = $('#brands-table').DataTable({
                 processing: true,
@@ -172,10 +179,19 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                                <button class="btn btn-primary edit-brand" data-id="${row.id}">Edit</button>
-                                <button class="btn btn-danger delete-brand" data-id="${row.id}">Delete</button>
-                            `;
+                            let actionButtons = '';
+
+                            if (canEditBrand) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-brand" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            if (canDeleteBrand) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-brand" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ]

@@ -11,27 +11,34 @@
 @section('content')
 
     <!-- Add Role Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addRoleBtn">Add Role</a>
+    @can('create-role')
+        <a href="javascript:void(0)" class="btn btn-success" id="addRoleBtn">Add Role</a>
+    @endcan
+    @can('export-role')
     <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+
+    @endcan
     @include('partials.filter-role', ['users' => $users])
     <!-- DataTable for Roles -->
-    <div class="container-fluid">
-        <table class="table table-bordered dt-responsive nowrap" id="roles-table" style="width: 100%">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Role Name</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                    <th>Created By</th>
-                    <th>Updated By</th>
-                    <th>Action</th>
-                </tr>
+    @can('read-role')
+        <div class="container-fluid">
+            <table class="table table-bordered dt-responsive nowrap" id="roles-table" style="width: 100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Role Name</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                        <th>Created By</th>
+                        <th>Updated By</th>
+                        <th>Action</th>
+                    </tr>
 
-            </thead>
+                </thead>
 
-        </table>
-    </div>
+            </table>
+        </div>
+    @endcan
     <!-- Modal for Add/Edit Role -->
     <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -105,7 +112,10 @@
 
 @section('js')
     @include('partials.import-cdn')
-
+    <script>
+        var canEditRole = @json($canEditRole);
+        var canDeleteRole = @json($canDeleteRole);
+    </script>
     <script>
         $(function() {
 
@@ -154,10 +164,19 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                            <button class="btn btn-primary edit-role" data-id="${row.id}">Edit</button>
-                            <button class="btn btn-danger delete-role" data-id="${row.id}">Delete</button>
-                        `;
+                            let actionButtons = '';
+
+                            if (canEditRole) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-role" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            if (canDeleteRole) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-role" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ],

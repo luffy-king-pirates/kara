@@ -73,7 +73,11 @@ class MonthsController extends Controller
                 ->make(true);
         }
 
-        return view('settings.months', compact('users')); // Update to reflect months view
+        return view('settings.months', [
+            'users' => $users,
+            'canEditMonth' => auth()->user()->can('update-month'),
+            'canDeleteMonth' => auth()->user()->can('delete-month')
+        ]);
     }
 
     // Store new month

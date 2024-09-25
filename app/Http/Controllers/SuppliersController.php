@@ -82,7 +82,12 @@ class SuppliersController extends Controller
                 ->make(true);
         }
 
-        return view('settings.suppliers', compact('users'));
+
+        return view('settings.suppliers', [
+            'users' => $users,
+            'canEditSupplier' => auth()->user()->can('update-supplier'),
+            'canDeleteSupplier' => auth()->user()->can('delete-supplier')
+        ]);
     }
 
     // Store new supplier

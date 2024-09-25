@@ -11,23 +11,29 @@
 @section('content')
 
     <!-- Add User Assigned Unit Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addUnitBtn">Add User Assigned Unit</a>
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @can('create-user-assigned-role')
+        <a href="javascript:void(0)" class="btn btn-success" id="addUnitBtn">Add User Assigned Unit</a>
+    @endcan
+    @can('export-user-assigned-role')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
+
     <!-- DataTable for User Assigned assignedRoles -->
-    <table class="table table-bordered" id="assignedRoles-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>User</th>
-                <th>Role</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Action</th>
-            </tr>
+    @can('read-user-assigned-role')
+        <table class="table table-bordered" id="assignedRoles-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Action</th>
+                </tr>
 
-        </thead>
-    </table>
-
+            </thead>
+        </table>
+    @endcan
     <!-- Modal for Add/Edit User Assigned Unit -->
     <div class="modal fade" id="unitModal" tabindex="-1" aria-labelledby="unitModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -114,6 +120,10 @@
 
 @section('js')
     @include('partials.import-cdn')
+    <script>
+        var canEditUserAssignedRole = @json($canEditUserAssignedRole);
+        var canDeleteUserAssignedRole = @json($canDeleteUserAssignedRole);
+    </script>
 
     <script>
         $(function() {
@@ -158,10 +168,19 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                                <button class="btn btn-primary edit-unit" data-id="${row.id}">Edit</button>
-                                <button class="btn btn-danger delete-unit" data-id="${row.id}">Delete</button>
-                            `;
+                            let actionButtons = '';
+
+                            if (canEditUserAssignedRole) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-unit" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            if (canDeleteUserAssignedRole) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-unit" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ],
