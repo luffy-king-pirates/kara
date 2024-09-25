@@ -74,7 +74,11 @@ class YearsController extends Controller
                 ->make(true);
         }
 
-        return view('settings.years', compact('users')); // Update to reflect years view
+        return view('settings.years', [
+            'users' => $users,
+            'canEditYear' => auth()->user()->can('update-year'),
+            'canDeleteYear' => auth()->user()->can('delete-year')
+        ]);
     }
 
     // Store new year

@@ -75,7 +75,11 @@ class RoleController extends Controller
                 ->make(true);
         }
 
-        return view('security.role', compact('users')); // Adjusted to point to the roles view
+        return view('security.role', [
+            'users' => $users,
+            'canEditRole' => auth()->user()->can('update-role'),
+            'canDeleteRole' => auth()->user()->can('delete-role')
+        ]);
     }
 
     // Store new role

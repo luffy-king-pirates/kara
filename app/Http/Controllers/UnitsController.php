@@ -75,7 +75,12 @@ class UnitsController extends Controller
                 ->make(true);
         }
 
-        return view('settings.units', compact('users'));
+
+        return view('settings.units', [
+            'users' => $users,
+            'canEditUnit' => auth()->user()->can('update-unit'),
+            'canDeleteUnit' => auth()->user()->can('delete-unit')
+        ]);
     }
 
 

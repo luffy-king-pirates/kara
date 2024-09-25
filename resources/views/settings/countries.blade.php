@@ -8,26 +8,31 @@
 
 @section('content')
     <!-- Add Country Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addCountryBtn">Add Country</a>
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @can('create-country')
+        <a href="javascript:void(0)" class="btn btn-success" id="addCountryBtn">Add Country</a>
+    @endcan
+    @can('export-country')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
+
     @include('partials.filter-countries', ['users' => $users])
+    @can('read-country')
+        <!-- DataTable for Countries -->
+        <table class="table table-bordered" id="countries-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Country Name</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Action</th>
+                </tr>
 
-    <!-- DataTable for Countries -->
-    <table class="table table-bordered" id="countries-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Country Name</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Created By</th>
-                <th>Updated By</th>
-                <th>Action</th>
-            </tr>
-
-        </thead>
-    </table>
-
+            </thead>
+        </table>
+    @endcan
     <!-- Modal for Add/Edit Country -->
     <div class="modal fade" id="countryModal" tabindex="-1" aria-labelledby="countryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -103,6 +108,10 @@
 @section('js')
     @include('partials.import-cdn')
     <script>
+        var canEditCountry = @json($canEditCountry);
+        var canDeleteCountry = @json($canDeleteCountry);
+    </script>
+    <script>
         $(function() {
             var table = $('#countries-table').DataTable({
                 processing: true,
@@ -148,10 +157,21 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                            <button class="btn btn-primary edit-country" data-id="${row.id}">Edit</button>
-                            <button class="btn btn-danger delete-country" data-id="${row.id}">Delete</button>
-                        `;
+                            let actionButtons = '';
+
+                            // Check if user has permission to edit the country
+                            if (canEditCountry) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-country" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            // Check if user has permission to delete the country
+                            if (canDeleteCountry) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-country" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ],

@@ -8,28 +8,34 @@
 
 @section('content')
     <!-- Add Customer Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addCustomerBtn">Add Customer</a>
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-    <!-- DataTable for Customers -->
-    <table class="table table-bordered" id="customers-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Customer Name</th>
-                <th>Tin Number</th>
-                <th>Vrn Number</th>
-                <th>Location</th>
-                <th>Address</th>
-                <th>Mobile</th>
-                <th>Email</th>
-                <th>Is Active</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-    </table>
+    @can('create-customer')
+        <a href="javascript:void(0)" class="btn btn-success" id="addCustomerBtn">Add Customer</a>
+    @endcan
+    @can('export-customer')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
 
+    <!-- DataTable for Customers -->
+    @can('read-customer')
+        <table class="table table-bordered" id="customers-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Customer Name</th>
+                    <th>Tin Number</th>
+                    <th>Vrn Number</th>
+                    <th>Location</th>
+                    <th>Address</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                    <th>Is Active</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+        </table>
+    @endcan
     <!-- Modal for Add/Edit Customer -->
     <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -142,6 +148,10 @@
 @section('js')
     @include('partials.import-cdn')
     <script>
+        var canEditCustomer = @json($canEditCustomer);
+        var canDeleteCustomer = @json($canDeleteCustomer);
+    </script>
+    <script>
         $(function() {
             var table = $('#customers-table').DataTable({
                 processing: true,
@@ -238,10 +248,19 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                                <button class="btn btn-primary edit-customers" data-id="${row.id}">Edit</button>
-                                <button class="btn btn-danger delete-customers" data-id="${row.id}">Delete</button>
-                            `;
+                            let actionButtons = '';
+
+                            if (canEditCustomer) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-customers" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            if (canDeleteCustomer) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-customers" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ],
@@ -342,7 +361,7 @@
                         },
                         error: function() {
                             showErrorToast(
-                            'An error occurred while deleting customer.');
+                                'An error occurred while deleting customer.');
                         }
                     });
                 });

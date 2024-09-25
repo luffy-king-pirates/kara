@@ -9,25 +9,31 @@
 
 @section('content')
     <!-- Add Stock Type Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addStockTypeBtn">Add Stock Type</a>
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @can('create-stock-type')
+        <a href="javascript:void(0)" class="btn btn-success" id="addStockTypeBtn">Add Stock Type</a>
+    @endcan
+    @can('export-stock-type')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
+
     @include('partials.filter-type', ['users' => $users])
     <!-- DataTable for Stock Types -->
-    <table class="table table-bordered" id="stock-types-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Stock Type Name</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Created By</th>
-                <th>Updated By</th>
-                <th>Action</th>
-            </tr>
+    @can('read-stock-type')
+        <table class="table table-bordered" id="stock-types-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Stock Type Name</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Action</th>
+                </tr>
 
-        </thead>
-    </table>
-
+            </thead>
+        </table>
+    @endcan
     <!-- Modal for Add/Edit Stock Type -->
     <div class="modal fade" id="stockTypeModal" tabindex="-1" aria-labelledby="stockTypeModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -103,6 +109,11 @@
 @section('js')
     @include('partials.import-cdn')
     <script>
+        var canEditStockType = @json($canEditStockType);
+        var canDeleteStockType = @json($canDeleteStockType);
+    </script>
+
+    <script>
         $(function() {
             var table = $('#stock-types-table').DataTable({
                 processing: true,
@@ -148,10 +159,21 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                            <button class="btn btn-primary edit-stock-type" data-id="${row.id}">Edit</button>
-                            <button class="btn btn-danger delete-stock-type" data-id="${row.id}">Delete</button>
-                        `;
+                            let actionButtons = '';
+
+                            // Check if the user has permission to edit the stock type
+                            if (canEditStockType) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-stock-type" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            // Check if the user has permission to delete the stock type
+                            if (canDeleteStockType) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-stock-type" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ],

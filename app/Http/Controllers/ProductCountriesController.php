@@ -73,7 +73,11 @@ class ProductCountriesController extends Controller
                 ->make(true);
         }
 
-        return view('settings.countries', compact('users'));  // Update the view file if necessary
+        return view('settings.countries', [
+            'users' => $users,
+            'canEditCountry' => auth()->user()->can('update-country'),
+            'canDeleteCountry' =>  auth()->user()->can('delete-country')
+        ]);
     }
 
     // Store new country

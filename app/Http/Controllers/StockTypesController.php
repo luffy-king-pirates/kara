@@ -73,7 +73,12 @@ class StockTypesController extends Controller
                 ->make(true);
         }
 
-        return view('settings.type', compact('users'));
+        return view('settings.type', [
+            'users' => $users,
+            'canEditStockType' => auth()->user()->can('update-stock-type'),
+            'canDeleteStockType' => auth()->user()->can('delete-stock-type')
+        ]);
+
     }
 
     // Store new stock type

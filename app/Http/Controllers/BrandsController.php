@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BrandsExport; // Update the export class
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 class BrandsController extends Controller
 {
     // Show the Brands view
@@ -73,7 +74,12 @@ class BrandsController extends Controller
                 ->make(true);
         }
 
-        return view('settings.brands', compact('users')); // Update to reflect brands view
+        return view('settings.brands', [
+            'users' => $users,
+            'canEditBrand' => auth()->user()->can('update-brand'),
+            'canDeleteBrand' =>  auth()->user()->can('delete-brand')
+        ]);
+        // Update to reflect brands view
     }
 
     // Store new brand

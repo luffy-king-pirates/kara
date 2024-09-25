@@ -9,24 +9,30 @@
 
 @section('content')
     <!-- Add Year Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addYearBtn">Add Year</a>
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @can('create-year')
+        <a href="javascript:void(0)" class="btn btn-success" id="addYearBtn">Add Year</a>
+    @endcan
+    @can('export-year')
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+    @endcan
     @include('partials.filter-years', ['users' => $users])
     <!-- DataTable for Years -->
-    <table class="table table-bordered" id="years-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Year</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Created By</th>
-                <th>Updated By</th>
-                <th>Action</th>
-            </tr>
+    @can('read-year')
+        <table class="table table-bordered" id="years-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Year</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Action</th>
+                </tr>
 
-        </thead>
-    </table>
+            </thead>
+        </table>
+    @endcan
 
     <!-- Modal for Add/Edit Year -->
     <div class="modal fade" id="yearModal" tabindex="-1" aria-labelledby="yearModalLabel" aria-hidden="true">
@@ -102,6 +108,10 @@
 @section('js')
     @include('partials.import-cdn')
     <script>
+        var canEditYear = @json($canEditYear);
+        var canDeleteYear = @json($canDeleteYear);
+    </script>
+    <script>
         $(function() {
             var table = $('#years-table').DataTable({
                 processing: true,
@@ -147,10 +157,19 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                                <button class="btn btn-primary edit-year" data-id="${row.id}">Edit</button>
-                                <button class="btn btn-danger delete-year" data-id="${row.id}">Delete</button>
-                            `;
+                            let actionButtons = '';
+
+                            if (canEditYear) {
+                                actionButtons +=
+                                    `<button class="btn btn-primary edit-year" data-id="${row.id}">Edit</button>`;
+                            }
+
+                            if (canDeleteYear) {
+                                actionButtons +=
+                                    `<button class="btn btn-danger delete-year" data-id="${row.id}">Delete</button>`;
+                            }
+
+                            return actionButtons;
                         }
                     }
                 ],

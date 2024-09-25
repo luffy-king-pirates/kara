@@ -397,6 +397,13 @@ return [
 
 
                 ],
+                [
+                    'icon' => 'fas fa-fw fa-user-check',
+                    'text' => 'Manage Permissions',
+                    'url' => 'managePermissions',
+
+
+                ],
             ]],
         [
             'text' => 'Setting',

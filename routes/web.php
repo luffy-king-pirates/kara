@@ -23,7 +23,7 @@ use App\Http\Controllers\RoleController;
 
 use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\UserAssignRoleController;
-
+use App\Http\Controllers\ManagePermissionController;
 
 
 // Public route: accessible by everyone
@@ -70,7 +70,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('suppliers', SuppliersController::class);
     Route::resource('assignedRoles', UserAssignRoleController::class);
 
-
+    Route::resource('managePermissions', ManagePermissionController::class);
+    Route::post('managePermissions/save', [ManagePermissionController::class, 'savePermissions'])->name('managePermissions.save');
 
 
 });

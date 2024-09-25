@@ -57,7 +57,10 @@ class UsersController extends Controller
 
         }
 
-        return view('users');
+        return view('users', [
+            'canEditUser' => auth()->user()->can('update-user'),
+            'canDeleteUser' => auth()->user()->can('delete-user')
+        ]);
     }
 
     // Store new user
