@@ -8,6 +8,7 @@
 @stop
 
 @section('content')
+ <div style="height: 700px; overflow-y: auto;">
     <!-- Add Brand Button -->
     @can('create-brand')
         <a href="javascript:void(0)" class="btn btn-success" id="addBrandBtn">Add Brand</a>
@@ -124,6 +125,7 @@
                     aria-label="Close"></button>
             </div>
         </div>
+    </div>
     </div>
 @stop
 

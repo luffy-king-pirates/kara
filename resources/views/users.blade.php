@@ -8,149 +8,155 @@
 @stop
 
 @section('content')
-    <!-- Add User Button -->
-    @can('create-user')
-        <a href="javascript:void(0)" class="btn btn-success" id="addUserBtn">Add User</a>
-    @endcan
-    @can('export-user')
-        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-    @endcan
+    <div style="height: 700px; overflow-y: auto;">
+        <!-- Add User Button -->
+        @can('create-user')
+            <a href="javascript:void(0)" class="btn btn-success" id="addUserBtn">Add User</a>
+        @endcan
+        @can('export-user')
+            <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+        @endcan
 
-    <!-- DataTable for Users -->
-    @include('partials.filter-users')
-    @can('read-user')
-        <table class="table table-bordered" id="users-table">
-            <thead>
-                <tr>
-                    <th>Profile Picture</th>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
+        <!-- DataTable for Users -->
+        @include('partials.filter-users')
+        @can('read-user')
+            <table class="table table-bordered" id="users-table">
+                <thead>
+                    <tr>
+                        <th>Profile Picture</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
 
 
-                    <th>Action</th>
-                </tr>
+                        <th>Action</th>
+                    </tr>
 
-            </thead>
-        </table>
-    @endcan
-    <!-- Modal for Add/Edit User -->
-    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="userModalLabel">Add/Edit User</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="userForm" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="user_id" id="user-id">
+                </thead>
+            </table>
+        @endcan
+        <!-- Modal for Add/Edit User -->
+        <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="userModalLabel">Add/Edit User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="userForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="user_id" id="user-id">
 
-                        <div class="row">
-                            <div class="mb-3 col-md-6">
-                                <label for="name" class="form-label">User Name <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="name" name="name" required
-                                    placeholder="Enter your username">
-                                <div class="form-text">This will be your display name.</div>
+                            <div class="row">
+                                <div class="mb-3 col-md-6">
+                                    <label for="name" class="form-label">User Name <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" required
+                                        placeholder="Enter your username">
+                                    <div class="form-text">This will be your display name.</div>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label for="first_name" class="form-label">First Name <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" required
+                                        placeholder="Enter your first name">
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label for="middle_name" class="form-label">Middle Name</label>
+                                    <input type="text" class="form-control" id="middle_name" name="middle_name"
+                                        placeholder="Optional">
+                                </div>
                             </div>
-                            <div class="mb-3 col-md-6">
-                                <label for="first_name" class="form-label">First Name <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" required
-                                    placeholder="Enter your first name">
-                            </div>
-                            <div class="mb-3 col-md-6">
-                                <label for="middle_name" class="form-label">Middle Name</label>
-                                <input type="text" class="form-control" id="middle_name" name="middle_name"
-                                    placeholder="Optional">
-                            </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="mb-3 col-md-6">
-                                <label for="last_name" class="form-label">Last Name <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" required
-                                    placeholder="Enter your last name">
+                            <div class="row">
+                                <div class="mb-3 col-md-6">
+                                    <label for="last_name" class="form-label">Last Name <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" required
+                                        placeholder="Enter your last name">
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label for="email" class="form-label">Email <span
+                                            class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" required
+                                        placeholder="example@domain.com">
+                                    <div class="form-text">We'll never share your email with anyone else.</div>
+                                </div>
                             </div>
-                            <div class="mb-3 col-md-6">
-                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" id="email" name="email" required
-                                    placeholder="example@domain.com">
-                                <div class="form-text">We'll never share your email with anyone else.</div>
-                            </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="mb-3 col-md-6">
-                                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" id="password" name="password" required
-                                    placeholder="Create a password">
-                                <div class="form-text">Must be at least 8 characters.</div>
+                            <div class="row">
+                                <div class="mb-3 col-md-6">
+                                    <label for="password" class="form-label">Password <span
+                                            class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="password" name="password" required
+                                        placeholder="Create a password">
+                                    <div class="form-text">Must be at least 8 characters.</div>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label for="phone" class="form-label">Phone <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="phone" name="phone" required
+                                        placeholder="Enter your phone number">
+                                </div>
                             </div>
-                            <div class="mb-3 col-md-6">
-                                <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="phone" name="phone" required
-                                    placeholder="Enter your phone number">
+                            <div class="mb-3">
+                                <label for="profile_picture" class="form-label">Profile Picture</label>
+                                <input type="file" class="form-control" id="profile_picture" name="profile_picture"
+                                    accept="image/*">
+                                <img id="preview" src="#" alt="Profile Picture" class="mt-2"
+                                    style="display: none; max-width: 100px;" />
+                                <button type="button" id="removePicture" class="btn btn-danger btn-sm mt-2"
+                                    style="display: none;">Remove</button>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="profile_picture" class="form-label">Profile Picture</label>
-                            <input type="file" class="form-control" id="profile_picture" name="profile_picture"
-                                accept="image/*">
-                            <img id="preview" src="#" alt="Profile Picture" class="mt-2"
-                                style="display: none; max-width: 100px;" />
-                            <button type="button" id="removePicture" class="btn btn-danger btn-sm mt-2"
-                                style="display: none;">Remove</button>
-                        </div>
 
-                        <button type="submit" id="saveUserBtn" class="btn btn-primary" disabled>Save changes</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteUserModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this user?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteUser">Delete</button>
+                            <button type="submit" id="saveUserBtn" class="btn btn-primary" disabled>Save
+                                changes</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Toasts for Success/Error Messages -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">User saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+        <!-- Modal for Delete Confirmation -->
+        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteUserModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this user?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteUser">Delete</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+        <!-- Toasts for Success/Error Messages -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">User saved successfully!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
             </div>
         </div>
     </div>

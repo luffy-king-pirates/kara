@@ -9,7 +9,7 @@
 @stop
 
 @section('content')
-
+ <div style="height: 700px; overflow-y: auto;">
     <!-- Add User Assigned Unit Button -->
     @can('create-user-assigned-role')
         <a href="javascript:void(0)" class="btn btn-success" id="addUnitBtn">Add User Assigned Unit</a>
@@ -115,7 +115,7 @@
             </div>
         </div>
     </div>
-
+</div>
 @stop
 
 @section('js')

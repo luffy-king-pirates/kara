@@ -7,99 +7,102 @@
 @stop
 
 @section('content')
-    <!-- Add Country Button -->
-    @can('create-country')
-        <a href="javascript:void(0)" class="btn btn-success" id="addCountryBtn">Add Country</a>
-    @endcan
-    @can('export-country')
-        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-    @endcan
+    <div style="height: 700px; overflow-y: auto;">
+        <!-- Add Country Button -->
+        @can('create-country')
+            <a href="javascript:void(0)" class="btn btn-success" id="addCountryBtn">Add Country</a>
+        @endcan
+        @can('export-country')
+            <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+        @endcan
 
-    @include('partials.filter-countries', ['users' => $users])
-    @can('read-country')
-        <!-- DataTable for Countries -->
-        <table class="table table-bordered" id="countries-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Country Name</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                    <th>Created By</th>
-                    <th>Updated By</th>
-                    <th>Action</th>
-                </tr>
+        @include('partials.filter-countries', ['users' => $users])
+        @can('read-country')
+            <!-- DataTable for Countries -->
+            <table class="table table-bordered" id="countries-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Country Name</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                        <th>Created By</th>
+                        <th>Updated By</th>
+                        <th>Action</th>
+                    </tr>
 
-            </thead>
-        </table>
-    @endcan
-    <!-- Modal for Add/Edit Country -->
-    <div class="modal fade" id="countryModal" tabindex="-1" aria-labelledby="countryModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="countryModalLabel">Add Country</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="countryForm">
-                        @csrf
-                        <input type="hidden" name="country_id" id="country-id">
-                        <div class="mb-3 position-relative">
-                            <label for="country_name" class="form-label">Country Name <span
-                                    class="text-danger">*</span></label>
+                </thead>
+            </table>
+        @endcan
+        <!-- Modal for Add/Edit Country -->
+        <div class="modal fade" id="countryModal" tabindex="-1" aria-labelledby="countryModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="countryModalLabel">Add Country</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="countryForm">
+                            @csrf
+                            <input type="hidden" name="country_id" id="country-id">
+                            <div class="mb-3 position-relative">
+                                <label for="country_name" class="form-label">Country Name <span
+                                        class="text-danger">*</span></label>
 
-                            <!-- Input field with required attribute -->
-                            <input type="text" class="form-control" id="country_name" name="country_name" required
-                                maxlength="50" placeholder="Enter the country name">
+                                <!-- Input field with required attribute -->
+                                <input type="text" class="form-control" id="country_name" name="country_name" required
+                                    maxlength="50" placeholder="Enter the country name">
 
-                            <!-- Error message for country name -->
-                            <div id="country_name_error" class="text-danger"></div>
-                        </div>
-                        <button type="submit" id="saveCountryBtn" class="btn btn-primary" disabled>Save changes</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteCountryModal" tabindex="-1" aria-labelledby="deleteCountryModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteCountryModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this country?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteCountry">Delete</button>
+                                <!-- Error message for country name -->
+                                <div id="country_name_error" class="text-danger"></div>
+                            </div>
+                            <button type="submit" id="saveCountryBtn" class="btn btn-primary" disabled>Save
+                                changes</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Toasts for Success/Error Messages -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">Country saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+        <!-- Modal for Delete Confirmation -->
+        <div class="modal fade" id="deleteCountryModal" tabindex="-1" aria-labelledby="deleteCountryModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteCountryModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this country?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteCountry">Delete</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+        <!-- Toasts for Success/Error Messages -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">Country saved successfully!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
             </div>
         </div>
     </div>

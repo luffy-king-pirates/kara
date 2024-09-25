@@ -7,99 +7,101 @@
 @stop
 
 @section('content')
-    <!-- Add Category Button -->
-    <a href="javascript:void(0)" class="btn btn-success" id="addCategoryBtn">Add Category</a>
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-    @include('partials.filter-categories', ['users' => $users])
-    <!-- DataTable for Categories -->
-    <table class="table table-bordered" id="categories-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Category Name</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Created By</th>
-                <th>Updated By</th>
-                <th>Action</th>
-            </tr>
+    <div style="height: 700px; overflow-y: auto;">
+        <!-- Add Category Button -->
+        <a href="javascript:void(0)" class="btn btn-success" id="addCategoryBtn">Add Category</a>
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+        @include('partials.filter-categories', ['users' => $users])
+        <!-- DataTable for Categories -->
+        <table class="table table-bordered" id="categories-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Category Name</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Created By</th>
+                    <th>Updated By</th>
+                    <th>Action</th>
+                </tr>
 
-        </thead>
-    </table>
+            </thead>
+        </table>
 
-    <!-- Modal for Add/Edit Category -->
-    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="categoryModalLabel">Add Category</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="categoryForm">
-                        @csrf
-                        <input type="hidden" name="categorie_id" id="categorie-id">
-                        <div class="mb-3 position-relative">
-                            <label for="categorie_name" class="form-label">Category Name <span
-                                    class="text-danger">*</span></label>
+        <!-- Modal for Add/Edit Category -->
+        <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="categoryModalLabel">Add Category</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="categoryForm">
+                            @csrf
+                            <input type="hidden" name="categorie_id" id="categorie-id">
+                            <div class="mb-3 position-relative">
+                                <label for="categorie_name" class="form-label">Category Name <span
+                                        class="text-danger">*</span></label>
 
-                            <!-- Input field with required attribute -->
-                            <input type="text" class="form-control" id="categorie_name" name="categorie_name" required
-                                maxlength="50" placeholder="Enter the category name">
+                                <!-- Input field with required attribute -->
+                                <input type="text" class="form-control" id="categorie_name" name="categorie_name"
+                                    required maxlength="50" placeholder="Enter the category name">
 
-                            <!-- Error message for category name -->
-                            <div id="categorie_name_error" class="text-danger"></div>
-                        </div>
-                        <button type="submit" id="saveCategoryBtn" class="btn btn-primary" disabled>Save changes</button>
-                    </form>
+                                <!-- Error message for category name -->
+                                <div id="categorie_name_error" class="text-danger"></div>
+                            </div>
+                            <button type="submit" id="saveCategoryBtn" class="btn btn-primary" disabled>Save
+                                changes</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Modal for Delete Confirmation -->
+        <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteCategoryModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this category?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteCategory">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Toasts for Success/Error Messages -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">Category saved successfully!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+
     </div>
-
-    <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteCategoryModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this category?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteCategory">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Toasts for Success/Error Messages -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">Category saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
-        </div>
-
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-
-
 @stop
 
 @section('js')
