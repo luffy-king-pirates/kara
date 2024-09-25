@@ -21,7 +21,7 @@ class RoleController extends Controller
         Log::info($request->ajax());
         if ($request->ajax()) {
             $roles = Role::with(['createdByUser:id,name', 'updatedByUser:id,name'])
-                ->select(['id', 'role_name', 'created_at', 'updated_at', 'created_by', 'updated_by']);
+                ->select(['id', 'role_name','description', 'created_at', 'updated_at', 'created_by', 'updated_by']);
 
             return DataTables::of($roles)
                 ->addColumn('created_at', function ($row) {
@@ -59,6 +59,10 @@ class RoleController extends Controller
                     if ($request->has('role_name') && $request->role_name != '') {
                         $query->where('role_name', 'like', "%" . $request->role_name . "%");
                     }
+                    if ($request->has('description') && $request->description != '') {
+                        $query->where('description', 'like', "%" . $request->description . "%");
+                    }
+
                     if ($request->has('created_at') && $request->created_at != '') {
                         $query->whereDate('created_at', $request->created_at);
                     }
@@ -108,6 +112,7 @@ class RoleController extends Controller
         ]);
 
         $role->role_name = $request->input('role_name');
+        $role->description = $request->input('description');
         $role->updated_by = auth()->user()->id;
         $role->save();
 
@@ -134,6 +139,10 @@ class RoleController extends Controller
             ->when($request->role_name, function ($query, $role_name) {
                 return $query->where('role_name', 'like', '%' . $role_name . '%');
             })
+            ->when($request->description, function ($query, $description) {
+                return $query->where('description', 'like', '%' . $description . '%');
+            })
+
             ->when($request->created_at, function ($query, $created_at) {
                 return $query->whereDate('created_at', $created_at);
             })
@@ -166,20 +175,22 @@ class RoleController extends Controller
         // Set headers for the Excel columns
         $sheet->setCellValue('A1', 'ID');
         $sheet->setCellValue('B1', 'Role Name');
-        $sheet->setCellValue('C1', 'Created At');
-        $sheet->setCellValue('D1', 'Updated At');
-        $sheet->setCellValue('E1', 'Created By');
-        $sheet->setCellValue('F1', 'Updated By');
+        $sheet->setCellValue('C1', 'Description');
+
+
+        $sheet->setCellValue('E1', 'Updated At');
+        $sheet->setCellValue('D1', 'Created At');
+
 
         // Insert data from the filtered roles model
         $row = 2; // Starting from row 2 as row 1 has headers
         foreach ($roles as $role) {
             $sheet->setCellValue('A' . $row, $role->id);
             $sheet->setCellValue('B' . $row, $role->role_name);
-            $sheet->setCellValue('C' . $row, $role->created_at ? Carbon::parse($role->created_at)->format('M d, Y h:i A') : 'N/A');
-            $sheet->setCellValue('D' . $row, $role->updated_at ? Carbon::parse($role->updated_at)->format('M d, Y h:i A') : 'Not updated');
-            $sheet->setCellValue('E' . $row, $role->createdByUser ? $role->createdByUser->name : 'Unknown');
-            $sheet->setCellValue('F' . $row, $role->updatedByUser ? $role->updatedByUser->name : 'Not updated');
+            $sheet->setCellValue('D' . $row, $role->created_at ? Carbon::parse($role->created_at)->format('M d, Y h:i A') : 'N/A');
+            $sheet->setCellValue('E' . $row, $role->updated_at ? Carbon::parse($role->updated_at)->format('M d, Y h:i A') : 'Not updated');
+            $sheet->setCellValue('C' . $row, $role->description ? $role->description : 'Unknown');
+
             $row++;
         }
 

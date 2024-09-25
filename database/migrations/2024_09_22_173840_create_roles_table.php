@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('role_name'); // Column for unit name
+            $table->string('description');
             $table->unsignedBigInteger('created_by'); // Column for user who created the unit
             $table->unsignedBigInteger('updated_by'); // Column for user who updated the unit
         });

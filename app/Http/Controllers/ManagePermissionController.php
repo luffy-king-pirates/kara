@@ -8,7 +8,17 @@ use Yajra\DataTables\DataTables;
 
 class ManagePermissionController extends Controller
 {
-    public function index(Request $request)
+
+
+     public function index(Request $request)
+    {
+        $roles = Role::all();
+
+
+        return view('security.manage.index', compact('roles'));
+    }
+
+    public function show($role_name,Request $request)
 {
     // Fetch roles with associated permissions
     $roles = Role::with('permissions')->get();
@@ -52,14 +62,13 @@ class ManagePermissionController extends Controller
     // Check if the request is an AJAX request
     if ($request->ajax()) {
         // Apply filters for Role Name, Page, and Action
-        $roleNameFilter = $request->get('role_name');
         $pageFilter = $request->get('page');
         $actionFilter = $request->get('action');
 
         // Filter the data array based on the filters from the DataTables UI
-        if ($roleNameFilter) {
-            $data = array_filter($data, function($row) use ($roleNameFilter) {
-                return stripos($row['role_name'], $roleNameFilter) !== false;
+        if ($role_name) {
+            $data = array_filter($data, function($row) use ($role_name) {
+                return stripos($row['role_name'], $role_name) !== false;
             });
         }
 
@@ -80,7 +89,7 @@ class ManagePermissionController extends Controller
     }
 
     // Render the view for managing permissions
-    return view('security.managePermissions', compact('roles', 'pages'));
+    return view('security.manage.detail', compact('roles', 'pages'));
 }
 
 
