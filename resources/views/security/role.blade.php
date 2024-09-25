@@ -15,8 +15,7 @@
         <a href="javascript:void(0)" class="btn btn-success" id="addRoleBtn">Add Role</a>
     @endcan
     @can('export-role')
-    <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-
+        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
     @endcan
     @include('partials.filter-role', ['users' => $users])
     <!-- DataTable for Roles -->
@@ -122,7 +121,6 @@
             var table = $('#roles-table').DataTable({
                 processing: true,
                 serverSide: true,
-                responsive: true,
                 autoWidth: false,
                 ajax: {
                     url: "{{ route('roles.index') }}",
@@ -179,18 +177,9 @@
                             return actionButtons;
                         }
                     }
-                ],
-                colReorder: true, // Enable column reordering
-                buttons: [{
-                        extend: 'colvis', // Enable column visibility button
-                        text: 'Show/Hide Columns',
-                        titleAttr: 'Show/Hide Columns'
-                    },
-                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
-                ],
-                dom: 'Bfrtip', // Position the buttons
+                ]
             });
-            new $.fn.dataTable.Responsive(table);
+
 
             // Filter functionality
             $('#filter-id, #filter-role-name, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')
@@ -315,7 +304,7 @@
             };
 
             // Add event listener to the filter button
-            filterButton.addEventListener('click', function() {
+            filterButton?.addEventListener('click', function() {
                 // Build the query string from the filter inputs
                 let queryString = '?';
 

@@ -84,25 +84,44 @@ class ManagePermissionController extends Controller
 }
 
 
+public function savePermissions(Request $request)
+{
+    $roleId = $request->input('role_id');
+    $permissions = $request->input('permissions', []); // permissions should be an associative array with pages as keys
 
-    public function savePermissions(Request $request)
-    {
-        $roleId = $request->input('role_id');
-        $permissions = $request->input('permissions', []); // permissions should now be an associative array with pages as keys
+    // Fetch the role
+    $role = Role::findOrFail($roleId);
 
-        // Fetch the role
-        $role = Role::findOrFail($roleId);
+    // Loop through the permissions for each page and update accordingly
+    foreach ($permissions as $page => $actions) {
+        // Fetch the current permissions for this page
+        $existingPermissions = $role->permissions()->where('page', $page)->pluck('action')->toArray();
 
-        // Clear existing permissions for the role
-        $role->permissions()->delete();
+        // Determine which actions to add (checked in the request but not in the database)
+        $actionsToAdd = array_diff($actions, $existingPermissions);
 
-        // Assign new permissions
-        foreach ($permissions as $page => $actions) {
-            foreach ($actions as $action) {
-                $role->permissions()->create(['action' => $action, 'page' => $page]); // Use the dynamic page
-            }
+        // Determine which actions to delete (currently in the database but unchecked in the request)
+        $actionsToDelete = array_diff($existingPermissions, $actions);
+
+        // Add the new permissions
+        foreach ($actionsToAdd as $action) {
+            $role->permissions()->create([
+                'page' => $page,
+                'action' => $action,
+            ]);
         }
 
-        return response()->json(['message' => 'Permissions updated successfully']);
+        // Remove the unchecked permissions
+        if (!empty($actionsToDelete)) {
+            $role->permissions()
+                ->where('page', $page)
+                ->whereIn('action', $actionsToDelete)
+                ->delete();
+        }
     }
+
+    return response()->json(['message' => 'Permissions updated successfully']);
+}
+
+
 }

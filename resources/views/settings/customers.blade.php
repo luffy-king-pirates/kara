@@ -379,7 +379,7 @@
                 $('#errorToast').toast('show');
             }
             const filterButton = document.getElementById('apply-filter');
-            filterButton.addEventListener('click', function() {
+            filterButton?.addEventListener('click', function() {
                 window.open('/export/customers',
                     '_blank');
             })
