@@ -17,6 +17,13 @@
                      placeholder="Role Name">
              </div>
 
+             <!-- Description Filter -->
+             <div class="form-group col-md-4 mb-3">
+                 <label for="filter-role-description">Role Description</label>
+                 <input type="text" id="filter-role-description" name="filter-role-description" class="form-control"
+                     placeholder="Role Description">
+             </div>
+
              <!-- Created At Filter -->
              <div class="form-group col-md-4 mb-3">
                  <label for="filter-created-at">Created At</label>

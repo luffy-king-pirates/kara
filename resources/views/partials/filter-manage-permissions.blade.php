@@ -4,11 +4,7 @@
     </div>
     <div class="card-body">
         <div class="d-flex flex-wrap">
-            <!-- Role Name Filter -->
-            <div class="form-group col-md-4 mb-3">
-                <label for="filter-role-name">Role Name</label>
-                <input type="text" id="filter-role-name" name="filter-role-name" class="form-control" placeholder="Role Name">
-            </div>
+       
 
             <!-- Page Filter -->
             <div class="form-group col-md-4 mb-3">

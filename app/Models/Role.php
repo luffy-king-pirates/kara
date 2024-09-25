@@ -11,6 +11,7 @@ class Role extends Model
 
     protected $fillable = [
         'role_name',
+        'description',
         'created_by',
         'updated_by',
         'created_at',
@@ -38,5 +39,5 @@ class Role extends Model
            return $this->belongsToMany(Permission::class, 'role_permission', 'role_id', 'permission_id');
        }
 
-       
+
 }

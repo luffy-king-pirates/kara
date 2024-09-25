@@ -3,7 +3,7 @@
 @section('title', 'Manage Permissions')
 
 @section('content_header')
-    <h1>Manage Permissions</h1>
+    <h1 id="mamagePermissionHeader">Manage Permissions</h1>
 @stop
 
 @section('content')
@@ -51,15 +51,17 @@
     <script>
         $(document).ready(function() {
             // Initialize DataTable
+            var pathArray = window.location.pathname.split('/');
+            var userRole = pathArray[pathArray.length - 1]; // Assuming the role is the last part of the URL
+            document.getElementById("mamagePermissionHeader").innerText = `Manage Permission (${userRole})`
             var table = $('#permissions-table').DataTable({
                 processing: true,
                 serverSide: true,
                 responsive: true,
                 autoWidth: false,
                 ajax: {
-                    url: "{{ route('managePermissions.index') }}",
+                    url: `/managePermissions/${userRole}`,
                     data: function(d) {
-                        d.role_name = $('#filter-role-name').val();
                         d.page = $('#filter-page').val();
                         d.action = $('#filter-action').val();
                     }

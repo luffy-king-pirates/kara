@@ -26,6 +26,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Role Name</th>
+                        <th>Description</th>
                         <th>Created At</th>
                         <th>Updated At</th>
                         <th>Created By</th>
@@ -59,6 +60,16 @@
 
                             <!-- Error message for role name -->
                             <div id="role_name_error" class="text-danger"></div>
+
+
+                            <label for="description" class="form-label">Role Description</label>
+
+                            <!-- Input field with required attribute -->
+                            <input type="text" class="form-control" id="description" name="description" required
+                                maxlength="50" placeholder="Enter the role description">
+
+                            <!-- Error message for role name -->
+                            <div id="description_error" class="text-danger"></div>
                         </div>
                         <button type="submit" id="saveRoleBtn" class="btn btn-primary" disabled>Save changes</button>
                     </form>
@@ -126,6 +137,7 @@
                     url: "{{ route('roles.index') }}",
                     data: function(d) {
                         d.role_name = $('#filter-role-name').val();
+                        d.description = $('#filter-role-description').val();
                         d.created_at = $('#filter-created-at').val();
                         d.updated_at = $('#filter-updated-at').val();
                         d.created_by = $('#filter-created-by').val();
@@ -139,6 +151,10 @@
                     {
                         data: 'role_name',
                         name: 'role_name'
+                    },
+                    {
+                        data: 'description',
+                        name: 'description'
                     },
                     {
                         data: 'created_at',
@@ -182,7 +198,7 @@
 
 
             // Filter functionality
-            $('#filter-id, #filter-role-name, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')
+            $('#filter-id, #filter-role-name,#filter-role-description, #filter-created-at, #filter-updated-at, #filter-created-by, #filter-updated-by')
                 .on('keyup change', function() {
                     table.draw();
                 });
@@ -208,6 +224,7 @@
                 $.get('/roles/' + id + '/edit', function(data) {
                     $('#role-id').val(data.id);
                     $('#role_name').val(data.role_name);
+                    $('#description').val(data.description);
                     $('#roleModal').modal('show');
                     $('#saveRoleBtn').attr('disabled', false); // Enable Save button during edit
                     $('#role_name_error').text(''); // Clear error messages
@@ -297,6 +314,7 @@
             const filters = {
                 id: document.getElementById('filter-id'),
                 role_name: document.getElementById('filter-role-name'),
+                description: document.getElementById('filter-role-description'),
                 created_at: document.getElementById('filter-created-at'),
                 updated_at: document.getElementById('filter-updated-at'),
                 created_by: document.getElementById('filter-created-by'),
