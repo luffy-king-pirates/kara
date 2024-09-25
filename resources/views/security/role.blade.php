@@ -9,115 +9,117 @@
 @stop
 
 @section('content')
+    <div style="height: 700px; overflow-y: auto;">
+        <!-- Add Role Button -->
+        @can('create-role')
+            <a href="javascript:void(0)" class="btn btn-success" id="addRoleBtn">Add Role</a>
+        @endcan
+        @can('export-role')
+            <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+        @endcan
+        @include('partials.filter-role', ['users' => $users])
+        <!-- DataTable for Roles -->
+        @can('read-role')
+            <div class="container-fluid">
+                <table class="table table-bordered dt-responsive nowrap" id="roles-table" style="width: 100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Role Name</th>
+                            <th>Description</th>
+                            <th>Created At</th>
+                            <th>Updated At</th>
+                            <th>Created By</th>
+                            <th>Updated By</th>
+                            <th>Action</th>
+                        </tr>
 
-    <!-- Add Role Button -->
-    @can('create-role')
-        <a href="javascript:void(0)" class="btn btn-success" id="addRoleBtn">Add Role</a>
-    @endcan
-    @can('export-role')
-        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-    @endcan
-    @include('partials.filter-role', ['users' => $users])
-    <!-- DataTable for Roles -->
-    @can('read-role')
-        <div class="container-fluid">
-            <table class="table table-bordered dt-responsive nowrap" id="roles-table" style="width: 100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Role Name</th>
-                        <th>Description</th>
-                        <th>Created At</th>
-                        <th>Updated At</th>
-                        <th>Created By</th>
-                        <th>Updated By</th>
-                        <th>Action</th>
-                    </tr>
+                    </thead>
 
-                </thead>
+                </table>
+            </div>
+        @endcan
+        <!-- Modal for Add/Edit Role -->
+        <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="roleModalLabel">Add Role</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="roleForm">
+                            @csrf
+                            <input type="hidden" name="role_id" id="role-id">
+                            <div class="mb-3 position-relative">
+                                <label for="role_name" class="form-label">Role Name <span
+                                        class="text-danger">*</span></label>
 
-            </table>
-        </div>
-    @endcan
-    <!-- Modal for Add/Edit Role -->
-    <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="roleModalLabel">Add Role</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <!-- Input field with required attribute -->
+                                <input type="text" class="form-control" id="role_name" name="role_name" required
+                                    maxlength="50" placeholder="Enter the role name">
+
+                                <!-- Error message for role name -->
+                                <div id="role_name_error" class="text-danger"></div>
+
+
+                                <label for="description" class="form-label">Role Description</label>
+
+                                <!-- Input field with required attribute -->
+                                <input type="text" class="form-control" id="description" name="description" required
+                                    maxlength="50" placeholder="Enter the role description">
+
+                                <!-- Error message for role name -->
+                                <div id="description_error" class="text-danger"></div>
+                            </div>
+                            <button type="submit" id="saveRoleBtn" class="btn btn-primary" disabled>Save changes</button>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="roleForm">
-                        @csrf
-                        <input type="hidden" name="role_id" id="role-id">
-                        <div class="mb-3 position-relative">
-                            <label for="role_name" class="form-label">Role Name <span class="text-danger">*</span></label>
+            </div>
+        </div>
 
-                            <!-- Input field with required attribute -->
-                            <input type="text" class="form-control" id="role_name" name="role_name" required
-                                maxlength="50" placeholder="Enter the role name">
+        <!-- Modal for Delete Confirmation -->
+        <div class="modal fade" id="deleteRoleModal" tabindex="-1" aria-labelledby="deleteRoleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteRoleModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this role?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteRole">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                            <!-- Error message for role name -->
-                            <div id="role_name_error" class="text-danger"></div>
+        <!-- Toasts for Success/Error Messages -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">Role saved successfully!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
 
-
-                            <label for="description" class="form-label">Role Description</label>
-
-                            <!-- Input field with required attribute -->
-                            <input type="text" class="form-control" id="description" name="description" required
-                                maxlength="50" placeholder="Enter the role description">
-
-                            <!-- Error message for role name -->
-                            <div id="description_error" class="text-danger"></div>
-                        </div>
-                        <button type="submit" id="saveRoleBtn" class="btn btn-primary" disabled>Save changes</button>
-                    </form>
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteRoleModal" tabindex="-1" aria-labelledby="deleteRoleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteRoleModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this role?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteRole">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toasts for Success/Error Messages -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">Role saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
-        </div>
-
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-
 @stop
 
 @section('js')

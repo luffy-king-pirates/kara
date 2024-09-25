@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+ <div style="height: 700px; overflow-y: auto;">
     @include('partials.filter-manage-permissions')
     <table id="permissions-table" class="table">
         <thead>
@@ -38,6 +39,7 @@
                     aria-label="Close"></button>
             </div>
         </div>
+    </div>
     </div>
 @stop
 

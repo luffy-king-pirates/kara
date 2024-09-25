@@ -7,142 +7,144 @@
 @stop
 
 @section('content')
-    <!-- Add Customer Button -->
-    @can('create-customer')
-        <a href="javascript:void(0)" class="btn btn-success" id="addCustomerBtn">Add Customer</a>
-    @endcan
-    @can('export-customer')
-        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-    @endcan
+    <div style="height: 700px; overflow-y: auto;">
+        <!-- Add Customer Button -->
+        @can('create-customer')
+            <a href="javascript:void(0)" class="btn btn-success" id="addCustomerBtn">Add Customer</a>
+        @endcan
+        @can('export-customer')
+            <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+        @endcan
 
-    <!-- DataTable for Customers -->
-    @can('read-customer')
-        <table class="table table-bordered" id="customers-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Customer Name</th>
-                    <th>Tin Number</th>
-                    <th>Vrn Number</th>
-                    <th>Location</th>
-                    <th>Address</th>
-                    <th>Mobile</th>
-                    <th>Email</th>
-                    <th>Is Active</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-        </table>
-    @endcan
-    <!-- Modal for Add/Edit Customer -->
-    <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="customerModalLabel">Add Customer</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- DataTable for Customers -->
+        @can('read-customer')
+            <table class="table table-bordered" id="customers-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer Name</th>
+                        <th>Tin Number</th>
+                        <th>Vrn Number</th>
+                        <th>Location</th>
+                        <th>Address</th>
+                        <th>Mobile</th>
+                        <th>Email</th>
+                        <th>Is Active</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        @endcan
+        <!-- Modal for Add/Edit Customer -->
+        <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="customerModalLabel">Add Customer</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="customerForm">
+                            @csrf
+                            <input type="hidden" name="customer_id" id="customer-id">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="customer_name" class="form-label">Customer Name</label>
+                                    <input type="text" class="form-control" id="customer_name" name="customer_name"
+                                        required maxlength="100">
+                                    <div id="customer_name_error" class="text-danger"></div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="customer_tin" class="form-label">Customer Tin Number</label>
+                                    <input type="text" class="form-control" id="customer_tin" name="customer_tin"
+                                        required maxlength="50">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="customer_vrn" class="form-label">Customer Vrn Number</label>
+                                    <input type="text" class="form-control" id="customer_vrn" name="customer_vrn"
+                                        required maxlength="50">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="customer_location" class="form-label">Customer Location</label>
+                                    <input type="text" class="form-control" id="customer_location"
+                                        name="customer_location" required maxlength="150">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="customer_address" class="form-label">Customer Address</label>
+                                    <input type="text" class="form-control" id="customer_address" name="customer_address"
+                                        required maxlength="200">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="customer_mobile" class="form-label">Customer Mobile</label>
+                                    <input type="text" class="form-control" id="customer_mobile" name="customer_mobile"
+                                        required maxlength="15">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="customer_email" class="form-label">Customer Email</label>
+                                    <input type="email" class="form-control" id="customer_email" name="customer_email"
+                                        required>
+                                    <div id="customer_email_error" class="text-danger"></div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="is_active" class="form-label">Is Active</label>
+                                    <select class="form-control" id="is_active" name="is_active" required>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" id="saveCustomerBtn" class="btn btn-primary" disabled>Save
+                                changes</button>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="customerForm">
-                        @csrf
-                        <input type="hidden" name="customer_id" id="customer-id">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="customer_name" class="form-label">Customer Name</label>
-                                <input type="text" class="form-control" id="customer_name" name="customer_name" required
-                                    maxlength="100">
-                                <div id="customer_name_error" class="text-danger"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="customer_tin" class="form-label">Customer Tin Number</label>
-                                <input type="text" class="form-control" id="customer_tin" name="customer_tin" required
-                                    maxlength="50">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="customer_vrn" class="form-label">Customer Vrn Number</label>
-                                <input type="text" class="form-control" id="customer_vrn" name="customer_vrn" required
-                                    maxlength="50">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="customer_location" class="form-label">Customer Location</label>
-                                <input type="text" class="form-control" id="customer_location" name="customer_location"
-                                    required maxlength="150">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="customer_address" class="form-label">Customer Address</label>
-                                <input type="text" class="form-control" id="customer_address" name="customer_address"
-                                    required maxlength="200">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="customer_mobile" class="form-label">Customer Mobile</label>
-                                <input type="text" class="form-control" id="customer_mobile" name="customer_mobile"
-                                    required maxlength="15">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="customer_email" class="form-label">Customer Email</label>
-                                <input type="email" class="form-control" id="customer_email" name="customer_email"
-                                    required>
-                                <div id="customer_email_error" class="text-danger"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="is_active" class="form-label">Is Active</label>
-                                <select class="form-control" id="is_active" name="is_active" required>
-                                    <option value="1">Yes</option>
-                                    <option value="0">No</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" id="saveCustomerBtn" class="btn btn-primary" disabled>Save changes</button>
-                    </form>
+
+            </div>
+        </div>
+
+        <!-- Modal for Delete Confirmation -->
+        <div class="modal fade" id="deleteCustomerModal" tabindex="-1" aria-labelledby="deleteCustomerModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteCustomerModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this customer?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteCustomer">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toasts for Success/Error Messages -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">Customer saved successfully!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
                 </div>
             </div>
 
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteCustomerModal" tabindex="-1" aria-labelledby="deleteCustomerModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteCustomerModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this customer?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteCustomer">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toasts for Success/Error Messages -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">Customer saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
-        </div>
-
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-
 @stop
 
 @section('js')

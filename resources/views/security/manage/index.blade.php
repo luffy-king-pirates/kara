@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+ <div style="height: 700px; overflow-y: auto;">
     <div class="container-fluid">
         <div class="row">
             @foreach($roles as $role)
@@ -30,5 +31,6 @@
                 </div>
             @endforeach
         </div>
+    </div>
     </div>
 @stop

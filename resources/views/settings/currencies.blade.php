@@ -7,113 +7,116 @@
 @stop
 
 @section('content')
-    <!-- Add Currency Button -->
-    @can('create-currency')
-        <a href="javascript:void(0)" class="btn btn-success" id="addCurrencyBtn">Add Currency</a>
-    @endcan
-    @can('export-currency')
-        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-    @endcan
+    <div style="height: 700px; overflow-y: auto;">
+        <!-- Add Currency Button -->
+        @can('create-currency')
+            <a href="javascript:void(0)" class="btn btn-success" id="addCurrencyBtn">Add Currency</a>
+        @endcan
+        @can('export-currency')
+            <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+        @endcan
 
-    @include('partials.filter-currencies', ['users' => $users])
-    <!-- DataTable for Currencies -->
-    @can('read-currency')
-        <table class="table table-bordered" id="currencies-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Currency Name</th>
-                    <th>Currency Value</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                    <th>Created By</th>
-                    <th>Updated By</th>
-                    <th>Action</th>
-                </tr>
+        @include('partials.filter-currencies', ['users' => $users])
+        <!-- DataTable for Currencies -->
+        @can('read-currency')
+            <table class="table table-bordered" id="currencies-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Currency Name</th>
+                        <th>Currency Value</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                        <th>Created By</th>
+                        <th>Updated By</th>
+                        <th>Action</th>
+                    </tr>
 
-            </thead>
-        </table>
-    @endcan
-    <!-- Modal for Add/Edit Currency -->
-    <div class="modal fade" id="currencyModal" tabindex="-1" aria-labelledby="currencyModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="currencyModalLabel">Add Currency</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="currencyForm">
-                        @csrf
-                        <input type="hidden" name="currency_id" id="currency-id">
-                        <div class="mb-3 position-relative">
-                            <label for="currencie_name" class="form-label">Currency Name <span
-                                    class="text-danger">*</span></label>
+                </thead>
+            </table>
+        @endcan
+        <!-- Modal for Add/Edit Currency -->
+        <div class="modal fade" id="currencyModal" tabindex="-1" aria-labelledby="currencyModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="currencyModalLabel">Add Currency</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="currencyForm">
+                            @csrf
+                            <input type="hidden" name="currency_id" id="currency-id">
+                            <div class="mb-3 position-relative">
+                                <label for="currencie_name" class="form-label">Currency Name <span
+                                        class="text-danger">*</span></label>
 
-                            <!-- Input field with required attribute -->
-                            <input type="text" class="form-control" id="currencie_name" name="currencie_name" required
-                                maxlength="50" placeholder="Enter the currency name">
+                                <!-- Input field with required attribute -->
+                                <input type="text" class="form-control" id="currencie_name" name="currencie_name"
+                                    required maxlength="50" placeholder="Enter the currency name">
 
-                            <!-- Error message for currency name -->
-                            <div id="currencie_name_error" class="text-danger"></div>
-                        </div>
+                                <!-- Error message for currency name -->
+                                <div id="currencie_name_error" class="text-danger"></div>
+                            </div>
 
-                        <div class="mb-3 position-relative">
-                            <label for="currencie_value" class="form-label">Currency Value <span
-                                    class="text-danger">*</span></label>
+                            <div class="mb-3 position-relative">
+                                <label for="currencie_value" class="form-label">Currency Value <span
+                                        class="text-danger">*</span></label>
 
-                            <!-- Input field with required attribute for numeric values -->
-                            <input type="number" class="form-control" id="currencie_value" name="currencie_value" required
-                                placeholder="Enter the currency value">
+                                <!-- Input field with required attribute for numeric values -->
+                                <input type="number" class="form-control" id="currencie_value" name="currencie_value"
+                                    required placeholder="Enter the currency value">
 
-                            <!-- Error message for currency value -->
-                            <div id="currencie_value_error" class="text-danger"></div>
-                        </div>
+                                <!-- Error message for currency value -->
+                                <div id="currencie_value_error" class="text-danger"></div>
+                            </div>
 
-                        <button type="submit" id="saveCurrencyBtn" class="btn btn-primary" disabled>Save changes</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteCurrencyModal" tabindex="-1" aria-labelledby="deleteCurrencyModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteCurrencyModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this currency?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteCurrency">Delete</button>
+                            <button type="submit" id="saveCurrencyBtn" class="btn btn-primary" disabled>Save
+                                changes</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Toasts for Success/Error Messages -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">Currency saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+        <!-- Modal for Delete Confirmation -->
+        <div class="modal fade" id="deleteCurrencyModal" tabindex="-1" aria-labelledby="deleteCurrencyModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteCurrencyModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this currency?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteCurrency">Delete</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+        <!-- Toasts for Success/Error Messages -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">Currency saved successfully!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
             </div>
         </div>
     </div>

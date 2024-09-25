@@ -95,6 +95,7 @@ class RoleController extends Controller
 
         $role = new Role(); // Change from Units to Role
         $role->role_name = $request->input('role_name');
+        $role->description = $request->input('description');
         $role->created_by = auth()->user()->id;
         $role->updated_by = auth()->user()->id;
         $role->save();

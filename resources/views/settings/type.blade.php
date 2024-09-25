@@ -8,99 +8,102 @@
 @stop
 
 @section('content')
-    <!-- Add Stock Type Button -->
-    @can('create-stock-type')
-        <a href="javascript:void(0)" class="btn btn-success" id="addStockTypeBtn">Add Stock Type</a>
-    @endcan
-    @can('export-stock-type')
-        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-    @endcan
+    <div style="height: 700px; overflow-y: auto;">
+        <!-- Add Stock Type Button -->
+        @can('create-stock-type')
+            <a href="javascript:void(0)" class="btn btn-success" id="addStockTypeBtn">Add Stock Type</a>
+        @endcan
+        @can('export-stock-type')
+            <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+        @endcan
 
-    @include('partials.filter-type', ['users' => $users])
-    <!-- DataTable for Stock Types -->
-    @can('read-stock-type')
-        <table class="table table-bordered" id="stock-types-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Stock Type Name</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                    <th>Created By</th>
-                    <th>Updated By</th>
-                    <th>Action</th>
-                </tr>
+        @include('partials.filter-type', ['users' => $users])
+        <!-- DataTable for Stock Types -->
+        @can('read-stock-type')
+            <table class="table table-bordered" id="stock-types-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Stock Type Name</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                        <th>Created By</th>
+                        <th>Updated By</th>
+                        <th>Action</th>
+                    </tr>
 
-            </thead>
-        </table>
-    @endcan
-    <!-- Modal for Add/Edit Stock Type -->
-    <div class="modal fade" id="stockTypeModal" tabindex="-1" aria-labelledby="stockTypeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="stockTypeModalLabel">Add Stock Type</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="stockTypeForm">
-                        @csrf
-                        <input type="hidden" name="stock_type_id" id="stock-type-id">
-                        <div class="mb-3 position-relative">
-                            <label for="stock_type_name" class="form-label">Stock Type Name <span
-                                    class="text-danger">*</span></label>
+                </thead>
+            </table>
+        @endcan
+        <!-- Modal for Add/Edit Stock Type -->
+        <div class="modal fade" id="stockTypeModal" tabindex="-1" aria-labelledby="stockTypeModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="stockTypeModalLabel">Add Stock Type</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="stockTypeForm">
+                            @csrf
+                            <input type="hidden" name="stock_type_id" id="stock-type-id">
+                            <div class="mb-3 position-relative">
+                                <label for="stock_type_name" class="form-label">Stock Type Name <span
+                                        class="text-danger">*</span></label>
 
-                            <!-- Input field with required attribute -->
-                            <input type="text" class="form-control" id="stock_type_name" name="stock_type_name" required
-                                maxlength="50" placeholder="Enter the stock type name">
+                                <!-- Input field with required attribute -->
+                                <input type="text" class="form-control" id="stock_type_name" name="stock_type_name"
+                                    required maxlength="50" placeholder="Enter the stock type name">
 
-                            <!-- Error message for stock type name -->
-                            <div id="stock_type_name_error" class="text-danger"></div>
-                        </div>
-                        <button type="submit" id="saveStockTypeBtn" class="btn btn-primary" disabled>Save changes</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteStockTypeModal" tabindex="-1" aria-labelledby="deleteStockTypeModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteStockTypeModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this stock type?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteStockType">Delete</button>
+                                <!-- Error message for stock type name -->
+                                <div id="stock_type_name_error" class="text-danger"></div>
+                            </div>
+                            <button type="submit" id="saveStockTypeBtn" class="btn btn-primary" disabled>Save
+                                changes</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Toasts for Success/Error Messages -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">Stock type saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+        <!-- Modal for Delete Confirmation -->
+        <div class="modal fade" id="deleteStockTypeModal" tabindex="-1" aria-labelledby="deleteStockTypeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteStockTypeModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this stock type?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteStockType">Delete</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+        <!-- Toasts for Success/Error Messages -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">Stock type saved successfully!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
             </div>
         </div>
     </div>
