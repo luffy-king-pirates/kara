@@ -14,7 +14,8 @@ class Currency extends Model
         'created_by',
         'updated_by',
         'created_at',
-        'updated_by'
+        'updated_by',
+        'is_deleted'
     ];
 
     // Relationship with the User model for 'created_by'

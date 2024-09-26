@@ -70,6 +70,7 @@ class BrandsController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -204,7 +205,8 @@ public function export(Request $request)
     public function destroy($id)
     {
         $brand = Brand::findOrFail($id); // Update to your actual model
-        $brand->delete();
+        $brand->is_deleted = true; // Set is_deleted to true
+        $brand->save(); // Save the change to the database
 
         return response()->json(['success' => true]);
     }

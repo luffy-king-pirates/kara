@@ -69,6 +69,7 @@ class CategoriesController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -205,7 +206,8 @@ public function export(Request $request)
     public function destroy($id)
     {
         $category = Categories::findOrFail($id);
-        $category->delete();
+        $category->is_deleted = true; // Set is_deleted to true
+        $category->save(); // Save the change to the database
 
         return response()->json(['success' => true]);
     }

@@ -20,6 +20,7 @@ class Customers extends Model
         'is_active',
         'created_by',
         'updated_by',
+        'is_deleted'
     ];
 
     // Define the relationship to the User who created the customer

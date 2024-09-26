@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('unit_name'); // Column for unit name
             $table->unsignedBigInteger('created_by'); // Column for user who created the unit
             $table->unsignedBigInteger('updated_by'); // Column for user who updated the unit
+            $table->boolean('is_deleted')->default(false);
+
         });
     }
 

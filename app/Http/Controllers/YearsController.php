@@ -70,6 +70,7 @@ class YearsController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -191,8 +192,10 @@ class YearsController extends Controller
     public function destroy($id)
     {
         $year = Years::findOrFail($id); // Update to your actual model
-        $year->delete();
+        $year->is_deleted = true; // Set is_deleted to true
+    $year->save(); // Save the change to the database
 
-        return response()->json(['success' => true]);
+    return response()->json(['success' => true]);
+
     }
 }

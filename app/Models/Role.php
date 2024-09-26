@@ -16,6 +16,7 @@ class Role extends Model
         'updated_by',
         'created_at',
         'updated_by',
+        'is_deleted'
     ];
 
     // Relationship for the user who created the role

@@ -69,6 +69,7 @@ class MonthsController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -207,7 +208,8 @@ class MonthsController extends Controller
     public function destroy($id)
     {
         $month = Month::findOrFail($id); // Update to your actual model
-        $month->delete();
+        $month->is_deleted = true; // Set is_deleted to true
+        $month->save(); // Save the change to the database
 
         return response()->json(['success' => true]);
     }

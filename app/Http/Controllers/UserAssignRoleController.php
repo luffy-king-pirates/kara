@@ -52,6 +52,7 @@ class UserAssignRoleController extends Controller
                             });
                         });
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -91,7 +92,8 @@ class UserAssignRoleController extends Controller
     public function destroy($id)
     {
         $assignment = UserAssignRole::findOrFail($id);
-        $assignment->delete();
+        $assignment->is_deleted = true; // Set is_deleted to true
+        $assignment->save(); // Save the change to the database
 
         return response()->json(['success' => true]);
     }
