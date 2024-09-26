@@ -21,7 +21,8 @@ class User extends Authenticatable
         'phone',
         'profile_picture',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'is_deleted'
     ];
 
     protected $hidden = [

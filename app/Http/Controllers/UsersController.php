@@ -51,6 +51,7 @@ class UsersController extends Controller
                     if ($request->has('first_name') && $request->first_name != '') {
                         $query->where('first_name', 'like', "%" . $request->first_name . "%");
                     }
+                    $query->where('is_deleted', false);
 
                 })
                 ->make(true);
@@ -241,8 +242,10 @@ class UsersController extends Controller
             Storage::delete('public/' . $user->profile_picture);
         }
 
-        $user->delete();
+        $user->is_deleted = true; // Set is_deleted to true
+        $user->save(); // Save the change to the database
 
         return response()->json(['success' => true]);
+
     }
 }

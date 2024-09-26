@@ -75,6 +75,7 @@ class RoleController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -221,7 +222,8 @@ class RoleController extends Controller
     public function destroy($id)
     {
         $role = Role::findOrFail($id); // Change from Units to Role
-        $role->delete();
+        $role->is_deleted = true; // Set is_deleted to true
+        $role->save(); // Save the change to the database
 
         return response()->json(['success' => true]);
     }

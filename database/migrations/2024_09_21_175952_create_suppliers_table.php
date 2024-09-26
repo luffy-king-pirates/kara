@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('supplier_contact');
             $table->string('supplier_reference');
             $table->foreignId('created_by')->constrained('users');
+            $table->boolean('is_deleted')->default(false);
+
             $table->foreignId('updated_by')->constrained('users');
             $table->timestamps();
         });

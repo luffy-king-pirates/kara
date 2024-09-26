@@ -80,6 +80,7 @@ class CustomersController extends Controller
                     if ($request->has('is_active') && $request->is_active != '') {
                         $query->where('is_active', $request->is_active);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -218,7 +219,8 @@ public function update(Request $request, $id)
     public function destroy($id)
     {
         $customer = Customers::findOrFail($id);
-        $customer->delete();
+        $customer->is_deleted = true; // Set is_deleted to true
+        $customer->save(); // Save the change to the database
 
         return response()->json(['success' => true]);
     }

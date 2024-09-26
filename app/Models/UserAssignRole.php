@@ -16,7 +16,8 @@ class UserAssignRole extends Model
         'role_id',
         'created_at',
         'updated_at',
-      
+        'is_deleted'
+
     ];
 
     // Relationship with User

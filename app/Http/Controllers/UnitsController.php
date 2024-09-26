@@ -71,6 +71,7 @@ class UnitsController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -152,7 +153,8 @@ class UnitsController extends Controller
     public function destroy($id)
     {
         $unit = Units::findOrFail($id);
-        $unit->delete();
+        $unit->is_deleted = true; // Set is_deleted to true
+        $unit->save(); // Save the change to the database
 
         return response()->json(['success' => true]);
     }

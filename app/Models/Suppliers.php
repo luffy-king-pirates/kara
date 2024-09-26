@@ -14,6 +14,7 @@ class Suppliers extends Model
         'supplier_reference',
         'created_by',
         'updated_by',
+        'is_deleted'
     ];
 
     // Relationship for the user who created the supplier

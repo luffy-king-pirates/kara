@@ -23,6 +23,8 @@ class CreateCurrenciesTable extends Migration
 
             $table->foreign('created_by')->references('id')->on('users');
             $table->foreign('updated_by')->references('id')->on('users');
+            $table->boolean('is_deleted')->default(false);
+
         });
     }
 

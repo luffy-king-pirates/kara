@@ -13,7 +13,8 @@ class Units extends Model
         'created_by',
         'updated_by',
         'created_at',
-        'updated_by'
+        'updated_by',
+        'is_deleted'
     ];
    // Relationship for the user who created the unit
 public function createdByUser() {
