@@ -26,6 +26,8 @@ use App\Http\Controllers\UserAssignRoleController;
 use App\Http\Controllers\ManagePermissionController;
 
 use App\Http\Middleware\CheckPermissions;
+
+use  App\Http\Controllers\ItemsController;
 // Public route: accessible by everyone
 Route::get('/', function () {
     return view('auth.login');
@@ -53,6 +55,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/assignedRoles', [App\Http\Controllers\UserAssignRoleController::class, 'export'])->name('assignedRoles.export');
         Route::get('/users', [App\Http\Controllers\UsersController::class, 'export'])->name('users.export');
 
+        Route::get('/items', [App\Http\Controllers\ItemsController::class, 'export'])->name('items.export');
+
+
 
     });
     Route::middleware([CheckPermissions::class . ':units'])->resource('units', UnitsController::class);
@@ -72,6 +77,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('managePermissions', ManagePermissionController::class);
     Route::post('managePermissions/save', [ManagePermissionController::class, 'savePermissions'])->name('managePermissions.save');
+
+    Route::resource('items', ItemsController::class);
 
 
 });
