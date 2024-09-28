@@ -28,6 +28,16 @@ use App\Http\Controllers\ManagePermissionController;
 use App\Http\Middleware\CheckPermissions;
 
 use  App\Http\Controllers\ItemsController;
+
+use App\Http\Controllers\GodownShopController;
+use App\Http\Controllers\GodownShopAshokController;
+
+use App\Http\Controllers\ShopGodwanController;
+
+
+use App\Http\Controllers\shopServiceGodwanController;
+
+
 // Public route: accessible by everyone
 Route::get('/', function () {
     return view('auth.login');
@@ -79,6 +89,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('managePermissions/save', [ManagePermissionController::class, 'savePermissions'])->name('managePermissions.save');
 
     Route::resource('items', ItemsController::class);
+
+
+    //transfert
+    Route::resource('godwanShop', GodownShopController::class);
+    Route::resource('godownShopAshok', GodownShopAshokController::class);
+    Route::resource('shopGodown', ShopGodwanController::class);
+    Route::resource('services', shopServiceGodwanController::class);
+    Route::resource('existingTranfers', UserAssignRoleController::class);
 
 
 });

@@ -380,6 +380,37 @@ return [
         //     ],
         // ],
         [
+            'text' => 'Stock Transfert',
+            'icon' => 'fas fa-boxes',
+            'submenu' => [
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Godown to Shop',
+                    'url' => 'godwanShop',
+                ],
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Godown to Shop (Ashok)',
+                    'url' => 'godownShopAshok',
+                ],
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Shop to Godown',
+                    'url' => 'shopGodown',
+                ],
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Sevices',
+                    'url' => 'services',
+                ],
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Existing Transfers',
+                    'url' => 'existingTranfers',
+                ],
+            ]
+            ],
+        [
             'text' => 'Manage Items',
             'icon' => 'fas fa-boxes',
             'submenu' => [
