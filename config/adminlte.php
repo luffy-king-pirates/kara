@@ -380,6 +380,18 @@ return [
         //     ],
         // ],
         [
+            'text' => 'Manage Items',
+            'icon' => 'fas fa-boxes',
+            'submenu' => [
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Items',
+                    'url' => 'items',
+                ],
+            ]
+        ]
+            ,
+        [
             'text' => 'Security & Roles',
             'icon' => 'fas fa-shield-alt',
             'submenu' => [

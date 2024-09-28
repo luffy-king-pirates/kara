@@ -38,6 +38,7 @@ class ManagePermissionController extends Controller
         'user' => ['create', 'read', 'update', 'delete','export'],
         'year' => ['create', 'read', 'update', 'delete','export'],
         'user-assigned-role' => ['create', 'read', 'update', 'delete','export'],
+        'items' => ['create', 'read', 'update', 'delete','export'],
     ];
 
     // Prepare data for DataTables
