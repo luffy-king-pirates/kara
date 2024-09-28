@@ -225,8 +225,21 @@
                         }
                     }
 
-                ]
+                ],
+                colReorder: true, // Enable column reordering
+                buttons: [{
+                        extend: 'colvis', // Enable column visibility button
+                        text: 'Show/Hide Columns',
+                        titleAttr: 'Show/Hide Columns'
+                    },
+                    'copy', 'excel', 'pdf', 'print' // Add other export buttons as needed
+                ],
+                dom: 'Bfrtip', // Position the buttons
             });
+            new $.fn.dataTable.Responsive(table);
+
+            // Add the buttons to the table
+            table.buttons().container().appendTo('#items-table_wrapper .col-md-6:eq(0)');
 
             // Filter event
             $('#filter-id, #filter-item-code, #filter-item-name, #filter-category, #filter-brand, #filter-item-size, #filter-created-by, #filter-updated-by')
@@ -341,13 +354,13 @@
                     const value = filters[key].value;
                     if (value) {
                         queryString +=
-                        `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
+                            `${key}=${encodeURIComponent(value)}&`; // encodeURIComponent to handle special characters
                     }
                 }
 
                 // Redirect the page with the updated filters in the query string (or perform AJAX request)
                 window.open('/export/items' + queryString.slice(0, -1),
-                '_blank'); // Update the URL to your export route
+                    '_blank'); // Update the URL to your export route
             });
 
         });
