@@ -7,28 +7,30 @@
 @stop
 
 @section('content')
-<div style="height: 700px; overflow-y: auto;">
-    <!-- Filter and Export Buttons -->
-    <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
+    <div style="height: 700px; overflow-y: auto;">
+        <!-- Filter and Export Buttons -->
+        <button id="apply-filter" class="btn btn-success">Export d Results in Excel</button>
+        <a href="/adjustments/create" class="btn btn-success" id="addItemBtn">Adjust Stock</a>
 
-    <!-- DataTable for Adjustments -->
-    <table class="table table-bordered" id="adjustments-table">
-        <thead>
-            <tr>
-                <th></th> <!-- Expand button -->
-                <th>ID</th>
-                <th>Adjustment Number</th>
-                <th>Adjustment Date</th>
-            </tr>
-            <tr>
-                <th></th> <!-- Expand button -->
-                <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                <th><input type="text" id="filter-adjustment-number" class="form-control" placeholder="Adjustment Number"></th>
-                <th><input type="date" id="filter-adjustment-date" class="form-control"></th>
-            </tr>
-        </thead>
-    </table>
-</div>
+        <!-- DataTable for Adjustments -->
+        <table class="table table-bordered" id="adjustments-table">
+            <thead>
+                <tr>
+                    <th></th> <!-- Expand button -->
+                    <th>ID</th>
+                    <th>Adjustment Number</th>
+                    <th>Adjustment Date</th>
+                </tr>
+                <tr>
+                    <th></th> <!-- Expand button -->
+                    <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
+                    <th><input type="text" id="filter-adjustment-number" class="form-control"
+                            placeholder="Adjustment Number"></th>
+                    <th><input type="date" id="filter-adjustment-date" class="form-control"></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
 @stop
 
 @section('js')
@@ -48,18 +50,28 @@
                         d.adjustment_date = $('#filter-adjustment-date').val();
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         className: 'dt-control',
                         orderable: false,
                         data: null,
                         defaultContent: ''
                     },
-                    { data: 'id', name: 'id' },
-                    { data: 'adjustment_number', name: 'adjustment_number' },
-                    { data: 'adjustment_date', name: 'adjustment_date' }
+                    {
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'adjustment_number',
+                        name: 'adjustment_number'
+                    },
+                    {
+                        data: 'adjustment_date',
+                        name: 'adjustment_date'
+                    }
                 ],
-                order: [[1, 'asc']] // Order by ID
+                order: [
+                    [1, 'asc']
+                ] // Order by ID
             });
 
             // Filter functionality
@@ -79,24 +91,35 @@
                                 <th>Shop</th>
                                 <th>Quantity</th>
                                 <th>Unit</th>
-                                <th>Edit</th> <!-- New Edit Column -->
+
                             </tr>
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                <tr>
-                                    <td>${item.item?.item_name}</td>
-                                    <td>${item.stock_type?.stock_type_name}</td>
-                                    <td>${item.godown || 0}</td>
-                                    <td>${item.shop || 0}</td>
-                                    <td>${item.quantity}</td>
-                                    <td>${item.unit ? item.unit.unit_name : ''}</td>
-                                    <td>
-                                        <a href="/adjustments/${rowData.id}/edit" class="btn btn-warning btn-sm">Edit</a> <!-- Edit Button -->
-                                    </td>
-                                </tr>
-                            `).join('')}
+                                                <tr>
+                                                    <td>${item.item?.item_name}</td>
+                                                    <td>${item.stock_type?.stock_type_name}</td>
+                                                    <td>${item.godown || 0}</td>
+                                                    <td>${item.shop || 0}</td>
+                                                    <td>${item.quantity}</td>
+                                                    <td>${item.unit ? item.unit.unit_name : ''}</td>
+
+                                                </tr>
+                                            `).join('')}
                         </tbody>
+
+                 <div class="btn-group" role="group" aria-label="Adjustment Actions">
+    <!-- Edit Button -->
+    <a href="/adjustments/${rowData.id}/edit" class="btn btn-warning btn-sm">
+        <i class="fas fa-edit"></i> Edit
+    </a>
+
+    <!-- Export Button -->
+    <a href="/export/adjustments/exportDetails/${rowData.id}" class="btn btn-success btn-sm">
+        <i class="fas fa-file-export"></i> Export
+    </a>
+</div>
+
                     </table>
                 `;
                 return detailTable;
@@ -124,7 +147,8 @@
             $('#apply-filter').click(function() {
                 let queryString = '?';
                 queryString += 'id=' + encodeURIComponent($('#filter-id').val()) + '&';
-                queryString += 'adjustment_number=' + encodeURIComponent($('#filter-adjustment-number').val()) + '&';
+                queryString += 'adjustment_number=' + encodeURIComponent($('#filter-adjustment-number')
+                    .val()) + '&';
                 queryString += 'adjustment_date=' + encodeURIComponent($('#filter-adjustment-date').val());
 
                 window.open('/export/adjustments' + queryString, '_blank');

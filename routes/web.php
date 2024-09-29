@@ -67,6 +67,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users', [App\Http\Controllers\UsersController::class, 'export'])->name('users.export');
 
         Route::get('/items', [App\Http\Controllers\ItemsController::class, 'export'])->name('items.export');
+        Route::get('/adjustments', [App\Http\Controllers\AdjustmentController::class, 'export'])->name('adjustments.export');
+        Route::get('/adjustments/exportDetails/{id}', [App\Http\Controllers\AdjustmentController::class, 'exportDetails'])->name('adjustments.exportDetails');
+
+
 
 
 

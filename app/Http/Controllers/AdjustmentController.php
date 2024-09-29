@@ -12,7 +12,11 @@ use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\User;
 use Carbon\Carbon;
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 class AdjustmentController extends Controller
 {
     public function index(Request $request)
@@ -107,6 +111,7 @@ class AdjustmentController extends Controller
             'units' => $units
         ]);
     }
+
     public function create()
     {
         $adjustment = null;
@@ -219,4 +224,249 @@ class AdjustmentController extends Controller
         return response()->json(['success' => true]);
     }
 
+
+    public function export(Request $request)
+    {
+        // Query adjustments and apply filters manually using conditional where clauses
+        $adjustments = Adjustment::query()
+            ->with([
+                'details.item:id,item_name',
+                'details.stockType:id,stock_type_name',
+                'details.unit:id,unit_name',
+                'createdByUser:id,name',
+                'updatedByUser:id,name'
+            ]) // Eager load relationships
+            ->when($request->adjustment_number, function ($query, $adjustment_number) {
+                return $query->where('adjustment_number', 'like', '%' . $adjustment_number . '%');
+            })
+            ->when($request->adjustment_date, function ($query, $adjustment_date) {
+                return $query->whereDate('adjustment_date', $adjustment_date);
+            })
+            ->when($request->created_at, function ($query, $created_at) {
+                return $query->whereDate('created_at', $created_at);
+            })
+            ->when($request->updated_at, function ($query, $updated_at) {
+                return $query->whereDate('updated_at', $updated_at);
+            })
+            ->when($request->created_by, function ($query, $created_by) {
+                return $query->where('created_by', $created_by);
+            })
+            ->when($request->updated_by, function ($query, $updated_by) {
+                return $query->where('updated_by', $updated_by);
+            })
+            ->when($request->search['value'] ?? null, function ($query, $searchValue) {
+                return $query->where(function($q) use ($searchValue) {
+                    $q->where('adjustment_number', 'like', "%$searchValue%")
+                      ->orWhereHas('createdByUser', function($q) use ($searchValue) {
+                          $q->where('name', 'like', "%$searchValue%");
+                      })
+                      ->orWhereHas('updatedByUser', function($q) use ($searchValue) {
+                          $q->where('name', 'like', "%$searchValue%");
+                      });
+                });
+            })
+            ->get();
+
+        // Create a new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Initialize row counter
+        $row = 1;
+
+        // Define header styles (background color, font style, borders)
+        $headerStyle = [
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['argb' => 'FFCCCCCC'], // Light gray background
+            ],
+            'font' => [
+                'bold' => true,
+                'color' => ['argb' => 'FF000000'] // Black font
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'], // Black border
+                ],
+            ],
+        ];
+
+        // Define alternate row styles
+        $alternateRowStyle = [
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['argb' => 'FFE6F7FF'], // Light blue background
+            ]
+        ];
+
+        // Insert data from the filtered Adjustment model
+        foreach ($adjustments as $adjustment) {
+            // Set header for adjustment number and adjustment date
+            $sheet->setCellValue('A' . $row, 'Adjustment Number');
+            $sheet->setCellValue('B' . $row, $adjustment->adjustment_number);
+
+            $sheet->setCellValue('A' . ($row + 1), 'Adjustment Date');
+            $sheet->setCellValue('B' . ($row + 1), Carbon::parse($adjustment->adjustment_date)->format('M d, Y'));
+
+            // Apply header style to these two rows
+            $sheet->getStyle('A' . $row . ':B' . ($row + 1))->applyFromArray($headerStyle);
+
+            // Skip to the next row for the table of details
+            $row += 3;
+
+            // Set headers for the details table
+            $sheet->setCellValue('A' . $row, 'Item Name');
+            $sheet->setCellValue('B' . $row, 'Stock Type');
+            $sheet->setCellValue('C' . $row, 'Unit');
+            $sheet->setCellValue('D' . $row, 'Quantity');
+
+            // Apply header style to details table header
+            $sheet->getStyle('A' . $row . ':D' . $row)->applyFromArray($headerStyle);
+
+            $row++; // Move to the next row for detail entries
+
+            // Loop through each detail in the adjustment
+            $isAlternateRow = false;
+            foreach ($adjustment->details as $detail) {
+                // Insert details data
+                $sheet->setCellValue('A' . $row, $detail->item ? $detail->item->item_name : 'Unknown');
+                $sheet->setCellValue('B' . $row, $detail->stockType ? $detail->stockType->stock_type_name : 'Unknown');
+                $sheet->setCellValue('C' . $row, $detail->unit ? $detail->unit->unit_name : 'Unknown');
+                $sheet->setCellValue('D' . $row, $detail->quantity);
+
+                // Apply alternate row color for readability
+                if ($isAlternateRow) {
+                    $sheet->getStyle('A' . $row . ':D' . $row)->applyFromArray($alternateRowStyle);
+                }
+
+                $isAlternateRow = !$isAlternateRow; // Toggle row color
+                $row++; // Move to the next row for the next detail
+            }
+
+            // Add a blank row between adjustments for better readability
+            $row++;
+        }
+
+        // Write the spreadsheet to a file (in memory)
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'adjustments.xlsx';
+
+        // Prepare the response for download
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+            'Content-Disposition' => 'attachment; filename="adjustments.xlsx"'
+        ]);
+    }
+
+
+    public function exportDetails(Request $request, $id)
+{
+    // Query adjustment by the specific ID
+    $adjustment = Adjustment::query()
+        ->with([
+            'details.item:id,item_name',
+            'details.stockType:id,stock_type_name',
+            'details.unit:id,unit_name',
+            'createdByUser:id,name',
+            'updatedByUser:id,name'
+        ]) // Eager load relationships
+        ->where('id', $id) // Filter by the given adjustment ID
+        ->first();
+
+    if (!$adjustment) {
+        return response()->json(['error' => 'Adjustment not found'], 404);
+    }
+
+    // Create a new Spreadsheet
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Initialize row counter
+    $row = 1;
+
+    // Define header styles (background color, font style, borders)
+    $headerStyle = [
+        'fill' => [
+            'fillType' => Fill::FILL_SOLID,
+            'startColor' => ['argb' => 'FFCCCCCC'], // Light gray background
+        ],
+        'font' => [
+            'bold' => true,
+            'color' => ['argb' => 'FF000000'] // Black font
+        ],
+        'borders' => [
+            'allBorders' => [
+                'borderStyle' => Border::BORDER_THIN,
+                'color' => ['argb' => 'FF000000'], // Black border
+            ],
+        ],
+    ];
+
+    // Define alternate row styles
+    $alternateRowStyle = [
+        'fill' => [
+            'fillType' => Fill::FILL_SOLID,
+            'startColor' => ['argb' => 'FFE6F7FF'], // Light blue background
+        ]
+    ];
+
+    // Set header for adjustment number and adjustment date
+    $sheet->setCellValue('A' . $row, 'Adjustment Number');
+    $sheet->setCellValue('B' . $row, $adjustment->adjustment_number);
+
+    $sheet->setCellValue('A' . ($row + 1), 'Adjustment Date');
+    $sheet->setCellValue('B' . ($row + 1), Carbon::parse($adjustment->adjustment_date)->format('M d, Y'));
+
+    // Apply header style to these two rows
+    $sheet->getStyle('A' . $row . ':B' . ($row + 1))->applyFromArray($headerStyle);
+
+    // Skip to the next row for the table of details
+    $row += 3;
+
+    // Set headers for the details table
+    $sheet->setCellValue('A' . $row, 'Item Name');
+    $sheet->setCellValue('B' . $row, 'Stock Type');
+    $sheet->setCellValue('C' . $row, 'Unit');
+    $sheet->setCellValue('D' . $row, 'Quantity');
+
+    // Apply header style to details table header
+    $sheet->getStyle('A' . $row . ':D' . $row)->applyFromArray($headerStyle);
+
+    $row++; // Move to the next row for detail entries
+
+    // Loop through each detail in the adjustment
+    $isAlternateRow = false;
+    foreach ($adjustment->details as $detail) {
+        // Insert details data
+        $sheet->setCellValue('A' . $row, $detail->item ? $detail->item->item_name : 'Unknown');
+        $sheet->setCellValue('B' . $row, $detail->stockType ? $detail->stockType->stock_type_name : 'Unknown');
+        $sheet->setCellValue('C' . $row, $detail->unit ? $detail->unit->unit_name : 'Unknown');
+        $sheet->setCellValue('D' . $row, $detail->quantity);
+
+        // Apply alternate row color for readability
+        if ($isAlternateRow) {
+            $sheet->getStyle('A' . $row . ':D' . $row)->applyFromArray($alternateRowStyle);
+        }
+
+        $isAlternateRow = !$isAlternateRow; // Toggle row color
+        $row++; // Move to the next row for the next detail
+    }
+
+    // Write the spreadsheet to a file (in memory)
+    $writer = new Xlsx($spreadsheet);
+    $fileName = 'adjustment_' . $id . '.xlsx';
+
+    // Prepare the response for download
+    return response()->streamDownload(function() use ($writer) {
+        $writer->save('php://output');
+    }, $fileName, [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Cache-Control' => 'max-age=0',
+        'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
+    ]);
+}
 }
