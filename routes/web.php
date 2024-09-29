@@ -28,6 +28,17 @@ use App\Http\Controllers\ManagePermissionController;
 use App\Http\Middleware\CheckPermissions;
 
 use  App\Http\Controllers\ItemsController;
+
+use App\Http\Controllers\GodownShopController;
+use App\Http\Controllers\GodownShopAshokController;
+
+use App\Http\Controllers\ShopGodwanController;
+
+
+use App\Http\Controllers\shopServiceGodwanController;
+use App\Http\Controllers\AdjustmentController;
+
+
 // Public route: accessible by everyone
 Route::get('/', function () {
     return view('auth.login');
@@ -56,6 +67,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users', [App\Http\Controllers\UsersController::class, 'export'])->name('users.export');
 
         Route::get('/items', [App\Http\Controllers\ItemsController::class, 'export'])->name('items.export');
+        Route::get('/adjustments', [App\Http\Controllers\AdjustmentController::class, 'export'])->name('adjustments.export');
+        Route::get('/adjustments/exportDetails/{id}', [App\Http\Controllers\AdjustmentController::class, 'exportDetails'])->name('adjustments.exportDetails');
+
+
 
 
 
@@ -79,6 +94,21 @@ Route::middleware(['auth'])->group(function () {
     Route::post('managePermissions/save', [ManagePermissionController::class, 'savePermissions'])->name('managePermissions.save');
 
     Route::resource('items', ItemsController::class);
+
+
+    //transfert in progress
+    Route::resource('godwanShop', GodownShopController::class);
+    Route::resource('godownShopAshok', GodownShopAshokController::class);
+    Route::resource('shopGodown', ShopGodwanController::class);
+    Route::resource('services', shopServiceGodwanController::class);
+    Route::resource('existingTranfers', UserAssignRoleController::class);
+
+    //adjustment
+    Route::resource('adjustments', AdjustmentController::class);
+    Route::get('adjustments/{id}/details', [AdjustmentController::class, 'details'])->name('adjustments.details');
+    Route::get('adjustments/{id}/edit', [AdjustmentController::class, 'edit'])->name('adjustments.edit');
+
+
 
 
 });

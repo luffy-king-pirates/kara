@@ -380,6 +380,57 @@ return [
         //     ],
         // ],
         [
+            'text' => 'Stock Transfert',
+            'icon' => 'fas fa-boxes',
+            'submenu' => [
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Godown to Shop',
+                    'url' => 'godwanShop',
+                ],
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Godown to Shop (Ashok)',
+                    'url' => 'godownShopAshok',
+                ],
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Shop to Godown',
+                    'url' => 'shopGodown',
+                ],
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Sevices',
+                    'url' => 'services',
+                ],
+                [
+                    'icon' => 'fas fa-fw fa-box',
+                    'text' => 'Existing Transfers',
+                    'url' => 'existingTranfers',
+                ],
+            ]
+            ],
+            [
+                'text' => 'Stock Adjustment',
+                'icon' => 'fas fa-warehouse',
+                'submenu' => [
+                    [
+                        'icon' => 'fas fa-box',
+                        'text' => '
+                            Stock Adjustment
+                            ',
+                        'url' => 'adjustments',
+                    ],
+                    [
+                        'icon' => 'fas fa-plus-circle',
+                        'text' => '
+                             Adjust Stock
+                            ',
+                        'url' => 'adjustments/create',
+                    ],
+                ]
+                ],
+        [
             'text' => 'Manage Items',
             'icon' => 'fas fa-boxes',
             'submenu' => [

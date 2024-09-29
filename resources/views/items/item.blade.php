@@ -20,6 +20,7 @@
             'users' => $users,
             'categories' => $categories,
             'brands' => $brands,
+            'units' => $units,
         ])
         <!-- DataTable for Items -->
         @can('read-items')
@@ -30,6 +31,7 @@
                         <th>Item Code</th>
                         <th>Item Name</th>
                         <th>Category</th>
+                        <th>Unit</th>
                         <th>Brand</th>
                         <th>Size</th>
                         <th>Created At</th>
@@ -72,6 +74,14 @@
                             <select class="form-control" id="item_category" name="item_category" required>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}">{{ $category->categorie_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="item_unit" class="form-label">Unit <span class="text-danger">*</span></label>
+                            <select class="form-control" id="item_unit" name="item_unit" required>
+                                @foreach ($units as $unit)
+                                    <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -144,10 +154,10 @@
     </script>
 
     <script>
-        console.log("canEditItem = ", canEditItem)
         $(function() {
             // Initialize DataTable
-            var table = $('#items-table').DataTable({
+            console.log("canEditItem = ", canEditItem)
+            var table = $('#items-table')?.DataTable({
                 processing: true,
                 serverSide: true,
                 responsive: true,
@@ -157,6 +167,7 @@
                         d.item_code = $('#filter-item-code').val();
                         d.item_name = $('#filter-item-name').val();
                         d.item_category = $('#filter-category').val();
+                        d.item_unit = $('#filter-unit').val();
                         d.item_brand = $('#filter-brand').val();
                         d.item_size = $('#filter-item-size').val();
                         d.created_by = $('#filter-created-by').val();
@@ -178,6 +189,10 @@
                     {
                         data: 'category',
                         name: 'category'
+                    },
+                    {
+                        data: 'unit',
+                        name: 'unit'
                     },
                     {
                         data: 'brand',
@@ -236,13 +251,16 @@
                 ],
                 dom: 'Bfrtip', // Position the buttons
             });
-            new $.fn.dataTable.Responsive(table);
+            if (table) {
+                new $.fn.dataTable.Responsive(table);
 
-            // Add the buttons to the table
-            table.buttons().container().appendTo('#items-table_wrapper .col-md-6:eq(0)');
+                // Add the buttons to the table
+                table?.buttons()?.container()?.appendTo('#items-table_wrapper .col-md-6:eq(0)');
+
+            }
 
             // Filter event
-            $('#filter-id, #filter-item-code, #filter-item-name, #filter-category, #filter-brand, #filter-item-size, #filter-created-by, #filter-updated-by')
+            $('#filter-id, #filter-item-code, #filter-item-name, #filter-category,#filter-unit, #filter-brand, #filter-item-size, #filter-created-by, #filter-updated-by')
                 .on('keyup change', function() {
                     table.draw();
                 });
@@ -286,12 +304,15 @@
                     $('#item_size').val(data.item_size);
                     $('#item_category').val(data
                         .item_category); // Assuming you have a dropdown for categories
+                    $('#item_unit').val(data
+                        .item_unit);
+
                     $('#item_brand').val(data
                         .item_brand); // Assuming you have a dropdown for brands
                     $('#itemModal').modal('show'); // Show the modal
 
                     // Enable the save button
-                    $('#saveItemBtn').attr('disabled', false);
+                    $('#saveItemBtn').prop('disabled', false);
 
                     // Clear error messages
                     $('#item_name_error').text('');
