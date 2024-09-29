@@ -410,6 +410,26 @@ return [
                 ],
             ]
             ],
+            [
+                'text' => 'Stock Adjustment',
+                'icon' => 'fas fa-warehouse',
+                'submenu' => [
+                    [
+                        'icon' => 'fas fa-box',
+                        'text' => '
+                            Stock Adjustment
+                            ',
+                        'url' => 'adjustments',
+                    ],
+                    [
+                        'icon' => 'fas fa-plus-circle',
+                        'text' => '
+                             Adjust Stock
+                            ',
+                        'url' => 'adjustments/create',
+                    ],
+                ]
+                ],
         [
             'text' => 'Manage Items',
             'icon' => 'fas fa-boxes',

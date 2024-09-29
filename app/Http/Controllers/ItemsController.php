@@ -6,6 +6,8 @@ use App\Models\Item; // Your item model
 use App\Models\User;
 use App\Models\categories;
 use App\Models\Brand;
+use App\Models\Units;
+
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -19,10 +21,10 @@ class ItemsController extends Controller
         $users = User::all();
         $categories = categories::all();
         $brands = Brand::all();
-
+        $units = Units::all();
         if ($request->ajax()) {
             $items = Item::with(['category:id,categorie_name', 'brand:id,brand_name',
-
+            'unit:id,unit_name',
            'createdByUser:id,name', 'updatedByUser:id,name'])
                 ->select(['id', 'item_code', 'item_name', 'item_category', 'item_brand', 'item_size', 'created_at', 'updated_at', 'created_by', 'updated_by', 'is_active'])
                 ->where('is_deleted', false);
@@ -42,6 +44,10 @@ class ItemsController extends Controller
             })
                 ->addColumn('category', function ($row) {
                     return $row->category ? $row->category->categorie_name : 'Unknown';
+                })
+
+                ->addColumn('unit', function ($row) {
+                    return $row->unit ? $row->unit->unit_name : 'Unknown';
                 })
                 ->addColumn('brand', function ($row) {
                     return $row->brand ? $row->brand->brand_name : 'Unknown';
@@ -76,6 +82,9 @@ class ItemsController extends Controller
                     if ($request->has('item_category') && $request->item_category != '') {
                         $query->where('item_category', $request->item_category);
                     }
+                    if ($request->has('item_unit') && $request->item_unit != '') {
+                        $query->where('item_unit', $request->item_unit);
+                    }
                     if ($request->has('item_brand') && $request->item_brand != '') {
                         $query->where('item_brand', $request->item_brand);
                     }
@@ -100,6 +109,7 @@ class ItemsController extends Controller
             'users' => $users,
             'categories' => $categories,
             'brands' => $brands,
+            'units' => $units,
             'canEditItem' => auth()->user()->can('update-items'),
             'canDeleteItem' => auth()->user()->can('delete-items')
         ]);
@@ -109,7 +119,7 @@ public function export(Request $request)
 {
     // Query and apply filters manually using conditional where clauses
     $items = Item::query()
-        ->with(['category', 'brand', 'createdByUser', 'updatedByUser']) // Eager load relationships
+        ->with(['unit','category', 'brand', 'createdByUser', 'updatedByUser']) // Eager load relationships
         ->when($request->search['value'] ?? null, function ($query, $searchValue) {
             return $query->where(function ($q) use ($searchValue) {
                 $q->where('item_code', 'like', "%$searchValue%")
@@ -130,6 +140,9 @@ public function export(Request $request)
         })
         ->when($request->category_id, function ($query, $category_id) {
             return $query->where('category_id', $category_id);
+        })
+        ->when($request->unit_id, function ($query, $unit_id) {
+            return $query->where('unit_id', $unit_id);
         })
         ->when($request->brand_id, function ($query, $brand_id) {
             return $query->where('brand_id', $brand_id);
@@ -177,6 +190,7 @@ public function export(Request $request)
     $sheet->setCellValue('H1', 'Updated At');
     $sheet->setCellValue('I1', 'Created By');
     $sheet->setCellValue('J1', 'Updated By');
+    $sheet->setCellValue('K1', 'Unit');
 
     // Insert data from the filtered items model
     $row = 2; // Starting from row 2 as row 1 has headers
@@ -191,6 +205,8 @@ public function export(Request $request)
         $sheet->setCellValue('H' . $row, $item->updated_at ? Carbon::parse($item->updated_at)->format('M d, Y h:i A') : 'Not updated');
         $sheet->setCellValue('I' . $row, $item->createdByUser ? $item->createdByUser->name : 'Unknown');
         $sheet->setCellValue('J' . $row, $item->updatedByUser ? $item->updatedByUser->name : 'Not updated');
+        $sheet->setCellValue('K' . $row, $item->unit->unit_name ?? 'N/A');
+
         $row++;
     }
 
@@ -215,6 +231,7 @@ public function export(Request $request)
             'item_name' => 'required|string|unique:items,item_name',
             'item_code' => 'nullable|string|max:255|unique:items,item_code',
             'item_category' => 'required|exists:categories,id',
+            'item_unit' => 'required|exists:units,id',
             'item_brand' => 'required|exists:brands,id',
             'item_size' => 'nullable|string|max:255',
         ]);
@@ -223,6 +240,7 @@ public function export(Request $request)
         $item->item_code = $request->input('item_code');
         $item->item_name = $request->input('item_name');
         $item->item_category = $request->input('item_category');
+        $item->item_unit = $request->input('item_unit');
         $item->item_brand = $request->input('item_brand');
         $item->item_size = $request->input('item_size');
         $item->created_by = auth()->user()->id;
@@ -245,6 +263,7 @@ public function export(Request $request)
             'item_category' => 'required|exists:item_groups,id',
             'item_brand' => 'required|exists:brands,id',
             'item_size' => 'nullable|string|max:255',
+            'item_unit' => 'required|exists:units,id',
         ]);
 
         $item->item_code = $request->input('item_code');
@@ -252,6 +271,7 @@ public function export(Request $request)
         $item->item_category = $request->input('item_category');
         $item->item_brand = $request->input('item_brand');
         $item->item_size = $request->input('item_size');
+        $item->item_unit = $request->input('item_unit');
         $item->updated_by = auth()->user()->id;
         $item->save();
 

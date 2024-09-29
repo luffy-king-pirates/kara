@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stock_type', function (Blueprint $table) {
+        Schema::create('stock_types', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->string('stock_type_name'); // Column for unit name

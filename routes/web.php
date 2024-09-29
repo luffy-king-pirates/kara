@@ -36,6 +36,7 @@ use App\Http\Controllers\ShopGodwanController;
 
 
 use App\Http\Controllers\shopServiceGodwanController;
+use App\Http\Controllers\AdjustmentController;
 
 
 // Public route: accessible by everyone
@@ -91,12 +92,19 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('items', ItemsController::class);
 
 
-    //transfert
+    //transfert in progress
     Route::resource('godwanShop', GodownShopController::class);
     Route::resource('godownShopAshok', GodownShopAshokController::class);
     Route::resource('shopGodown', ShopGodwanController::class);
     Route::resource('services', shopServiceGodwanController::class);
     Route::resource('existingTranfers', UserAssignRoleController::class);
+
+    //adjustment
+    Route::resource('adjustments', AdjustmentController::class);
+    Route::get('adjustments/{id}/details', [AdjustmentController::class, 'details'])->name('adjustments.details');
+    Route::get('adjustments/{id}/edit', [AdjustmentController::class, 'edit'])->name('adjustments.edit');
+
+
 
 
 });

@@ -33,6 +33,18 @@
                 </select>
             </div>
 
+               <!-- Unit Filter -->
+            <div class="form-group col-md-4 mb-3">
+                <label for="filter-unit">Unit</label>
+                <select id="filter-unit" name="filter-unit" class="form-control">
+                    <option value="">Select Unit</option>
+                    @foreach ($units as $unit)
+                        <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+
             <!-- Brand Filter -->
             <div class="form-group col-md-4 mb-3">
                 <label for="filter-brand">Brand</label>

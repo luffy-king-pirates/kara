@@ -17,6 +17,7 @@ class Item extends Model
 
     // Mass assignable attributes
     protected $fillable = [
+        'id',
         'item_code',
         'item_name',
         'item_category',
@@ -28,6 +29,7 @@ class Item extends Model
         'is_deleted',
         'created_at',
         'updated_at',
+        'item_unit'
     ];
 
     // Relationships
@@ -42,6 +44,11 @@ class Item extends Model
     public function brand()
     {
         return $this->belongsTo(Brand::class, 'item_brand');
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Units::class, 'item_unit');
     }
 
            // Relationship for the user who created the unit
