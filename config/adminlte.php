@@ -410,26 +410,87 @@ return [
                 ],
             ]
             ],
+       // sales
+       [
+        'text' => 'Sales',
+        'icon' => 'fas fa-shopping-cart', // Icon for Sales
+        'submenu' => [
             [
-                'text' => 'Stock Adjustment',
-                'icon' => 'fas fa-warehouse',
+                'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
+                'text' => 'Cash',
                 'submenu' => [
                     [
-                        'icon' => 'fas fa-box',
-                        'text' => '
-                            Stock Adjustment
-                            ',
-                        'url' => 'adjustments',
+                        'icon' => 'fas fa-cash-register', // Icon for Cash Sales
+                        'text' => 'Cash Sales',
+                        'url' => 'cash/create',
                     ],
                     [
-                        'icon' => 'fas fa-plus-circle',
-                        'text' => '
-                             Adjust Stock
-                            ',
-                        'url' => 'adjustments/create',
-                    ],
-                ]
+                        'icon' => 'fas fa-receipt', // Icon for Existing Cash Sale
+                        'text' => 'Existing Cash Sale',
+                        'url' => 'cash',
+                    ]
                 ],
+            ],
+            [
+                'icon' => 'fas fa-credit-card', // Icon for Credit submenu
+                'text' => 'Credit',
+                'submenu' => [
+                    [
+                        'icon' => 'fas fa-hand-holding-usd', // Icon for Credit Sales
+                        'text' => 'Credit Sales',
+                        'url' => 'credit/create',
+                    ],
+                    [
+                        'icon' => 'fas fa-receipt', // Icon for Existing Credit Sale
+                        'text' => 'Existing Credit Sale',
+                        'url' => 'credit',
+                    ]
+                ],
+            ],
+            [
+                'icon' => 'fas fa-file-invoice', // Icon for Proforma submenu
+                'text' => 'Proforma',
+                'submenu' => [
+                    [
+                        'icon' => 'fas fa-file-export', // Icon for Proforma Sales
+                        'text' => 'Proforma Sales',
+                        'url' => 'proforma/create',
+                    ],
+                    [
+                        'icon' => 'fas fa-receipt', // Icon for Existing Proforma Sale
+                        'text' => 'Existing Proforma Sale',
+                        'url' => 'proforma',
+                    ]
+                ],
+            ],
+        ]
+    ],
+
+
+
+
+                [
+                    'text' => 'Stock Adjustment',
+                    'icon' => 'fas fa-warehouse',
+                    'submenu' => [
+                        [
+                            'icon' => 'fas fa-box',
+                            'text' => '
+                                Stock Adjustment
+                                ',
+                            'url' => 'adjustments',
+                        ],
+                        [
+                            'icon' => 'fas fa-plus-circle',
+                            'text' => '
+                                 Adjust Stock
+                                ',
+                            'url' => 'adjustments/create',
+                        ],
+                    ]
+                    ],
+
+
         [
             'text' => 'Manage Items',
             'icon' => 'fas fa-boxes',
@@ -442,6 +503,7 @@ return [
             ]
         ]
             ,
+
         [
             'text' => 'Security & Roles',
             'icon' => 'fas fa-shield-alt',

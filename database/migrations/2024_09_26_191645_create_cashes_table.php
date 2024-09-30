@@ -11,25 +11,20 @@ class CreateCashesTable extends Migration
     {
         Schema::create('cashes', function (Blueprint $table) {
             $table->id();
-            $table->integer('expected_profit')->nullable();
-            $table->integer('cash_number');
-            $table->string('customer_name');
-            $table->string('tin_number')->nullable();
-            $table->date('creation_date');
-            $table->integer('vat_amount')->nullable();
-            $table->integer('total_items')->nullable();
-            $table->boolean('is_active')->nullable();
-            $table->boolean('is_deleted')->nullable();
-            $table->integer('inclusive_amount')->nullable();
-            $table->integer('exclusive_amount')->nullable();
-            $table->timestamps();
-            $table->string('vrn_number')->nullable();
-            $table->boolean('cash_aproved')->default(0)->nullable();
-            $table->integer('created_by')->nullable();
-            $table->string('customer_adress')->nullable();
-            $table->integer('updated_by')->nullable();
-            $table->string('company_name');
-            $table->integer('sales_profit')->nullable();
+        $table->string('cash_number')->unique();
+        $table->date('creation_date');
+        $table->decimal('total_amount', 15, 2)->nullable();
+        $table->boolean('is_deleted')->default(false);
+        $table->boolean('is_active')->default(true);
+        $table->unsignedBigInteger('customer_id')->nullable(); // Foreign key for Customer
+        $table->unsignedBigInteger('created_by')->nullable();
+        $table->unsignedBigInteger('updated_by')->nullable();
+        $table->timestamps();
+
+        // Define foreign key relationships
+        $table->foreign('customer_id')->references('id')->on('customers')->onDelete('set null');
+        $table->foreign('created_by')->references('id')->on('users');
+        $table->foreign('updated_by')->references('id')->on('users');
         });
     }
 

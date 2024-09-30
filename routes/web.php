@@ -37,6 +37,10 @@ use App\Http\Controllers\ShopGodwanController;
 
 use App\Http\Controllers\shopServiceGodwanController;
 use App\Http\Controllers\AdjustmentController;
+use App\Http\Controllers\CashController;
+use App\Http\Controllers\CreditController;
+use App\Http\Controllers\ProformaController;
+
 
 
 // Public route: accessible by everyone
@@ -70,11 +74,32 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/adjustments', [App\Http\Controllers\AdjustmentController::class, 'export'])->name('adjustments.export');
         Route::get('/adjustments/exportDetails/{id}', [App\Http\Controllers\AdjustmentController::class, 'exportDetails'])->name('adjustments.exportDetails');
 
+        Route::get('/cash', [App\Http\Controllers\CashController::class, 'export'])->name('cash.export');
+        Route::get('/cash/exportDetails/{id}', [App\Http\Controllers\CashController::class, 'exportDetails'])->name('cash.exportDetails');
+
+
+        //credit
+        Route::get('/credit', [App\Http\Controllers\CreditController::class, 'export'])->name('credit.export');
+        Route::get('/credit/exportDetails/{id}', [App\Http\Controllers\CreditController::class, 'exportDetails'])->name('credit.exportDetails');
+
+        Route::get('/proforma', [App\Http\Controllers\ProformaController::class, 'export'])->name('proforma.export');
+        Route::get('/proforma/exportDetails/{id}', [App\Http\Controllers\ProformaController::class, 'exportDetails'])->name('proforma.exportDetails');
+
+
+
 
 
 
 
     });
+
+    Route::get('/cash/{id}/pdf', [CashController::class, 'generatePdf']);
+    Route::get('/credit/{id}/pdf', [CreditController::class, 'generatePdf']);
+    Route::get('/proforma/{id}/pdf', [ProformaController::class, 'generatePdf']);
+
+
+
+
     Route::middleware([CheckPermissions::class . ':units'])->resource('units', UnitsController::class);
     Route::resource('currencies', CurrenciesController::class);
     Route::resource('years', YearsController::class);
@@ -107,6 +132,23 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('adjustments', AdjustmentController::class);
     Route::get('adjustments/{id}/details', [AdjustmentController::class, 'details'])->name('adjustments.details');
     Route::get('adjustments/{id}/edit', [AdjustmentController::class, 'edit'])->name('adjustments.edit');
+
+
+    //sales
+    Route::resource('cash', CashController::class);
+    Route::get('cash/{id}/details', [CashController::class, 'details'])->name('cash.details');
+    Route::get('cash/{id}/edit', [CashController::class, 'edit'])->name('cash.edit');
+    //credit
+
+    Route::resource('credit', CreditController::class);
+    Route::get('credit/{id}/details', [CreditController::class, 'details'])->name('credit.details');
+    Route::get('credit/{id}/edit', [CreditController::class, 'edit'])->name('credit.edit');
+
+    //proforma
+    Route::resource('proforma', ProformaController::class);
+    Route::get('proforma/{id}/details', [ProformaController::class, 'details'])->name('proforma.details');
+    Route::get('proforma/{id}/edit', [ProformaController::class, 'edit'])->name('proforma.edit');
+
 
 
 
