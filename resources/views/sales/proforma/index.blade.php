@@ -132,8 +132,11 @@
                             <i class="fas fa-file-export"></i> Export
                         </a>
 
-                        <a href="/proforma/${rowData?.id}/pdf" class="btn btn-success btn-sm">
-    <i class="fas fa-file-export"></i> Export PDF
+                        <a href="/proforma/${rowData?.id}/pdf/true" class="btn btn-success btn-sm">
+    <i class="fas fa-file-export"></i> Export PDF with headers
+</a>
+    <a href="/proforma/${rowData?.id}/pdf/false" class="btn btn-success btn-sm">
+    <i class="fas fa-file-export"></i> Export PDF no headers
 </a>
                     </div>
                 `;

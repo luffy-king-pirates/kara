@@ -351,13 +351,14 @@ class CashController extends Controller
     return response()->json($cash); // Return cash transaction with details
 }
 
-public function generatePdf($id)
+public function generatePdf($id,$headers)
 {
     // Fetch the Cash entry and its details
     $cash = Cash::with('details', 'createdByUser', 'customer')->findOrFail($id);
 
-    // Pass the data to the PDF view
-    $pdf = Pdf::loadView('pdf.cash', compact('cash'));
+    // Enable loading of remote assets (CSS, images)
+    $pdf = Pdf::loadView('pdf.cash', compact(['cash','headers']))
+              ->setOption('isRemoteEnabled', true); // Allow external resources
 
     // Download or stream the PDF
     return $pdf->download('cash_transaction_' . $cash->id . '.pdf');

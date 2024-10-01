@@ -25,7 +25,8 @@
                 <tr>
                     <th></th> <!-- Expand button -->
                     <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                    <th><input type="text" id="filter-credit-number" class="form-control" placeholder="Credit Number"></th>
+                    <th><input type="text" id="filter-credit-number" class="form-control" placeholder="Credit Number">
+                    </th>
                     <th><input type="date" id="filter-creation-date" class="form-control"></th>
                     <th><input type="text" id="filter-total-amount" class="form-control" placeholder="Total Amount"></th>
                 </tr>
@@ -101,14 +102,14 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                        <tr>
-                                            <td>${item.item?.item_name}</td>
-                                            <td>${item.quantity}</td>
-                                            <td>${item.unit?.unit_name}</td>
-                                            <td>${item.price}</td>
-                                            <td>${item.total}</td>
-                                        </tr>
-                                    `).join('')}
+                                            <tr>
+                                                <td>${item.item?.item_name}</td>
+                                                <td>${item.quantity}</td>
+                                                <td>${item.unit?.unit_name}</td>
+                                                <td>${item.price}</td>
+                                                <td>${item.total}</td>
+                                            </tr>
+                                        `).join('')}
                         </tbody>
                          <tfoot>
         <tr>
@@ -132,8 +133,12 @@
                             <i class="fas fa-file-export"></i> Export
                         </a>
 
-                        <a href="/credit/${rowData?.id}/pdf" class="btn btn-success btn-sm">
-    <i class="fas fa-file-export"></i> Export PDF
+                        <a href="/credit/${rowData?.id}/pdf/true" class="btn btn-success btn-sm">
+    <i class="fas fa-file-export"></i> Export PDF with headers
+</a>
+
+        <a href="/credit/${rowData?.id}/pdf/false" class="btn btn-success btn-sm">
+    <i class="fas fa-file-export"></i> Export PDF no headers
 </a>
                     </div>
                 `;
@@ -162,8 +167,10 @@
             $('#apply-filter').click(function() {
                 let queryString = '?';
                 queryString += 'id=' + encodeURIComponent($('#filter-id').val()) + '&';
-                queryString += 'credit_number=' + encodeURIComponent($('#filter-credit-number').val()) + '&';
-                queryString += 'creation_date=' + encodeURIComponent($('#filter-creation-date').val()) + '&';
+                queryString += 'credit_number=' + encodeURIComponent($('#filter-credit-number').val()) +
+                '&';
+                queryString += 'creation_date=' + encodeURIComponent($('#filter-creation-date').val()) +
+                '&';
                 queryString += 'total_amount=' + encodeURIComponent($('#filter-total-amount').val());
 
                 window.open('/export/credit' + queryString, '_blank');

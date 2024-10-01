@@ -18,7 +18,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use setasign\Fpdi\Fpdi;
 class ProformaController extends Controller
 {
     public function index(Request $request)
@@ -348,13 +348,16 @@ class ProformaController extends Controller
             'Cache-Control' => 'max-age=0',
         ]);
     }
-    public function generatePdf($id)
+    public function generatePdf($id,$headers)
     {
         // Fetch the Cash entry and its details
         $proforma = Proforma::with('details', 'createdByUser', 'customer')->findOrFail($id);
 
         // Pass the data to the PDF view
-        $pdf = Pdf::loadView('pdf.proforma', compact('proforma'));
+        $pdf = Pdf::loadView('pdf.proforma', compact(['proforma','headers']))
+        ->setOption('isRemoteEnabled', true); // Allow external resources
+        ;
+
 
         // Download or stream the PDF
         return $pdf->download('proforma_transaction_' . $proforma->id . '.pdf');

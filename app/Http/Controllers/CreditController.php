@@ -350,13 +350,13 @@ public function exportDetails(Request $request, $id)
 }
 
 
-public function generatePdf($id)
+public function generatePdf($id,$headers)
 {
     // Fetch the Cash entry and its details
     $credit = Credit::with('details', 'createdByUser', 'customer')->findOrFail($id);
 
     // Pass the data to the PDF view
-    $pdf = Pdf::loadView('pdf.credit', compact('credit'));
+    $pdf = Pdf::loadView('pdf.credit', compact(['credit','headers']))->setOption('isRemoteEnabled', true); // Allow external resources;
 
     // Download or stream the PDF
     return $pdf->download('credit_transaction_' . $credit->id . '.pdf');

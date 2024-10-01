@@ -12,6 +12,8 @@
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
         "phpoffice/phpspreadsheet": "^2.2",
+        "setasign/fpdi": "^2.6",
+        "tecnickcom/tcpdf": "^6.7",
         "yajra/laravel-datatables-oracle": "^11.1"
     },
     "require-dev": {

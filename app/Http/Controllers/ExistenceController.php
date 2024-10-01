@@ -17,7 +17,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class shopServiceGodwanController extends Controller
+class ExistenceController extends Controller
 {
     public function index(Request $request)
     {
@@ -27,11 +27,7 @@ class shopServiceGodwanController extends Controller
                 'details.unit:id,unit_name',
                 'createdByUser:id,name',
                 'updatedByUser:id,name'
-            ])->select(['id', 'transfert_number', 'transfert_date', 'created_by', 'updated_by'])
-            ->where([
-                'transfert_from' => 'shop-service',
-                'transfert_to' => 'godown'
-            ]);
+            ])->select(['id', 'transfert_number', 'transfert_date', 'created_by', 'updated_by']);
             return DataTables::of($records)
                 ->addColumn('created_at', function ($row) {
                     return Carbon::parse($row->created_at)->format('M d, Y h:i A');
@@ -76,7 +72,7 @@ class shopServiceGodwanController extends Controller
 
         $users = User::all();
 
-        return view('stock-transfert.shop-service-to-godown.index', compact('users'));
+        return view('stock-transfert.existence', compact('users'));
     }
 
     public function create()
@@ -94,7 +90,7 @@ class shopServiceGodwanController extends Controller
         });
         $godownshop = null;
         $units = Units::all();
-        return view('stock-transfert.shop-service-to-godown.create', compact('items', 'units','godownshop'));
+        return view('stock-transfert.godown-to-shop.create', compact('items', 'units','godownshop'));
     }
 
     public function store(Request $request)
@@ -110,8 +106,8 @@ class shopServiceGodwanController extends Controller
         $godownshop = Transfert::create([
             'transfert_number' => $request->transfert_number,
             'transfert_date' => $request->transfert_date,
-            'transfert_from' =>'shop-service',
-            'transfert_to' => 'godown',
+            'transfert_from' =>'godown',
+            'transfert_to' => 'shop_ashok',
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id,
         ]);
@@ -126,7 +122,7 @@ class shopServiceGodwanController extends Controller
     public function show($id)
     {
         $godownshop = Transfert::with('details.item', 'details.unit')->findOrFail($id);
-        return view('stock-transfert.shop-service-to-godown.show', compact('godownshop'));
+        return view('stock-transfert.godown-to-shop.show', compact('godownshop'));
     }
 
     public function edit($id)
@@ -135,7 +131,7 @@ class shopServiceGodwanController extends Controller
         $items = Item::all();
         $units = Units::all();
 
-        return view('stock-transfert.shop-service-to-godown.edit', compact('godownshop', 'items', 'units'));
+        return view('stock-transfert.godown-to-shop.edit', compact('godownshop', 'items', 'units'));
     }
 
     public function update(Request $request, $id)
