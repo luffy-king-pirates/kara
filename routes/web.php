@@ -29,14 +29,23 @@ use App\Http\Middleware\CheckPermissions;
 
 use  App\Http\Controllers\ItemsController;
 
-use App\Http\Controllers\GodownShopController;
-use App\Http\Controllers\GodownShopAshokController;
+use App\Http\Controllers\GodwanShopController;
+use App\Http\Controllers\GodwanShopAshokController;
 
 use App\Http\Controllers\ShopGodwanController;
 
 
 use App\Http\Controllers\shopServiceGodwanController;
 use App\Http\Controllers\AdjustmentController;
+use App\Http\Controllers\CashController;
+use App\Http\Controllers\CreditController;
+use App\Http\Controllers\ProformaController;
+
+use App\Http\Controllers\InvoiceController;
+
+use App\Http\Controllers\ExistenceController;
+
+
 
 
 // Public route: accessible by everyone
@@ -70,11 +79,62 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/adjustments', [App\Http\Controllers\AdjustmentController::class, 'export'])->name('adjustments.export');
         Route::get('/adjustments/exportDetails/{id}', [App\Http\Controllers\AdjustmentController::class, 'exportDetails'])->name('adjustments.exportDetails');
 
+        Route::get('/cash', [App\Http\Controllers\CashController::class, 'export'])->name('cash.export');
+        Route::get('/cash/exportDetails/{id}', [App\Http\Controllers\CashController::class, 'exportDetails'])->name('cash.exportDetails');
 
 
+        //credit
+        Route::get('/credit', [App\Http\Controllers\CreditController::class, 'export'])->name('credit.export');
+        Route::get('/credit/exportDetails/{id}', [App\Http\Controllers\CreditController::class, 'exportDetails'])->name('credit.exportDetails');
+
+        Route::get('/proforma', [App\Http\Controllers\ProformaController::class, 'export'])->name('proforma.export');
+        Route::get('/proforma/exportDetails/{id}', [App\Http\Controllers\ProformaController::class, 'exportDetails'])->name('proforma.exportDetails');
+
+
+
+
+        Route::get('/godownshop', [App\Http\Controllers\GodwanShopController::class, 'export'])->name('proforma.export');
+        Route::get('/godownshop/exportDetails/{id}', [App\Http\Controllers\GodwanShopController::class, 'exportDetails'])->name('proforma.exportDetails');
+
+
+        Route::get('/godownShopAshok', [App\Http\Controllers\GodwanShopAshokController::class, 'export'])->name('godownShopAshok.export');
+        Route::get('/godownShopAshok/exportDetails/{id}', [App\Http\Controllers\GodwanShopAshokController::class, 'exportDetails'])->name('godownShopAshok.exportDetails');
+
+
+        Route::get('/shopGodown', [App\Http\Controllers\ShopGodwanController::class, 'export'])->name('shopGodown.export');
+        Route::get('/shopGodown/exportDetails/{id}', [App\Http\Controllers\ShopGodwanController::class, 'exportDetails'])->name('shopGodown.exportDetails');
+
+
+        Route::get('/services', [App\Http\Controllers\shopServiceGodwanController::class, 'export'])->name('services.export');
+        Route::get('/services/exportDetails/{id}', [App\Http\Controllers\shopServiceGodwanController::class, 'exportDetails'])->name('services.exportDetails');
+
+
+        Route::get('/existingTranfers', [App\Http\Controllers\ExistenceController::class, 'export'])->name('existingTranfers.export');
+        Route::get('/existingTranfers/exportDetails/{id}', [App\Http\Controllers\ExistenceController::class, 'exportDetails'])->name('existingTranfers.exportDetails');
 
 
     });
+
+    Route::get('/cash/{id}/pdf/{header}', [CashController::class, 'generatePdf']);
+    Route::get('/credit/{id}/pdf/{header}', [CreditController::class, 'generatePdf']);
+    Route::get('/proforma/{id}/pdf/{header}', [ProformaController::class, 'generatePdf']);
+
+    Route::get('/godownshop/{id}/pdf/{header}', [GodwanShopController::class, 'generatePdf']);
+
+    Route::get('/godownShopAshok/{id}/pdf/{header}', [GodwanShopAshokController::class, 'generatePdf']);
+
+
+    Route::get('/shopGodown/{id}/pdf/{header}', [ShopGodwanController::class, 'generatePdf']);
+
+    Route::get('/services/{id}/pdf/{header}', [shopServiceGodwanController::class, 'generatePdf']);
+
+
+    Route::get('/existingTranfers/{id}/pdf/{header}', [ExistenceController::class, 'generatePdf']);
+
+
+
+
+
     Route::middleware([CheckPermissions::class . ':units'])->resource('units', UnitsController::class);
     Route::resource('currencies', CurrenciesController::class);
     Route::resource('years', YearsController::class);
@@ -97,11 +157,6 @@ Route::middleware(['auth'])->group(function () {
 
 
     //transfert in progress
-    Route::resource('godwanShop', GodownShopController::class);
-    Route::resource('godownShopAshok', GodownShopAshokController::class);
-    Route::resource('shopGodown', ShopGodwanController::class);
-    Route::resource('services', shopServiceGodwanController::class);
-    Route::resource('existingTranfers', UserAssignRoleController::class);
 
     //adjustment
     Route::resource('adjustments', AdjustmentController::class);
@@ -109,6 +164,53 @@ Route::middleware(['auth'])->group(function () {
     Route::get('adjustments/{id}/edit', [AdjustmentController::class, 'edit'])->name('adjustments.edit');
 
 
+    //sales
+    Route::resource('cash', CashController::class);
+    Route::get('cash/{id}/details', [CashController::class, 'details'])->name('cash.details');
+    Route::get('cash/{id}/edit', [CashController::class, 'edit'])->name('cash.edit');
+    //credit
+
+    Route::resource('credit', CreditController::class);
+    Route::get('credit/{id}/details', [CreditController::class, 'details'])->name('credit.details');
+    Route::get('credit/{id}/edit', [CreditController::class, 'edit'])->name('credit.edit');
+
+    //proforma
+    Route::resource('proforma', ProformaController::class);
+    Route::get('proforma/{id}/details', [ProformaController::class, 'details'])->name('proforma.details');
+    Route::get('proforma/{id}/edit', [ProformaController::class, 'edit'])->name('proforma.edit');
+
+
+    //godown to shop
+    Route::resource('godownshop', GodwanShopController::class);
+    Route::get('godownshop/{id}/details', [GodwanShopController::class, 'details'])->name('godownshop.details');
+    Route::get('godownshop/{id}/edit', [GodwanShopController::class, 'edit'])->name('godownshop.edit');
+
+    //godown to shop ashok
+
+
+    Route::resource('godownShopAshok', GodwanShopAshokController::class);
+    Route::get('godownShopAshok/{id}/details', [GodwanShopAshokController::class, 'details'])->name('godownShopAshok.details');
+    Route::get('godownShopAshok/{id}/edit', [GodwanShopAshokController::class, 'edit'])->name('godownShopAshok.edit');
+
+
+    //shop to godown
+    Route::resource('shopGodown', ShopGodwanController::class);
+    Route::get('shopGodown/{id}/details', [ShopGodwanController::class, 'details'])->name('shopGodown.details');
+    Route::get('shopGodown/{id}/edit', [ShopGodwanController::class, 'edit'])->name('shopGodown.edit');
+
+    //shop service to godwiw
+    Route::resource('services', shopServiceGodwanController::class);
+    Route::get('services/{id}/details', [shopServiceGodwanController::class, 'details'])->name('services.details');
+    Route::get('services/{id}/edit', [shopServiceGodwanController::class, 'edit'])->name('services.edit');
+
+    //existence
+
+    Route::resource('existingTranfers', ExistenceController::class);
+    Route::get('existingTranfers/{id}/details', [ExistenceController::class, 'details'])->name('existingTranfers.details');
+    Route::get('existingTranfers/{id}/edit', [ExistenceController::class, 'edit'])->name('existingTranfers.edit');
+
+
+    Route::resource('invoice', InvoiceController::class);
 
 
 });

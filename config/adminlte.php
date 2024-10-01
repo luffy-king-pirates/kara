@@ -384,25 +384,72 @@ return [
             'icon' => 'fas fa-boxes',
             'submenu' => [
                 [
-                    'icon' => 'fas fa-fw fa-box',
+                    'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
                     'text' => 'Godown to Shop',
-                    'url' => 'godwanShop',
+                    'submenu' => [
+                        [
+                            'icon' => 'fas fa-plus-circle', // Icon for Create Godown to Shop
+                            'text' => 'Godown to Shop (Create)',
+                            'url' => 'godownshop/create',
+                        ],
+                        [
+                            'icon' => 'fas fa-box-open', // Icon for Existing Godown to Shop
+                            'text' => 'Godown to Shop (View)',
+                            'url' => 'godownshop',
+                        ]
+                    ],
                 ],
                 [
-                    'icon' => 'fas fa-fw fa-box',
+                    'icon' => 'fas fa-warehouse', // Icon for Godown to Shop submenu
                     'text' => 'Godown to Shop (Ashok)',
-                    'url' => 'godownShopAshok',
+                    'submenu' => [
+                        [
+                            'icon' => 'fas fa-truck-loading', // Icon for Create Godown to Shop
+                            'text' => 'Godown to Shop (Ashok) (Create)',
+                            'url' => 'godownShopAshok/create',
+                        ],
+                        [
+                            'icon' => 'fas fa-eye', // Icon for View Godown to Shop
+                            'text' => 'Godown to Shop (Ashok) (View)',
+                            'url' => 'godownShopAshok',
+                        ]
+                    ],
                 ],
+
                 [
-                    'icon' => 'fas fa-fw fa-box',
+                    'icon' => 'fas fa-warehouse', // Icon for Godown to Shop submenu
                     'text' => 'Shop to Godown',
-                    'url' => 'shopGodown',
+                    'submenu' => [
+                        [
+                            'icon' => 'fas fa-truck-loading', // Icon for Create Godown to Shop
+                            'text' => 'Shop to Godown (Create)',
+                            'url' => 'shopGodown/create',
+                        ],
+                        [
+                            'icon' => 'fas fa-eye', // Icon for View Godown to Shop
+                            'text' => 'Shop to Godown (View)',
+                            'url' => 'shopGodown',
+                        ]
+                    ],
                 ],
+
                 [
-                    'icon' => 'fas fa-fw fa-box',
-                    'text' => 'Sevices',
-                    'url' => 'services',
+                    'icon' => 'fas fa-store', // Icon for Shop to Godown submenu
+                    'text' => 'Shop (Sevices) to Godown',
+                    'submenu' => [
+                        [
+                            'icon' => 'fas fa-arrow-circle-up', // Icon for Create Shop to Godown
+                            'text' => 'Shop (Sevices) to Godown (Create)',
+                            'url' => 'services/create',
+                        ],
+                        [
+                            'icon' => 'fas fa-list-alt', // Icon for View Shop to Godown
+                            'text' => 'Shop (Sevices) to Godown (View)',
+                            'url' => 'services',
+                        ]
+                    ],
                 ],
+
                 [
                     'icon' => 'fas fa-fw fa-box',
                     'text' => 'Existing Transfers',
@@ -410,26 +457,87 @@ return [
                 ],
             ]
             ],
+       // sales
+       [
+        'text' => 'Sales',
+        'icon' => 'fas fa-shopping-cart', // Icon for Sales
+        'submenu' => [
             [
-                'text' => 'Stock Adjustment',
-                'icon' => 'fas fa-warehouse',
+                'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
+                'text' => 'Cash',
                 'submenu' => [
                     [
-                        'icon' => 'fas fa-box',
-                        'text' => '
-                            Stock Adjustment
-                            ',
-                        'url' => 'adjustments',
+                        'icon' => 'fas fa-cash-register', // Icon for Cash Sales
+                        'text' => 'Cash Sales',
+                        'url' => 'cash/create',
                     ],
                     [
-                        'icon' => 'fas fa-plus-circle',
-                        'text' => '
-                             Adjust Stock
-                            ',
-                        'url' => 'adjustments/create',
-                    ],
-                ]
+                        'icon' => 'fas fa-receipt', // Icon for Existing Cash Sale
+                        'text' => 'Existing Cash Sale',
+                        'url' => 'cash',
+                    ]
                 ],
+            ],
+            [
+                'icon' => 'fas fa-credit-card', // Icon for Credit submenu
+                'text' => 'Credit',
+                'submenu' => [
+                    [
+                        'icon' => 'fas fa-hand-holding-usd', // Icon for Credit Sales
+                        'text' => 'Credit Sales',
+                        'url' => 'credit/create',
+                    ],
+                    [
+                        'icon' => 'fas fa-receipt', // Icon for Existing Credit Sale
+                        'text' => 'Existing Credit Sale',
+                        'url' => 'credit',
+                    ]
+                ],
+            ],
+            [
+                'icon' => 'fas fa-file-invoice', // Icon for Proforma submenu
+                'text' => 'Proforma',
+                'submenu' => [
+                    [
+                        'icon' => 'fas fa-file-export', // Icon for Proforma Sales
+                        'text' => 'Proforma Sales',
+                        'url' => 'proforma/create',
+                    ],
+                    [
+                        'icon' => 'fas fa-receipt', // Icon for Existing Proforma Sale
+                        'text' => 'Existing Proforma Sale',
+                        'url' => 'proforma',
+                    ]
+                ],
+            ],
+        ]
+    ],
+
+
+
+
+                [
+                    'text' => 'Stock Adjustment',
+                    'icon' => 'fas fa-warehouse',
+                    'submenu' => [
+                        [
+                            'icon' => 'fas fa-box',
+                            'text' => '
+                                Stock Adjustment
+                                ',
+                            'url' => 'adjustments',
+                        ],
+                        [
+                            'icon' => 'fas fa-plus-circle',
+                            'text' => '
+                                 Adjust Stock
+                                ',
+                            'url' => 'adjustments/create',
+                        ],
+                    ]
+                    ],
+
+
         [
             'text' => 'Manage Items',
             'icon' => 'fas fa-boxes',
@@ -442,6 +550,7 @@ return [
             ]
         ]
             ,
+
         [
             'text' => 'Security & Roles',
             'icon' => 'fas fa-shield-alt',
