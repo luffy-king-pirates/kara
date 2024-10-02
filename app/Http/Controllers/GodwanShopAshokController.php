@@ -16,7 +16,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use App\Models\Godown;
+use App\Models\ShopAshaks;
 class GodwanShopAshokController extends Controller
 {
     public function index(Request $request)
@@ -111,7 +112,7 @@ class GodwanShopAshokController extends Controller
             'transfert_number' => $request->transfert_number,
             'transfert_date' => $request->transfert_date,
             'transfert_from' =>'godown',
-            'transfert_to' => 'shop',
+            'transfert_to' => 'shop_ashok',
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id,
         ]);
@@ -119,6 +120,19 @@ class GodwanShopAshokController extends Controller
         foreach ($request->details as $detail) {
             $godownshop->details()->create($detail);
         }
+  // Check if transfert_to is a godown
+  if ($godownshop->transfert_to == 'godown') {
+    // Add items to godown
+    Godown::addItemsFromTransfert($godownshop);
+}
+
+// Check if transfert_from is a godown
+if ($godownshop->transfert_from == 'shop_ashok') {
+    // Remove items from godown
+    ShopAshaks::removeItemsFromTransfert($godownshop);
+}
+
+
 
         return response()->json(['success' => true]);
     }
@@ -232,7 +246,7 @@ class GodwanShopAshokController extends Controller
         }
 
         $writer = new Xlsx($spreadsheet);
-        $filePath = 'godwan_shop_details_' . $godwanShop->id . '.xlsx';
+        $filePath = 'godown_to_shop_ashok' . $godwanShop->id . '.xlsx';
         $writer->save(storage_path($filePath));
 
         return response()->download(storage_path($filePath))->deleteFileAfterSend(true);
@@ -244,7 +258,7 @@ class GodwanShopAshokController extends Controller
     $godownshop = Transfert::with('details', 'createdByUser')->findOrFail($id);
 
     // Pass the data to the PDF view
-    $pdf = Pdf::loadView('pdf.godownToShop', compact(['godownshop','headers']))->setOption('isRemoteEnabled', true); // Allow external resources;
+    $pdf = Pdf::loadView('pdf.godownToshopAshok', compact(['godownshop','headers']))->setOption('isRemoteEnabled', true); // Allow external resources;
 
     // Download or stream the PDF
     return $pdf->download('godown_to_shop_ashok_transaction' . $godownshop->id . '.pdf');

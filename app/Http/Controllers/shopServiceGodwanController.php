@@ -16,7 +16,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use App\Models\Godown;
+use App\Models\Shops;
 class shopServiceGodwanController extends Controller
 {
     public function index(Request $request)
@@ -119,7 +120,17 @@ class shopServiceGodwanController extends Controller
         foreach ($request->details as $detail) {
             $godownshop->details()->create($detail);
         }
+   // Check if transfert_to is a godown
+   if ($godownshop->transfert_to == 'shop-service') {
+    // Add items to godown
+    ShopService::addItemsFromTransfert($godownshop);
+}
 
+// Check if transfert_from is a godown
+if ($godownshop->transfert_from == 'godown') {
+    // Remove items from godown
+     Godown::removeItemsFromTransfert($godownshop);
+}
         return response()->json(['success' => true]);
     }
 
@@ -247,7 +258,7 @@ class shopServiceGodwanController extends Controller
     $pdf = Pdf::loadView('pdf.godownToShop', compact(['godownshop','headers']))->setOption('isRemoteEnabled', true); // Allow external resources;
 
     // Download or stream the PDF
-    return $pdf->download('godown_to_shop_transaction' . $godownshop->id . '.pdf');
+    return $pdf->download('shop_service_to_shop_transaction' . $godownshop->id . '.pdf');
 }
 
 }

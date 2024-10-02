@@ -16,7 +16,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use App\Models\Godown;
+use App\Models\Shops;
 class shopGodwanController extends Controller
 {
     public function index(Request $request)
@@ -118,6 +119,18 @@ class shopGodwanController extends Controller
 
         foreach ($request->details as $detail) {
             $godownshop->details()->create($detail);
+        }
+
+         // Check if transfert_to is a godown
+         if ($godownshop->transfert_to == 'godown') {
+            // Add items to godown
+            Godown::addItemsFromTransfert($godownshop);
+        }
+
+        // Check if transfert_from is a godown
+        if ($godownshop->transfert_from == 'shop') {
+            // Remove items from godown
+            Shops::removeItemsFromTransfert($godownshop);
         }
 
         return response()->json(['success' => true]);
@@ -232,11 +245,85 @@ class shopGodwanController extends Controller
         }
 
         $writer = new Xlsx($spreadsheet);
-        $filePath = 'godwan_shop_details_' . $godwanShop->id . '.xlsx';
+        $filePath = 'shop_to_godwan_details_' . $godwanShop->id . '.xlsx';
         $writer->save(storage_path($filePath));
 
         return response()->download(storage_path($filePath))->deleteFileAfterSend(true);
     }
+
+    public function export(Request $request)
+    {
+        $godwanShop = Transfert::with([
+            'details.item:id,item_name',
+            'details.unit:id,unit_name',
+            'createdByUser:id,name',
+            'updatedByUser:id,name'
+        ])->where([
+            'transfert_from' => 'shop',
+            'transfert_to' => 'godown'
+        ]);;
+
+        if (!$godwanShop) {
+            return response()->json(['error' => 'Record not found'], 404);
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $row = 1;
+
+        $headerStyle = [
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFCCCCCC']],
+            'font' => ['bold' => true, 'color' => ['argb' => 'FF000000']],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FF000000']]],
+        ];
+
+        $sheet->setCellValue('A' . $row, 'Transfert Number');
+        $sheet->setCellValue('B' . $row, $godwanShop->transfert_number);
+
+        $sheet->setCellValue('A' . ($row + 1), 'Transfert Date');
+        $sheet->setCellValue('B' . ($row + 1), Carbon::parse($godwanShop->transfert_date)->format('M d, Y'));
+        $sheet->getStyle('A' . $row . ':B' . ($row + 1))->applyFromArray($headerStyle);
+        $row += 3;
+
+        $sheet->setCellValue('A' . $row, 'Created By');
+        $sheet->setCellValue('B' . $row, 'Item Name');
+        $sheet->setCellValue('C' . $row, 'Unit');
+        $sheet->setCellValue('D' . $row, 'Quantity');
+
+        $sheet->getStyle('A' . $row . ':F' . $row)->applyFromArray($headerStyle);
+        $row++;
+
+        foreach ($godwanShop->details as $detail) {
+            $sheet->setCellValue('A' . $row, $godwanShop->createdByUser->name);
+            $sheet->setCellValue('B' . $row, $detail->item->item_name);
+            $sheet->setCellValue('C' . $row, $detail->unit->unit_name);
+            $sheet->setCellValue('D' . $row, $detail->quantity);
+
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $filePath = 'shop_to_godwan_details_' . $godwanShop->id . '.xlsx';
+        $writer->save(storage_path($filePath));
+
+        return response()->download(storage_path($filePath))->deleteFileAfterSend(true);
+    }
+
+
+
+    public function approve(Request $request, $id)
+{
+    $transaction = Transfert::findOrFail($id);
+    // Assuming you have a 'receiver' and 'transporter' column in your database.
+    $transaction->receiver = $request->receiver;
+    $transaction->transporter = $request->transporter;
+    $transaction->status = 'approved'; // Set status to approved or any other logic
+    $transaction->save();
+
+    return response()->json(['success' => true]);
+}
+
+
 
     public function generatePdf($id,$headers)
 {
@@ -244,10 +331,10 @@ class shopGodwanController extends Controller
     $godownshop = Transfert::with('details', 'createdByUser')->findOrFail($id);
 
     // Pass the data to the PDF view
-    $pdf = Pdf::loadView('pdf.godownToShop', compact(['godownshop','headers']))->setOption('isRemoteEnabled', true); // Allow external resources;
+    $pdf = Pdf::loadView('pdf.shopToGoDown', compact(['godownshop','headers']))->setOption('isRemoteEnabled', true); // Allow external resources;
 
     // Download or stream the PDF
-    return $pdf->download('godown_to_shop_transaction' . $godownshop->id . '.pdf');
+    return $pdf->download('shop_to_godowan_transaction' . $godownshop->id . '.pdf');
 }
 
 }

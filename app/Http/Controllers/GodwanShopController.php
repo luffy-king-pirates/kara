@@ -16,7 +16,9 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use PhpOffice\PhpSpreadsheet\Style\Alignment; // Import Alignment
+use App\Models\Godown;
+use App\Models\Shops;
 class GodwanShopController extends Controller
 {
     public function index(Request $request)
@@ -27,7 +29,7 @@ class GodwanShopController extends Controller
                 'details.unit:id,unit_name',
                 'createdByUser:id,name',
                 'updatedByUser:id,name'
-            ])->select(['id', 'transfert_number', 'transfert_date', 'created_by', 'updated_by'])
+            ])->select(['id', 'transfert_number','is_approved','transfert_date', 'created_by', 'updated_by'])
             ->where([
                 'transfert_from' => 'godown',
                 'transfert_to' => 'shop_ashok'
@@ -36,6 +38,7 @@ class GodwanShopController extends Controller
                 ->addColumn('created_at', function ($row) {
                     return Carbon::parse($row->created_at)->format('M d, Y h:i A');
                 })
+
                 ->addColumn('updated_at', function ($row) {
                     return $row->updated_at ? Carbon::parse($row->updated_at)->format('M d, Y h:i A') : 'Not updated';
                 })
@@ -78,6 +81,17 @@ class GodwanShopController extends Controller
 
         return view('stock-transfert.godown-to-shop.index', compact('users'));
     }
+    public function approve(Request $request, $id)
+    {
+        $transaction = Transfert::findOrFail($id);
+        // Assuming you have a 'receiver' and 'transporter' column in your database.
+        $transaction->receiver = $request->receiver;
+        $transaction->transporter = $request->transporter;
+        $transaction->is_approved = true; // Set status to approved or any other logic
+        $transaction->save();
+
+        return response()->json(['success' => true]);
+    }
 
     public function create()
     {
@@ -111,7 +125,7 @@ class GodwanShopController extends Controller
             'transfert_number' => $request->transfert_number,
             'transfert_date' => $request->transfert_date,
             'transfert_from' =>'godown',
-            'transfert_to' => 'shop_ashok',
+            'transfert_to' => 'shop',
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id,
         ]);
@@ -119,6 +133,19 @@ class GodwanShopController extends Controller
         foreach ($request->details as $detail) {
             $godownshop->details()->create($detail);
         }
+  // Check if transfert_to is a godown
+  if ($godownshop->transfert_to == 'shop') {
+    // Add items to godown
+    Shops::addItemsFromTransfert($godownshop);
+}
+
+// Check if transfert_from is a godown
+if ($godownshop->transfert_from == 'godown') {
+    // Remove items from godown
+     Godown::removeItemsFromTransfert($godownshop);
+}
+
+
 
         return response()->json(['success' => true]);
     }
@@ -237,6 +264,97 @@ class GodwanShopController extends Controller
 
         return response()->download(storage_path($filePath))->deleteFileAfterSend(true);
     }
+
+    public function export(Request $request)
+    {
+        $godwanShops = Transfert::with([
+            'details.item:id,item_name',
+            'details.unit:id,unit_name',
+            'createdByUser:id,name',
+            'updatedByUser:id,name'
+        ])
+        ->where([
+            'transfert_from' => 'godown',
+            'transfert_to' => 'shop'
+        ])
+        ->get();
+
+        // Check if any records exist
+        if ($godwanShops->isEmpty()) {
+            return response()->json(['error' => 'No records found'], 404);
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $row = 1;
+
+        // Title Style
+        $titleStyle = [
+            'font' => ['bold' => true, 'size' => 16],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        ];
+
+        // Header Style
+        $headerStyle = [
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFCCCCCC']],
+            'font' => ['bold' => true],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FF000000']]],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        ];
+
+        // Title
+        $sheet->mergeCells('A1:F1');
+        $sheet->setCellValue('A1', 'Shop to Godown Transfer Details');
+        $sheet->getStyle('A1')->applyFromArray($titleStyle);
+        $sheet->getRowDimension(1)->setRowHeight(30); // Set row height for title
+
+        // Column Headers
+        $sheet->setCellValue('A2', 'Transfert Number');
+        $sheet->setCellValue('B2', 'Transfert Date');
+        $sheet->setCellValue('C2', 'Created By');
+        $sheet->setCellValue('D2', 'Item Name');
+        $sheet->setCellValue('E2', 'Unit');
+        $sheet->setCellValue('F2', 'Quantity');
+
+        $sheet->getStyle('A2:F2')->applyFromArray($headerStyle);
+        $row++;
+
+        // Write detail entries for each transfer
+        foreach ($godwanShops as $godwanShop) {
+            foreach ($godwanShop->details as $detail) {
+                $sheet->setCellValue('A' . $row, $godwanShop->transfert_number);
+                $sheet->setCellValue('B' . $row, Carbon::parse($godwanShop->transfert_date)->format('M d, Y'));
+                $sheet->setCellValue('C' . $row, $godwanShop->createdByUser->name);
+                $sheet->setCellValue('D' . $row, $detail->item->item_name);
+                $sheet->setCellValue('E' . $row, $detail->unit->unit_name);
+                $sheet->setCellValue('F' . $row, $detail->quantity);
+
+                // Apply border style to each data row
+                $sheet->getStyle('A' . $row . ':F' . $row)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FF000000']],
+                    ]
+                ]);
+
+                $row++;
+            }
+        }
+
+        // Adjust column widths
+        foreach (range('A', 'F') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        }
+
+        // Save the spreadsheet
+        $writer = new Xlsx($spreadsheet);
+        $filePath = 'shop_to_godwan_details_' . now()->timestamp . '.xlsx';
+        $writer->save(storage_path($filePath));
+
+        return response()->download(storage_path($filePath))->deleteFileAfterSend(true);
+    }
+
+
+
 
     public function generatePdf($id,$headers)
 {
