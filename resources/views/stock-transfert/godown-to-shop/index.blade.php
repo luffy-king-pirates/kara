@@ -19,6 +19,7 @@
                     <th></th> <!-- Expand button -->
                     <th>ID</th>
                     <th>Transfer Number</th>
+                    <th>Approuvee </th>
                     <th>Transfert Date</th>
                 </tr>
                 <tr>
@@ -26,17 +27,92 @@
                     <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
                     <th><input type="text" id="filter-transfert-number" class="form-control"
                             placeholder="Transfer Number"></th>
+                    <th><input type="text" id="filter-transfert-number" class="form-control"
+                            placeholder="Transfer Number"></th>
                     <th><input type="date" id="filter-creation-date" class="form-control"></th>
                 </tr>
             </thead>
         </table>
     </div>
+
+    <!-- Approve Modal -->
+    <div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approveModalLabel">Approve Transfer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="approveForm">
+                        <div class="form-group">
+                            <label for="receiver">Receiver</label>
+                            <input type="text" class="form-control" id="receiver" name="receiver" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="transporter">Transporter</label>
+                            <input type="text" class="form-control" id="transporter" name="transporter" required>
+                        </div>
+                        <input type="hidden" id="transaction-id" name="transaction_id">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveApproval">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @stop
 
 @section('js')
     @include('partials.import-cdn')
     <script>
         $(function() {
+
+
+
+            $('#godownshop-table').on('click', '.approve-btn', function() {
+                var transactionId = $(this).data('id');
+                $('#transaction-id').val(transactionId); // Set the transaction ID in the hidden input
+                $('#approveModal').modal('show'); // Show the modal
+            });
+
+            // Handle the save approval button click
+            $('#saveApproval').click(function() {
+                var receiver = $('#receiver').val();
+                var transporter = $('#transporter').val();
+                var transactionId = $('#transaction-id').val();
+
+                // Perform an AJAX request to submit the approval data
+                $.ajax({
+                    url: '/godownshop/' + transactionId + '/approve',
+                    method: 'PUT',
+                    data: {
+                        receiver: receiver,
+                        transporter: transporter,
+                        _token: "{{ csrf_token() }}" // CSRF token for security
+                    },
+                    success: function(response) {
+                        // Handle success (e.g., show a success message, close the modal)
+                        $('#approveModal').modal('hide');
+                        alert('Transaction approved successfully!');
+                        table.draw(); // Optionally, redraw the table
+                    },
+                    error: function(error) {
+                        // Handle error (e.g., show an error message)
+                        console.error(error);
+                        alert('An error occurred while approving the transaction.');
+                    }
+                });
+            });
+
+
+
             // DataTable with expandable rows
             var table = $('#godownshop-table').DataTable({
                 processing: true,
@@ -60,10 +136,22 @@
                         data: 'id',
                         name: 'id'
                     },
+
                     {
                         data: 'transfert_number',
                         name: 'transfert_number'
                     },
+                    {
+                        data: 'is_approved', // Add this line to retrieve the status
+                        name: 'is_approved',
+                        render: function(data) {
+                            // Use Font Awesome icons for status display
+                            return data ?
+                                '<i class="fas fa-circle text-success" ></i>' :
+                                '<i class="fas fa-circle text-danger" ></i>';
+                        }
+                    },
+
                     {
                         data: 'transfert_date',
                         name: 'transfert_date'
@@ -92,13 +180,22 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                            <tr>
-                                                <td>${item.item?.item_name}</td>
-                                                <td>${item.quantity}</td>
-                                                <td>${item.unit?.unit_name}</td>
-                                            </tr>
-                                        `).join('')}
+                                                                                <tr>
+                                                                                    <td>${item.item?.item_name}</td>
+
+                                                                                    <td>${item.unit?.unit_name}</td>
+                                                                                       <td>${item.quantity}</td>
+                                                                                </tr>
+                                                                            `).join('')}
                         </tbody>
+                        <tfoot>
+    <tr>
+        <td colspan="2"><strong>Total Quantity</strong></td>
+        <td>
+            ${rowData.details.reduce((total, item) => total + item.quantity, 0)}
+        </td>
+    </tr>
+</tfoot>
                     </table>
 
                     <div class="btn-group" role="group" aria-label="Godown to Shop Transaction Actions">
@@ -112,11 +209,13 @@
                             <i class="fas fa-file-export"></i> Export
                         </a>
                              <a href="/godownshop/${rowData.id}/pdf/true" class="btn btn-success btn-sm">
-                            <i class="fas fa-file-export"></i> Export pdf with headers
+                            <i class="fas fa-file-export"></i> Export pdf
                         </a>
-                              <a href="/godownshop/${rowData.id}/pdf/false" class="btn btn-success btn-sm">
-                            <i class="fas fa-file-export"></i> Export pdf without headers
-                        </a>
+                           <!-- Approve Button -->
+            <button class="btn btn-primary btn-sm approve-btn" data-id="${rowData.id}">
+                <i class="fas fa-check"></i> Approve
+            </button>
+
                     </div>
                 `;
                 return detailTable;

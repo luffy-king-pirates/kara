@@ -3,8 +3,7 @@
 @php
     $totalItems = $godownshop->details->count();
     $numIterations = $totalItems > 21 ? ceil($totalItems / 21) : 1; // Calculate number of iterations
-    $itemsPerIteration = $numIterations === 1 ? ($headers === 'false' ? 15 : 10) : ($headers === 'false' ? 26 : 21);
-    $totalQty = 0; // Initialize the total quantity
+    $itemsPerIteration = $numIterations === 1 ? ($headers === 'false' ? 19 : 13) : ($headers === 'false' ? 26 : 21);
 @endphp
 
 <style>
@@ -66,7 +65,7 @@
                 <tbody class="detail-table">
                     <tr class="h20">
                         <td class="label">TRANSFER PERSON</td>
-                        <td class="value"><span class="not-set">{{ $godownshop->transporter }}</span></td>
+                        <td class="value"><span class="not-set">(not set)</span></td>
                         <td width="12%"></td>
                         <td class="label">INTERNAL TRANSFER #</td>
                         <td class="value">{{ $godownshop->transfert_number }}</td>
@@ -99,10 +98,6 @@
 
                 {{-- Loop through the sliced details --}}
                 @foreach ($slicedDetails as $index => $detail)
-                    @php
-                        $totalQty += $detail->quantity;
-
-                    @endphp
                     <tr class="h40 rows">
                         <td class="first-column">{{ $start + $index + 1 }}</td> {{-- Global index --}}
                         <td class="description-column" colspan="2">{{ $detail->item->item_name }}</td>
@@ -120,15 +115,6 @@
                         <td class="qty-column">&nbsp;</td>
                     </tr>
                 @endfor
-                @if ($i === $numIterations - 1)
-                    <tr>
-
-                        <td class="first-column"></td> {{-- Global index --}}
-                        <td class="description-column" colspan="2">&nbsp;</td>
-                        <td class="specification-column">&nbsp;</td>
-                        <td class="qty-column">TOTAL  {{ $totalQty }}</td>
-                    </tr>
-                @endif
             </tbody>
         </table>
 

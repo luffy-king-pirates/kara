@@ -46,7 +46,12 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ExistenceController;
 
 
+use App\Http\Middleware\AutoLogout;
 
+use App\Http\Controllers\UploaderController;
+
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LogsController;
 
 // Public route: accessible by everyone
 Route::get('/', function () {
@@ -57,7 +62,7 @@ Route::get('/', function () {
 Auth::routes();
 
 // Secured routes: only accessible if authenticated
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth',\App\Http\Middleware\UserActionLogger::class])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::prefix('export')->as('settings.')->group(function () {
         // Export routes
@@ -147,6 +152,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('users', UsersController::class);
     Route::resource('roles', RoleController::class);
 
+    Route::resource('logs', LogsController::class);
+    Route::post('/logs/revert/{id}', [LogsController::class, 'revert'])->name('logs.revert');
+
     Route::resource('suppliers', SuppliersController::class);
     Route::resource('assignedRoles', UserAssignRoleController::class);
 
@@ -157,6 +165,8 @@ Route::middleware(['auth'])->group(function () {
 
 
     //transfert in progress
+    Route::post('/upload', [UploaderController::class, 'upload'])->name('upload');
+
 
     //adjustment
     Route::resource('adjustments', AdjustmentController::class);
@@ -184,6 +194,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('godownshop', GodwanShopController::class);
     Route::get('godownshop/{id}/details', [GodwanShopController::class, 'details'])->name('godownshop.details');
     Route::get('godownshop/{id}/edit', [GodwanShopController::class, 'edit'])->name('godownshop.edit');
+    Route::put('godownshop/{id}/approve', [GodwanShopController::class, 'approve'])->name('godownshop.approve');
 
     //godown to shop ashok
 
@@ -191,12 +202,16 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('godownShopAshok', GodwanShopAshokController::class);
     Route::get('godownShopAshok/{id}/details', [GodwanShopAshokController::class, 'details'])->name('godownShopAshok.details');
     Route::get('godownShopAshok/{id}/edit', [GodwanShopAshokController::class, 'edit'])->name('godownShopAshok.edit');
+    Route::get('godownShopAshok/{id}/edit', [GodwanShopAshokController::class, 'edit'])->name('godownShopAshok.edit');
 
 
     //shop to godown
     Route::resource('shopGodown', ShopGodwanController::class);
     Route::get('shopGodown/{id}/details', [ShopGodwanController::class, 'details'])->name('shopGodown.details');
     Route::get('shopGodown/{id}/edit', [ShopGodwanController::class, 'edit'])->name('shopGodown.edit');
+    Route::get('shopGodown/{id}/approve', [ShopGodwanController::class, 'approve'])->name('shopGodown.approve');
+
+
 
     //shop service to godwiw
     Route::resource('services', shopServiceGodwanController::class);
@@ -213,4 +228,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('invoice', InvoiceController::class);
 
 
+
+    Route::resource('dashboard', DashboardController::class);
 });

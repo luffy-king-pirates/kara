@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+  <div class="card">
     <div class="container">
         <form id="godown_shop_form" method="POST"
             action="{{ $godownshop ? route(' godownshop.update', $godownshop->id) : route('godownshop.store') }}">
@@ -27,7 +28,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="transfert_date">Creation Date</label>
-                        <input type="text" class="form-transfert_date" id="transfert_date" name="transfert_date"
+                        <input type="text" class="form-control form-transfert_date" id="transfert_date" name="transfert_date"
                             value="{{ $godownshop ? $godownshop->transfert_date : \Carbon\Carbon::now()->toDateString() }}"
                             readonly>
                     </div>
@@ -78,7 +79,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="2" class="text-right">Total Quantity:</th>
+                        <th colspan="3" class="text-right">Total Quantity:</th>
                         <th>
                             <input type="number" class="form-control" id="total_quantity" name="total_quantity"
                                 value="0" disabled>
@@ -113,6 +114,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 @stop
 

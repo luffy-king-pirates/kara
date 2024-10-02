@@ -19,7 +19,7 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $users = User::select(['id', 'first_name', 'middle_name', 'last_name', 'phone', 'email', 'name', 'profile_picture']);
+            $users = User::select(['id','last_login','last_logout', 'first_name', 'middle_name', 'last_name', 'phone', 'email', 'name', 'profile_picture']);
 
             return DataTables::of($users)
 
@@ -35,6 +35,15 @@ class UsersController extends Controller
                         <a href="javascript:void(0)" data-id="' . $row->id . '" class="btn btn-sm btn-danger delete-user">Delete</a>
                     ';
                 })
+                ->addColumn('last_login', function ($row) {
+                    return $row->last_login ? Carbon::parse($row->last_login)->format('Y-m-d H:i:s') : 'N/A';
+                })
+                ->addColumn('last_logout', function ($row) {
+                    return $row->last_logout ? Carbon::parse($row->last_logout)->format('Y-m-d H:i:s') : 'N/A';
+                })
+                ->addColumn('status', function ($row) {
+                    return $row->isActive() ;
+                })
                 ->filter(function ($query) use ($request) {
                     if ($request->has('search') && $request->search['value'] != '') {
                         $searchValue = $request->search['value'];
@@ -44,14 +53,28 @@ class UsersController extends Controller
                               ->orWhere('last_name', 'like', "%$searchValue%")
                               ->orWhere('phone', 'like', "%$searchValue%")
                               ->orWhere('email', 'like', "%$searchValue%")
+                              ->orWhere('id', 'like', "%$searchValue%")
                             ;
                         });
                     }
 
-                    if ($request->has('first_name') && $request->first_name != '') {
-                        $query->where('first_name', 'like', "%" . $request->first_name . "%");
+                    if ($request->has('name') && $request->name != '') {
+                        $query->where('name', 'like', "%" . $request->name . "%");
                     }
-                    $query->where('is_deleted', false);
+
+                    if ($request->has('phone') && $request->phone != '') {
+                        $query->where('phone', 'like', "%" . $request->phone . "%");
+                    }
+
+                    if ($request->has('email') && $request->email != '') {
+                        $query->where('email', 'like', "%" . $request->email . "%");
+                    }
+
+                    if ($request->has('id') && $request->id != '') {
+                        $query->where('id', 'like', "%" . $request->id . "%");
+                    }
+
+
 
                 })
                 ->make(true);

@@ -513,6 +513,25 @@ return [
         ]
     ],
 
+    [
+        'text' => 'Dashboard',
+        'icon' => 'fas fa-shopping-cart', // Icon for Sales
+        'submenu' => [
+            [
+                'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
+                'text' => 'Dashboard',
+                "url" => 'dashboard'
+            ],
+            [
+                'icon' => 'fas fa-credit-card', // Icon for Credit submenu
+                'text' => 'Dashboard Sales',
+                "url" => 'dashboard-sales'
+
+            ],
+
+        ]
+    ],
+
 
 
 
@@ -573,6 +592,13 @@ return [
                     'icon' => 'fas fa-fw fa-user-check',
                     'text' => 'Manage Permissions',
                     'url' => 'managePermissions',
+
+
+                ],
+                [
+                    'icon' => 'fas fa-fw fa-history',
+                    'text' => 'Logs',
+                    'url' => 'logs',
 
 
                 ],

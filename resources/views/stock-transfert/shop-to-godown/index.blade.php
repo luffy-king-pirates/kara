@@ -92,31 +92,29 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                            <tr>
-                                                <td>${item.item?.item_name}</td>
-                                                <td>${item.quantity}</td>
-                                                <td>${item.unit?.unit_name}</td>
-                                            </tr>
-                                        `).join('')}
+                                                <tr>
+                                                    <td>${item.item?.item_name}</td>
+                                                    <td>${item.quantity}</td>
+                                                    <td>${item.unit?.unit_name}</td>
+                                                </tr>
+                                            `).join('')}
                         </tbody>
                     </table>
 
                     <div class="btn-group" role="group" aria-label="Godown to Shop Transaction Actions">
                         <!-- Edit Button -->
-                        <a href="/godownshop/${rowData.id}/edit" class="btn btn-warning btn-sm">
+                        <a href="/shopGodown/${rowData.id}/edit" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
 
                         <!-- Export Button -->
-                        <a href="/export/godownshop/exportDetails/${rowData.id}" class="btn btn-success btn-sm">
+                        <a href="/export/shopGodown/exportDetails/${rowData.id}" class="btn btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
-                             <a href="/godownshop/${rowData.id}/pdf/true" class="btn btn-success btn-sm">
-                            <i class="fas fa-file-export"></i> Export pdf with headers
+                             <a href="/shopGodown/${rowData.id}/pdf/true" class="btn btn-success btn-sm">
+                            <i class="fas fa-file-export"></i> Export pdf 
                         </a>
-                              <a href="/godownshop/${rowData.id}/pdf/false" class="btn btn-success btn-sm">
-                            <i class="fas fa-file-export"></i> Export pdf without headers
-                        </a>
+
                     </div>
                 `;
                 return detailTable;
@@ -133,7 +131,7 @@
                     tr.removeClass('shown');
                 } else {
                     // Open the row to display details
-                    $.get(`/godownshop/${row.data().id}/details`, function(data) {
+                    $.get(`/shopGodown/${row.data().id}/details`, function(data) {
                         row.child(formatDetails(data)).show();
                         tr.addClass('shown');
                     });
@@ -148,7 +146,7 @@
                     '&';
                 queryString += 'creation_date=' + encodeURIComponent($('#filter-creation-date').val());
 
-                window.open('/export/godownshop' + queryString, '_blank');
+                window.open('/export/shopGodown' + queryString, '_blank');
             });
         });
     </script>

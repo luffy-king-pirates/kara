@@ -20,6 +20,9 @@
         <!-- DataTable for Users -->
         @include('partials.filter-users')
         @can('read-user')
+            <button id="reloadTableButton" class="btn btn-primary">
+                <i class="fas fa-sync-alt"></i> Reload Table
+            </button>
             <table class="table table-bordered" id="users-table">
                 <thead>
                     <tr>
@@ -28,8 +31,9 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
-
-
+                        <th>Last Login</th>
+                        <th>Last Logout</th>
+                        <th>Active</th>
                         <th>Action</th>
                     </tr>
 
@@ -211,6 +215,24 @@
                         name: 'phone'
                     },
                     {
+                        data: 'last_login',
+                        name: 'last_login'
+                    },
+                    {
+                        data: 'last_logout',
+                        name: 'last_logout'
+                    },
+                    {
+                        data: 'status', // Add this line to retrieve the status
+                        name: 'status',
+                        render: function(data) {
+                            // Use Font Awesome icons for status display
+                            return data ?
+                                '<i class="fas fa-circle text-success" title="Active"></i>' :
+                                '<i class="fas fa-circle text-danger" title="Inactive"></i>';
+                        }
+                    },
+                    {
                         data: 'action',
                         name: 'action',
                         orderable: false,
@@ -341,7 +363,11 @@
                     $('#email').val(data.email);
                     $('#phone').val(data.phone);
                     $('#profile_picture').val('');
-                    $('#preview').attr('src', '/storage/' + data.profile_picture).show();
+                    $('#preview').attr('src',
+                        data.profile_picture ?
+                        '/storage/' + data.profile_picture :
+                        "https://res.cloudinary.com/dwzht4utm/image/upload/v1727019534/images_b5ws3b.jpg"
+                    ).show();
                     $('#removePicture').show();
                     $('#userModal').modal('show');
                     $('#saveUserBtn').attr('disabled', false);
@@ -410,6 +436,11 @@
                 window.open('/export/users' + queryString.slice(0, -1),
                     '_blank'); // Update the URL to your export route
             });
+
+            $('#reloadTableButton')?.on('click', function() {
+                table.ajax.reload(null, false); // false ensures the page does not reset to page 1
+            });
+
 
         });
     </script>
