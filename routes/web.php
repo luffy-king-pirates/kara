@@ -53,6 +53,11 @@ use App\Http\Controllers\UploaderController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LogsController;
 
+use App\Http\Controllers\DashboardStockTransfertController;
+
+
+
+
 // Public route: accessible by everyone
 Route::get('/', function () {
     return view('auth.login');
@@ -62,7 +67,7 @@ Route::get('/', function () {
 Auth::routes();
 
 // Secured routes: only accessible if authenticated
-Route::middleware(['auth',\App\Http\Middleware\UserActionLogger::class])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::prefix('export')->as('settings.')->group(function () {
         // Export routes
@@ -229,5 +234,25 @@ Route::middleware(['auth',\App\Http\Middleware\UserActionLogger::class])->group(
 
 
 
-    Route::resource('dashboard', DashboardController::class);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/sales/data', [DashboardController::class, 'getSalesData'])->name('getSalesData');
+
+    Route::get('sales/hourly', [DashboardController::class, 'getHourlySales']);
+    Route::get('sales/weekly', [DashboardController::class, 'getWeeklySales']);
+    Route::get('sales/monthly', [DashboardController::class, 'getMonthlySales']);
+    Route::get('sales/yearly', [DashboardController::class, 'getYearlySales']);
+
+    Route::get('sales/sales-item-credit-cash', [DashboardController::class, 'salesChart'])->name('salesChart');
+    Route::get('dashboard/items/top-sold-cash', [DashboardController::class, 'getTopSoldItemsCash']);
+    Route::get('dashboard/items/top-sold-credit', [DashboardController::class, 'getTopSoldItemsCredit']);
+    Route::get('dashboard/items/worst-sold-cash', [DashboardController::class, 'getWorstSoldItemsCash']);
+    Route::get('dashboard/items/worst-sold-credit', [DashboardController::class, 'getWorstSoldItemsCredit']);
+
+    Route::get('/dashboard-stock-transfert', [DashboardStockTransfertController::class, 'index'])->name('dashboard-stock-transfert');
+    Route::get('/dashboard-stock-transfert/transfert-stats', [DashboardStockTransfertController::class, 'getTransfertStatsAjax']);
+
+
+
+
 });

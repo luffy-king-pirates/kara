@@ -21,7 +21,8 @@
             @if ($headers === 'true')
                 <header name="header1">
                     <div class=""><img class="img-fluid"
-                            src="http://ec2-13-246-17-70.af-south-1.compute.amazonaws.com/ktlheader.jpg"></div>
+                            src="https://res.cloudinary.com/dx8hb4haj/image/upload/v1727981117/ktlheader_g4yayf.jpg">
+                    </div>
                 </header>
             @endif
             <table class="first-table" style="padding-top:20px">
@@ -187,7 +188,7 @@
         @if ($end === $totalItems - 1 && $headers === 'true')
             <footer name="footer1">
                 <div class=""><img class="img-fluid"
-                        src="http://ec2-13-246-17-70.af-south-1.compute.amazonaws.com/ktlfooter.png"></div>
+                        src="https://res.cloudinary.com/dx8hb4haj/image/upload/v1727981224/ktlfooter_wgl0nz.png"></div>
             </footer>
         @endif
     </div>
@@ -221,7 +222,8 @@
             @if ($headers === 'true')
                 <header name="header1">
                     <div class=""><img class="img-fluid"
-                            src="http://ec2-13-246-17-70.af-south-1.compute.amazonaws.com/ktlheader.jpg"></div>
+                            src="https://res.cloudinary.com/dx8hb4haj/image/upload/v1727981117/ktlheader_g4yayf.jpg">
+                    </div>
                 </header>
             @endif
             <table class="first-table" style="padding-top:20px">
@@ -345,11 +347,12 @@
         </table>
         @if ($end === $totalItems - 1)
             <img class="img-fluid" style = "padding-top:32px"
-                src="http://ec2-13-246-17-70.af-south-1.compute.amazonaws.com/proforma_sign.png">
+                src="https://res.cloudinary.com/dx8hb4haj/image/upload/v1727981260/proforma_sign_dq4hyd.png">
             @if ($headers === 'true')
                 <footer name="footer1">
                     <div class=""><img class="img-fluid"
-                            src="http://ec2-13-246-17-70.af-south-1.compute.amazonaws.com/ktlfooter.png"></div>
+                            src="https://res.cloudinary.com/dx8hb4haj/image/upload/v1727981224/ktlfooter_wgl0nz.png">
+                    </div>
                 </footer>
             @endif
         @endif
