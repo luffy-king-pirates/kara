@@ -47,7 +47,7 @@
         {{-- Include header if it's the first iteration --}}
         @if ($i === 0 && $headers === 'true')
             <header name="header1">
-                <div><img class="img-fluid" src="http://ec2-13-246-17-70.af-south-1.compute.amazonaws.com/ktlheader.jpg">
+                <div><img class="img-fluid" src="https://res.cloudinary.com/dx8hb4haj/image/upload/v1727981117/ktlheader_g4yayf.jpg">
                 </div>
             </header>
         @endif
@@ -140,7 +140,7 @@
             </table>
             <footer name="footer1">
                 <div><img style="padding-top:20px" class="img-fluid"
-                        src="http://ec2-13-246-17-70.af-south-1.compute.amazonaws.com/ktlfooter.png"></div>
+                        src="https://res.cloudinary.com/dx8hb4haj/image/upload/v1727981224/ktlfooter_wgl0nz.png"></div>
             </footer>
         @endif
     </div>

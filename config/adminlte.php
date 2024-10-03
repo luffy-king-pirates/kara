@@ -519,13 +519,13 @@ return [
         'submenu' => [
             [
                 'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
-                'text' => 'Dashboard',
+                'text' => 'Sales Dashboard',
                 "url" => 'dashboard'
             ],
             [
                 'icon' => 'fas fa-credit-card', // Icon for Credit submenu
-                'text' => 'Dashboard Sales',
-                "url" => 'dashboard-sales'
+                'text' => 'Stock Transfert Dashboard ',
+                "url" => 'dashboard-stock-transfert'
 
             ],
 
