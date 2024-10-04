@@ -116,7 +116,7 @@
 
                                     <input type="hidden" class="form-control unit_id" value="{{ $detail->unit->id }}"
                                         name="details[{{ $loop->iteration }}][unit_id]" disabled>
-                                        
+
                                     <input type="text" class="form-control unit"
                                         value="{{ $detail->unit->unit_name }}"
                                         name="details[{{ $loop->iteration }}][unit]" disabled>

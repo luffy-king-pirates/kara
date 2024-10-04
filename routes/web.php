@@ -55,7 +55,7 @@ use App\Http\Controllers\LogsController;
 
 use App\Http\Controllers\DashboardStockTransfertController;
 
-
+use App\Http\Controllers\LocalPurshaseController;
 
 
 // Public route: accessible by everyone
@@ -122,6 +122,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/existingTranfers', [App\Http\Controllers\ExistenceController::class, 'export'])->name('existingTranfers.export');
         Route::get('/existingTranfers/exportDetails/{id}', [App\Http\Controllers\ExistenceController::class, 'exportDetails'])->name('existingTranfers.exportDetails');
 
+
+
+        Route::get('/purchase', [App\Http\Controllers\LocalPurshaseController::class, 'export'])->name('purchase.export');
+        Route::get('/purchase/exportDetails/{id}', [App\Http\Controllers\LocalPurshaseController::class, 'exportDetails'])->name('purchase.exportDetails');
 
     });
 
@@ -252,6 +256,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard-stock-transfert', [DashboardStockTransfertController::class, 'index'])->name('dashboard-stock-transfert');
     Route::get('/dashboard-stock-transfert/transfert-stats', [DashboardStockTransfertController::class, 'getTransfertStatsAjax']);
 
+
+    Route::resource('purchase', LocalPurshaseController::class);
+    Route::get('purchase/{id}/details', [LocalPurshaseController::class, 'details'])->name('purchase.details');
+    Route::get('purchase/{id}/edit', [LocalPurshaseController::class, 'edit'])->name('purchase.edit');
 
 
 
