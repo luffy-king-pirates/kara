@@ -100,7 +100,7 @@ class CreditController extends Controller
     public function create()
     {
         $stockTypes = StockTypes::all();
-        $result = Item::with('unit')->get(['id', 'item_name', 'item_unit']);
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
 
         $items = $result->map(function ($item) {
             return [
@@ -108,9 +108,13 @@ class CreditController extends Controller
                 'unit_name' => $item->unit ? $item->unit->unit_name : null,
                 'item_id' => $item->id,
                 'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+
             ];
         });
-
         $units = Units::all();
         $credit = null;
         $customers = Customers::all();
@@ -133,6 +137,7 @@ class CreditController extends Controller
         $credit = Credit::create([
             'credit_number' => $request->credit_number,
             'creation_date' => $request->creation_date,
+            'type' => $request->type,
             'total_amount' => number_format((float) $request->total_amount, 2, '.', ''),
             'customer_id' => $request->customer_id,
             'created_by' => auth()->user()->id,

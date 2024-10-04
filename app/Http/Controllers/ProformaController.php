@@ -100,7 +100,7 @@ class ProformaController extends Controller
     public function create()
     {
         $stockTypes = StockTypes::all();
-        $result = Item::with('unit')->get(['id', 'item_name', 'item_unit']);
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
 
         $items = $result->map(function ($item) {
             return [
@@ -108,6 +108,11 @@ class ProformaController extends Controller
                 'unit_name' => $item->unit ? $item->unit->unit_name : null,
                 'item_id' => $item->id,
                 'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+
             ];
         });
 

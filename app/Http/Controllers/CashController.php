@@ -99,17 +99,21 @@ class CashController extends Controller
     public function create()
     {
         $stockTypes = StockTypes::all();
-        $result = Item::with('unit')->get(['id', 'item_name', 'item_unit']);
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
 
-        // Transform the result to return only the needed fields
-        $items = $result->map(function ($item) {
-            return [
-                'item_name' => $item->item_name,
-                'unit_name' => $item->unit ? $item->unit->unit_name : null, // Get the unit name
-                'item_id' => $item->id, // Now this will return the item ID
-                'unit_id' => $item->unit ? $item->unit->id : null, // Unit ID
-            ];
-        });
+$items = $result->map(function ($item) {
+    return [
+        'item_name' => $item->item_name,
+        'unit_name' => $item->unit ? $item->unit->unit_name : null,
+        'item_id' => $item->id,
+        'unit_id' => $item->unit ? $item->unit->id : null,
+        'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+        'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+        'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+        'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+
+    ];
+});
         $units = Units::all();
         $cash = null;
         $customers = Customers::all();
@@ -121,7 +125,7 @@ class CashController extends Controller
         $validatedData = $request->validate([
             'cash_number' => 'required|string|max:255',
             'creation_date' => 'required|date',
-
+            'type' =>'required|string',
             'customer_id' => 'required|exists:customers,id',
             'details.*.item_id' => 'required|exists:items,id',
 
@@ -136,6 +140,7 @@ class CashController extends Controller
             'creation_date' => $request->creation_date,
             'total_amount' =>number_format((float) $request->total_amount, 2, '.', ''),
             'customer_id' => $request->customer_id,
+            'type' => $request->type,
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id,
         ]);
@@ -169,6 +174,7 @@ class CashController extends Controller
         $validatedData = $request->validate([
             'cash_number' => 'required|string',
             'total_amount' => 'required|numeric',
+            'type' =>'required|string',
             'details.*.item_id' => 'required|integer',
             'details.*.unit_id' => 'required|integer',
             'details.*.quantity' => 'required|numeric|min:1',
@@ -181,6 +187,7 @@ class CashController extends Controller
             'cash_number' => $validatedData['cash_number'],
             'total_amount' => $validatedData['total_amount'],
             'updated_by' => auth()->user()->id,
+             'type' => $validatedData['type'],
         ]);
 
         foreach ($validatedData['details'] as $detail) {

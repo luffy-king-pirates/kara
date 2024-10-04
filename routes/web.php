@@ -67,7 +67,7 @@ Route::get('/', function () {
 Auth::routes();
 
 // Secured routes: only accessible if authenticated
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth',App\Http\Middleware\UserActionLogger::class])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::prefix('export')->as('settings.')->group(function () {
         // Export routes

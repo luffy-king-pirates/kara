@@ -20,6 +20,7 @@ class Cash extends Model
         'customer_id',      // Foreign key for Customer
         'created_at',
         'updated_at',
+        'type'
     ];
 
     // Relationship with the User who created the cash entry
@@ -41,7 +42,7 @@ class Cash extends Model
     }
 
 
-  
+
     // Relationship with CashDetail
     public function details()
     {

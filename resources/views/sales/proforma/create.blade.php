@@ -16,7 +16,7 @@
             @endif
 
             <div class="row mb-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label for="proforma_number">Proforma Number</label>
                         <input type="text" class="form-control" id="proforma_number" name="proforma_number"
@@ -24,7 +24,7 @@
                             placeholder="Enter Proforma Number" required>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label for="creation_date">Creation Date</label>
                         <input type="text" class="form-control" id="creation_date" name="creation_date"
@@ -32,12 +32,24 @@
                             readonly>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label for="existence">Customer Existence</label>
                         <select class="form-control" id="existence" name="existence" required>
                             <option value="existing" selected>Existing Customer</option>
                             <option value="new">New Customer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select class="form-control" id="type" name="type" required>
+                            <option value="shop" selected>Shop</option>
+                            <option value="Godwan">Godwan</option>
+                            <option value="shop_ashak">Shop (Ashak)</option>
+                            <option value="shop_service">Shop (Service)</option>
                         </select>
                     </div>
                 </div>
@@ -96,6 +108,10 @@
                     <tr>
                         <th>S/N</th>
                         <th>Item Name</th>
+                        <th>Godwan</th>
+                        <th>Shop</th>
+                        <th>Shop Ashak</th>
+                        <th>Shop Services</th>
                         <th>Unit</th>
                         <th>Quantity</th>
                         <th>Price</th>
@@ -151,12 +167,12 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="3" class="text-right">Total Quantity:</th>
+                        <th colspan="7" class="text-right">Total Quantity:</th>
                         <th>
                             <input type="number" class="form-control" id="total_quantity" name="total_quantity"
                                 value="0" disabled>
                         </th>
-                        <th colspan="2" class="text-right">Total Amount:</th>
+                        <th colspan="1" class="text-right">Total Amount:</th>
                         <th>
                             <input type="number" class="form-control" id="total_amount_table" name="total_amount_table"
                                 value="{{ $proforma ? $proforma->details->sum('total') : 0 }}" disabled>
@@ -288,7 +304,7 @@
                     totalQuantity += quantity;
 
                 });
-                console.log("totalQuantity = ", totalQuantity)
+
                 // Display the total quantity in a designated field (assume you have an element with id="total_quantity_display")
                 $('#total_quantity').val(totalQuantity); // Update the text
             }
@@ -302,6 +318,32 @@
                         <input type="text" class="form-control item-name" placeholder="Item Name" name="details[${rowIndex}][item_name]" required>
                         <input type="hidden" class="form-control item-id" name="details[${rowIndex}][item_id]" required>
                     </td>
+
+ <td>
+                                               <input  class="form-control godown_quantity"  disabled>
+
+
+                    </td>
+
+ <td>
+                                               <input  class="form-control shop_quantity"  disabled>
+
+
+                    </td>
+
+
+                     <td>
+                                               <input  class="form-control shop_ashak"  disabled>
+
+
+                    </td>
+                     <td>
+                                               <input  class="form-control shop_service"  disabled>
+
+
+                    </td>
+
+
  <td>
                         <input type="text" class="form-control unit" name="details[${rowIndex}][unit_name]" disabled>
                         <input type="hidden" class="form-control unit-id" name="details[${rowIndex}][unit_id]" required>
@@ -332,10 +374,17 @@
                             const row = $(this).closest('tr');
                             // Populate hidden fields and others based on the selected item
                             row.find('.item-id').val(selectedItem.item_id);
-                            row.find('.godown').val(selectedItem.godown ||
-                            ''); // Assuming you have godown info
-                            row.find('.shop').val(selectedItem.shop ||
-                            ''); // Assuming you have shop info
+                            row.find('.godown_quantity').val(selectedItem.godown_quantity ||
+                                '0'); // Assuming you have godown info
+                            row.find('.shop_quantity').val(selectedItem.shop_quantity ||
+                                '0'); // Assuming you have shop info
+                            row.find('.shop_ashak').val(selectedItem.shop_ashaks_quantity ||
+                                '0'); // Assuming you have godown info
+                            row.find('.shop_service').val(selectedItem.shop_service ||
+                                '0'); // Assuming you have shop info
+
+
+
                             row.find('.unit').val(selectedItem.unit_name);
                             row.find('.unit-id').val(selectedItem.unit_id);
 
