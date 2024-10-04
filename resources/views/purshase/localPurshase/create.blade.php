@@ -3,157 +3,164 @@
 @section('title', $purchase ? 'Edit Purchase Transaction' : 'Create Purchase Transaction')
 
 @section('content_header')
-    <h1>{{ $purchase ? 'Edit' : 'Create' }} Purchase Transaction</h1>
+
 @stop
 
 @section('content')
     <div class="container">
-        <form id="purchase_form" method="POST"
-            action="{{ $purchase ? route('purchase.update', $purchase->id) : route('purchase.store') }}">
-            @csrf
-            @if ($purchase)
-                @method('PUT')
-            @endif
+        <div class="card p-2">
+            <div class="card-header bg-primary text-white">
+                {{ $purchase ? 'Edit' : 'Create' }} Purchase Transaction
+            </div>
+            <form id="purchase_form" method="POST"
+                action="{{ $purchase ? route('purchase.update', $purchase->id) : route('purchase.store') }}">
+                @csrf
+                @if ($purchase)
+                    @method('PUT')
+                @endif
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="receipt_number">Purchase Number</label>
-                        <input type="text" class="form-control" id="receipt_number" name="receipt_number"
-                            value="{{ $purchase ? $purchase->receipt_number : old('receipt_number') }}"
-                            placeholder="Enter Receip Number" required>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="receipt_number">Purchase Number</label>
+                            <input type="text" class="form-control" id="receipt_number" name="receipt_number"
+                                value="{{ $purchase ? $purchase->receipt_number : old('receipt_number') }}"
+                                placeholder="Enter Receip Number" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="purchase_date">Purchase Date</label>
+                            <input type="text" class="form-control" id="purchase_date" name="purchase_date"
+                                value="{{ $purchase ? $purchase->purchase_date : \Carbon\Carbon::now()->toDateString() }}"
+                                readonly>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="purchase_date">Purchase Date</label>
-                        <input type="text" class="form-control" id="purchase_date" name="purchase_date"
-                            value="{{ $purchase ? $purchase->purchase_date : \Carbon\Carbon::now()->toDateString() }}"
-                            readonly>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="supplier_name">Supplier</label>
+                            <input type="text" class="form-control" id="supplier_name" name="supplier_name"
+                                value="{{ $purchase ? $purchase->supplier->supplier_name : old('supplier_name') }}"
+                                placeholder="Enter Supplier Name" required>
+                            <input id="supplier_id"
+                                value="{{ $purchase ? $purchase->supplier->supplier_id : old('supplier_id') }}"
+                                type="hidden" class="form-control supplier_id" name="supplier_id" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-right mb-3">
+                    <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
+                </div>
+
+                <table class="table table-bordered" id="purchase_table">
+                    <thead>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Item Name</th>
+                            <th>Unit</th>
+                            <th>Quantity</th>
+                            <th>Cost</th>
+                            <th>Currency</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if ($purchase && $purchase->details->count())
+                            @foreach ($purchase->details as $detail)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <input type="text" class="form-control item-name"
+                                            value="{{ $detail->item->item_name }}"
+                                            name="details[{{ $loop->iteration }}][item_name]" required>
+                                        <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
+                                            name="details[{{ $loop->iteration }}][item_id]" required>
+                                    </td>
+                                    <td>
+                                        <input type="hidden" class="form-control unit_id" value="{{ $detail->unit->id }}"
+                                            name="details[{{ $loop->iteration }}][unit_id]" required>
+                                        <input type="text" class="form-control unit"
+                                            value="{{ $detail->unit->unit_name }}"
+                                            name="details[{{ $loop->iteration }}][unit]" disabled>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
+                                            min="1" name="details[{{ $loop->iteration }}][quantity]" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control cost" value="{{ $detail->cost }}"
+                                            min="0" step="0.01" name="details[{{ $loop->iteration }}][cost]"
+                                            required>
+                                    </td>
+                                    <td>
+                                        <select class="form-control currency"
+                                            name="details[{{ $loop->iteration }}][currency_id]" required>
+                                            @foreach ($currencies as $currency)
+                                                <option value="{{ $currency->id }}"
+                                                    {{ $currency->id == $detail->currency_id ? 'selected' : '' }}>
+                                                    {{ $currency->currency_code }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control total" value="{{ $detail->total }}"
+                                            min="0" step="0.01" name="details[{{ $loop->iteration }}][total]"
+                                            required readonly>
+                                    </td>
+                                    <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-right">Total Quantity:</th>
+                            <th>
+                                <input type="number" class="form-control" id="total_quantity" name="total_quantity"
+                                    value="0" disabled>
+                            </th>
+                            <th colspan="2" class="text-right">Total Amount:</th>
+                            <th>
+                                <input type="number" class="form-control" id="total_amount_table" name="total_amount_table"
+                                    value="{{ $purchase ? $purchase->details->sum('total') : 0 }}" disabled>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="text-right mb-3">
+                    <a href="{{ route('purchase.index') }}" class="btn btn-danger">Discard</a>
+                    <button type="submit" class="btn btn-success" id="save_btn">Save</button>
+                </div>
+            </form>
+
+            <!-- Toasts for Success/Error Messages -->
+            <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+                <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">Purchase transaction saved successfully!</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
                     </div>
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="supplier_name">Supplier</label>
-                        <input type="text" class="form-control" id="supplier_name" name="supplier_name"
-                            value="{{ $purchase ? $purchase->supplier->supplier_name : old('supplier_name') }}"
-                            placeholder="Enter Supplier Name" required>
-                        <input id="supplier_id"
-                            value="{{ $purchase ? $purchase->supplier->supplier_id : old('supplier_id') }}" type="hidden"
-                            class="form-control supplier_id" name="supplier_id" required>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-right mb-3">
-                <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
-            </div>
-
-            <table class="table table-bordered" id="purchase_table">
-                <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Item Name</th>
-                        <th>Unit</th>
-                        <th>Quantity</th>
-                        <th>Cost</th>
-                        <th>Currency</th>
-                        <th>Total</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($purchase && $purchase->details->count())
-                        @foreach ($purchase->details as $detail)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>
-                                    <input type="text" class="form-control item-name"
-                                        value="{{ $detail->item->item_name }}"
-                                        name="details[{{ $loop->iteration }}][item_name]" required>
-                                    <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
-                                        name="details[{{ $loop->iteration }}][item_id]" required>
-                                </td>
-                                <td>
-                                    <input type="hidden" class="form-control unit_id" value="{{ $detail->unit->id }}"
-                                        name="details[{{ $loop->iteration }}][unit_id]" required>
-                                    <input type="text" class="form-control unit" value="{{ $detail->unit->unit_name }}"
-                                        name="details[{{ $loop->iteration }}][unit]" disabled>
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
-                                        min="1" name="details[{{ $loop->iteration }}][quantity]" required>
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control cost" value="{{ $detail->cost }}"
-                                        min="0" step="0.01" name="details[{{ $loop->iteration }}][cost]"
-                                        required>
-                                </td>
-                                <td>
-                                    <select class="form-control currency"
-                                        name="details[{{ $loop->iteration }}][currency_id]" required>
-                                        @foreach ($currencies as $currency)
-                                            <option value="{{ $currency->id }}"
-                                                {{ $currency->id == $detail->currency_id ? 'selected' : '' }}>
-                                                {{ $currency->currency_code }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control total" value="{{ $detail->total }}"
-                                        min="0" step="0.01" name="details[{{ $loop->iteration }}][total]"
-                                        required readonly>
-                                </td>
-                                <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="3" class="text-right">Total Quantity:</th>
-                        <th>
-                            <input type="number" class="form-control" id="total_quantity" name="total_quantity"
-                                value="0" disabled>
-                        </th>
-                        <th colspan="2" class="text-right">Total Amount:</th>
-                        <th>
-                            <input type="number" class="form-control" id="total_amount_table" name="total_amount_table"
-                                value="{{ $purchase ? $purchase->details->sum('total') : 0 }}" disabled>
-                        </th>
-                    </tr>
-                </tfoot>
-            </table>
-
-            <div class="text-right mb-3">
-                <a href="{{ route('purchase.index') }}" class="btn btn-danger">Discard</a>
-                <button type="submit" class="btn btn-success" id="save_btn">Save</button>
-            </div>
-        </form>
-
-        <!-- Toasts for Success/Error Messages -->
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-                aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">Purchase transaction saved successfully!</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-                </div>
-            </div>
-
-            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-                aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-                </div>
-            </div>
         </div>
     </div>
 @stop
@@ -320,7 +327,7 @@
                     window.location.href = "{{ route('purchase.index') }}"; // Redirect after success
 
                     // Optionally, clear form fields or reset the form (if needed)
-                     $('#purchase_form')[0].reset();
+                    $('#purchase_form')[0].reset();
                 },
                 error: function(xhr) {
                     const errors = xhr.responseJSON.errors;
@@ -330,7 +337,7 @@
                     for (let field in errors) {
                         errorMessage += errors[field].join(', ') + '\n';
                         $(`[name="${field}"]`).addClass(
-                        'is-invalid'); // Add red border to the invalid fields
+                            'is-invalid'); // Add red border to the invalid fields
                     }
 
                     // Display the error message in the error toast

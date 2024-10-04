@@ -3,204 +3,213 @@
 @section('title', $cash ? 'Edit Cash Transaction' : 'Create Cash Transaction')
 
 @section('content_header')
-    <h1>{{ $cash ? 'Edit' : 'Create' }} Cash Transaction</h1>
+
 @stop
 
 @section('content')
     <div class="container">
-        <form id="cash_form" method="POST" action="{{ $cash ? route('cash.update', $cash->id) : route('cash.store') }}">
-            @csrf
-            @if ($cash)
-                @method('PUT')
-            @endif
-
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="cash_number">Cash Number</label>
-                        <input type="text" class="form-control" id="cash_number" name="cash_number"
-                            value="{{ $cash ? $cash->cash_number : old('cash_number') }}" placeholder="Enter Cash Number"
-                            required>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="creation_date">Creation Date</label>
-                        <input type="text" class="form-control" id="creation_date" name="creation_date"
-                            value="{{ $cash ? $cash->creation_date : \Carbon\Carbon::now()->toDateString() }}" readonly>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="existence">Customer Existence</label>
-                        <select class="form-control" id="existence" name="existence" required>
-                            <option value="existing" selected>Existing Customer</option>
-                            <option value="new">New Customer</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="type">Type</label>
-                        <select class="form-control" id="type" name="type" required>
-                            <option value="shop" selected>Shop</option>
-                            <option value="Godwan">Godwan</option>
-                            <option value="shop_ashak">Shop (Ashak)</option>
-                            <option value="shop_service">Shop (Service)</option>
-                        </select>
-                    </div>
-                </div>
+        <div class="card p-2">
+            <div class="card-header bg-primary text-white">
+                {{ $cash ? 'Edit' : 'Create' }} Cash Transaction
             </div>
+            <form id="cash_form" method="POST" action="{{ $cash ? route('cash.update', $cash->id) : route('cash.store') }}">
+                @csrf
+                @if ($cash)
+                    @method('PUT')
+                @endif
 
-            <div class="row mb-3">
-                <div class="col-md-4" id="customer_name_div">
-                    <div class="form-group">
-                        <label for="customer_name">Customer Name</label>
-                        <input type="text" class="form-control" id="customer_name" name="customer_name"
-                            value="{{ $cash ? $cash->customer->customer_name : old('customer_name') }}"
-                            placeholder="Enter Customer Name" required>
-                        <input id="customer_id" value="{{ $cash ? $cash->customer->customer_id : old('customer_id') }}"
-                            type="hidden" class="form-control customer_id" name="customer_id" required>
-                        <input type="hidden" value="{{ $cash ? $cash->total_amount : old('total_amount') }}"
-                            id="total_amount" class="form-control total_amount" name="total_amount" required>
-
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="cash_number">Cash Number</label>
+                            <input type="text" class="form-control" id="cash_number" name="cash_number"
+                                value="{{ $cash ? $cash->cash_number : old('cash_number') }}"
+                                placeholder="Enter Cash Number" required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="creation_date">Creation Date</label>
+                            <input type="text" class="form-control" id="creation_date" name="creation_date"
+                                value="{{ $cash ? $cash->creation_date : \Carbon\Carbon::now()->toDateString() }}" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="existence">Customer Existence</label>
+                            <select class="form-control" id="existence" name="existence" required>
+                                <option value="existing" selected>Existing Customer</option>
+                                <option value="new">New Customer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select class="form-control" id="type" name="type" required>
+                                <option value="shop" selected>Shop</option>
+                                <option value="Godwan">Godwan</option>
+                                <option value="shop_ashak">Shop (Ashak)</option>
+                                <option value="shop_service">Shop (Service)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4" id="customer_vin_div">
-                    <div class="form-group">
-                        <label for="customer_vin">Customer TIN</label>
-                        <input type="text" class="form-control" id="customer_vin" name="customer_vin"
-                            value="{{ $cash ? $cash->customer->customer_tin : old('customer_vin') }}"
-                            placeholder="Enter Customer VIN" required>
+
+                <div class="row mb-3">
+                    <div class="col-md-4" id="customer_name_div">
+                        <div class="form-group">
+                            <label for="customer_name">Customer Name</label>
+                            <input type="text" class="form-control" id="customer_name" name="customer_name"
+                                value="{{ $cash ? $cash->customer->customer_name : old('customer_name') }}"
+                                placeholder="Enter Customer Name" required>
+                            <input id="customer_id" value="{{ $cash ? $cash->customer->customer_id : old('customer_id') }}"
+                                type="hidden" class="form-control customer_id" name="customer_id" required>
+                            <input type="hidden" value="{{ $cash ? $cash->total_amount : old('total_amount') }}"
+                                id="total_amount" class="form-control total_amount" name="total_amount" required>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4" id="customer_vin_div">
+                        <div class="form-group">
+                            <label for="customer_vin">Customer TIN</label>
+                            <input type="text" class="form-control" id="customer_vin" name="customer_vin"
+                                value="{{ $cash ? $cash->customer->customer_tin : old('customer_vin') }}"
+                                placeholder="Enter Customer VIN" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4" id="vrn_number_div">
+                        <div class="form-group">
+                            <label for="vrn_number">VRN Number</label>
+                            <input type="text" class="form-control" id="vrn_number"
+                                value="{{ $cash ? $cash->customer->customer_vrn : old('customer_vrn') }}" name="vrn_number"
+                                placeholder="Enter VRN Number" required>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4" id="vrn_number_div">
-                    <div class="form-group">
-                        <label for="vrn_number">VRN Number</label>
-                        <input type="text" class="form-control" id="vrn_number"
-                            value="{{ $cash ? $cash->customer->customer_vrn : old('customer_vrn') }}" name="vrn_number"
-                            placeholder="Enter VRN Number" required>
+
+                <!-- Adding Percent Input Here -->
+                <div class="row mb-3">
+                    <div class="col-md-4" id="percent_div">
+                        <div class="form-group">
+                            <label for="percent">Percentage</label>
+                            <input type="number" class="form-control" id="percent" name="percent"
+                                placeholder="Enter Percentage" min="0" max="100" step="0.01" required>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Adding Percent Input Here -->
-            <div class="row mb-3">
-                <div class="col-md-4" id="percent_div">
-                    <div class="form-group">
-                        <label for="percent">Percentage</label>
-                        <input type="number" class="form-control" id="percent" name="percent"
-                            placeholder="Enter Percentage" min="0" max="100" step="0.01" required>
+                <div class="text-right mb-3">
+                    <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
+                </div>
+
+                <table class="table table-bordered" id="cash_table">
+                    <thead>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Item Name</th>
+
+                            <th>Godwan</th>
+                            <th>Shop</th>
+                            <th>Shop Ashak</th>
+                            <th>Shop Services</th>
+                            <th>Unit</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if ($cash && $cash->details->count())
+                            @foreach ($cash->details as $detail)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <input type="text" class="form-control item-name"
+                                            value="{{ $detail->item->item_name }}"
+                                            name="details[{{ $loop->iteration }}][item_name]" required>
+                                        <input type="hidden" class="form-control item-id"
+                                            value="{{ $detail->item_id }}"
+                                            name="details[{{ $loop->iteration }}][item_id]" required>
+                                    </td>
+                                    <td>
+
+                                        <input type="hidden" class="form-control unit_id"
+                                            value="{{ $detail->unit->id }}"
+                                            name="details[{{ $loop->iteration }}][unit_id]" disabled>
+
+                                        <input type="text" class="form-control unit"
+                                            value="{{ $detail->unit->unit_name }}"
+                                            name="details[{{ $loop->iteration }}][unit]" disabled>
+                                    </td>
+
+                                    <td>
+
+                                        <input type="number" class="form-control quantity"
+                                            value="{{ $detail->quantity }}" min="1"
+                                            name="details[{{ $loop->iteration }}][quantity]" required>
+                                    </td>
+                                    <td>
+
+                                        <input type="number" class="form-control price" value="{{ $detail->price }}"
+                                            min="0" step="0.01" name="details[{{ $loop->iteration }}][price]"
+                                            required>
+                                    </td>
+                                    <td>
+
+                                        <input type="number" class="form-control total" value="{{ $detail->total }}"
+                                            min="0" step="0.01" name="details[{{ $loop->iteration }}][total]"
+                                            required readonly>
+                                    </td>
+
+
+                                    <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="7" class="text-right">Total Quantity:</th>
+                            <th>
+                                <input type="number" class="form-control" id="total_quantity" name="total_quantity"
+                                    value="0" disabled>
+                            </th>
+                            <th colspan="1" class="text-right">Total Amount:</th>
+                            <th>
+                                <input type="number" class="form-control" id="total_amount_table"
+                                    name="total_amount_table" value="{{ $cash ? $cash->details->sum('total') : 0 }}"
+                                    disabled>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="text-right mb-3">
+                    <a href="{{ route('cash.index') }}" class="btn btn-danger">Discard</a>
+                    <button type="button" class="btn btn-success" id="save_btn">Save</button>
+                </div>
+            </form>
+
+            <!-- Toasts for Success/Error Messages -->
+            <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+                <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">Cash transaction saved successfully!</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
                     </div>
                 </div>
-            </div>
 
-            <div class="text-right mb-3">
-                <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
-            </div>
-
-            <table class="table table-bordered" id="cash_table">
-                <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Item Name</th>
-
-                        <th>Godwan</th>
-                        <th>Shop</th>
-                        <th>Shop Ashak</th>
-                        <th>Shop Services</th>
-                        <th>Unit</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($cash && $cash->details->count())
-                        @foreach ($cash->details as $detail)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>
-                                    <input type="text" class="form-control item-name"
-                                        value="{{ $detail->item->item_name }}"
-                                        name="details[{{ $loop->iteration }}][item_name]" required>
-                                    <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
-                                        name="details[{{ $loop->iteration }}][item_id]" required>
-                                </td>
-                                <td>
-
-                                    <input type="hidden" class="form-control unit_id" value="{{ $detail->unit->id }}"
-                                        name="details[{{ $loop->iteration }}][unit_id]" disabled>
-
-                                    <input type="text" class="form-control unit"
-                                        value="{{ $detail->unit->unit_name }}"
-                                        name="details[{{ $loop->iteration }}][unit]" disabled>
-                                </td>
-
-                                <td>
-
-                                    <input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
-                                        min="1" name="details[{{ $loop->iteration }}][quantity]" required>
-                                </td>
-                                <td>
-
-                                    <input type="number" class="form-control price" value="{{ $detail->price }}"
-                                        min="0" step="0.01" name="details[{{ $loop->iteration }}][price]"
-                                        required>
-                                </td>
-                                <td>
-
-                                    <input type="number" class="form-control total" value="{{ $detail->total }}"
-                                        min="0" step="0.01" name="details[{{ $loop->iteration }}][total]"
-                                        required readonly>
-                                </td>
-
-
-                                <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="7" class="text-right">Total Quantity:</th>
-                        <th>
-                            <input type="number" class="form-control" id="total_quantity" name="total_quantity"
-                                value="0" disabled>
-                        </th>
-                        <th colspan="1" class="text-right">Total Amount:</th>
-                        <th>
-                            <input type="number" class="form-control" id="total_amount_table" name="total_amount_table"
-                                value="{{ $cash ? $cash->details->sum('total') : 0 }}" disabled>
-                        </th>
-                    </tr>
-                </tfoot>
-            </table>
-
-            <div class="text-right mb-3">
-                <a href="{{ route('cash.index') }}" class="btn btn-danger">Discard</a>
-                <button type="button" class="btn btn-success" id="save_btn">Save</button>
-            </div>
-        </form>
-
-        <!-- Toasts for Success/Error Messages -->
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-                aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">Cash transaction saved successfully!</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-                </div>
-            </div>
-
-            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-                aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
+                <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
                 </div>
             </div>
         </div>
