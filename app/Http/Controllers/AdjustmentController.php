@@ -129,7 +129,6 @@ class AdjustmentController extends Controller
                 'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
                 'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
                 'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
-
             ];
         });
 
@@ -160,6 +159,10 @@ class AdjustmentController extends Controller
         foreach ($request->details as $detail) {
             $adjustment->details()->create($detail);
         }
+
+        
+
+
         return response()->json(['success' => true]);
     }
 

@@ -19,6 +19,10 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
 use setasign\Fpdi\Fpdi;
+use App\Models\ShopService;
+use App\Models\Shops;
+use App\Models\ShopAshaks;
+use App\Models\Godown;
 class ProformaController extends Controller
 {
     public function index(Request $request)
@@ -147,6 +151,24 @@ class ProformaController extends Controller
         foreach ($request->details as $detail) {
             $proforma->details()->create($detail);
         }
+
+                  // Check if transfert_to is a godown
+  if ($request->type == 'Godwan') {
+    // Add items to godown
+    Godown::removeItemsFromTransfert($proforma);
+}
+if ($request->type == 'shop') {
+    // Add items to godown
+    Shops::removeItemsFromTransfert($proforma);
+}
+if ($request->type == 'Godwan') {
+    // Add items to godown
+    Godown::removeItemsFromTransfert($proforma);
+}
+if ($request->type == 'shop_service') {
+    // Add items to godown
+    ShopService::removeItemsFromTransfert($proforma);
+}
 
         return response()->json(['success' => true]);
     }

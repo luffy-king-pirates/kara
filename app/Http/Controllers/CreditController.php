@@ -18,7 +18,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use App\Models\ShopService;
+use App\Models\Shops;
+use App\Models\ShopAshaks;
+use App\Models\Godown;
 class CreditController extends Controller
 {
     public function index(Request $request)
@@ -147,6 +150,24 @@ class CreditController extends Controller
         foreach ($request->details as $detail) {
             $credit->details()->create($detail);
         }
+        if ($request->type == 'Godwan') {
+            // Add items to godown
+            Godown::removeItemsFromTransfert($credit);
+        }
+        if ($request->type == 'shop') {
+            // Add items to godown
+            Shops::removeItemsFromTransfert($credit);
+        }
+        if ($request->type == 'Godwan') {
+            // Add items to godown
+            Godown::removeItemsFromTransfert($credit);
+        }
+        if ($request->type == 'shop_service') {
+            // Add items to godown
+            ShopService::removeItemsFromTransfert($credit);
+        }
+
+
 
         return response()->json(['success' => true]);
     }

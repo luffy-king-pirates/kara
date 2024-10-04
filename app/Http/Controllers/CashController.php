@@ -18,6 +18,13 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
+
+use App\Models\ShopService;
+use App\Models\Shops;
+use App\Models\ShopAshaks;
+use App\Models\Godown;
+
+use Illuminate\Support\Facades\Log;
 class CashController extends Controller
 {
     public function index(Request $request)
@@ -148,6 +155,29 @@ $items = $result->map(function ($item) {
         foreach ($request->details as $detail) {
             $cash->details()->create($detail);
         }
+
+          // Check if transfert_to is a godown
+          Log::info('Type', ['type' => $request->type]);
+
+  if ($request->type == 'Godwan') {
+    // Add items to godown
+    Godown::removeItemsFromTransfert($cash);
+}
+if ($request->type == 'shop') {
+    Log::info('Enter to Shop ');
+    // Add items to godown
+    Shops::removeItemsFromTransfert($cash);
+}
+if ($request->type == 'Godwan') {
+    // Add items to godown
+    Godown::removeItemsFromTransfert($cash);
+}
+if ($request->type == 'shop_service') {
+    // Add items to godown
+    ShopService::removeItemsFromTransfert($cash);
+}
+
+
 
         return response()->json(['success' => true]);
     }
