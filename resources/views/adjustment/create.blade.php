@@ -8,9 +8,10 @@
 
 @section('content')
     <div class="container">
-        <form id="adjustment_form" method="POST" action="{{ $adjustment ? route('adjustments.update', $adjustment->id) : route('adjustments.store') }}">
+        <form id="adjustment_form" method="POST"
+            action="{{ $adjustment ? route('adjustments.update', $adjustment->id) : route('adjustments.store') }}">
             @csrf
-            @if($adjustment)
+            @if ($adjustment)
                 @method('PUT')
             @endif
 
@@ -27,7 +28,8 @@
                     <div class="form-group">
                         <label for="adjustment_date">Adjustment Date</label>
                         <input type="text" class="form-control" id="adjustment_date" name="adjustment_date"
-                            value="{{ $adjustment ? $adjustment->adjustment_date : \Carbon\Carbon::now()->toDateString() }}" readonly>
+                            value="{{ $adjustment ? $adjustment->adjustment_date : \Carbon\Carbon::now()->toDateString() }}"
+                            readonly>
                     </div>
                 </div>
             </div>
@@ -41,38 +43,51 @@
                     <tr>
                         <th>S/N</th>
                         <th>Item Name</th>
-                        <th>Stock Type</th>
-                        <th>Godown</th>
+                        <th>Godwan</th>
                         <th>Shop</th>
+                        <th>Shop Ashak</th>
+                        <th>Shop Services</th>
+                        <th>Stock Type</th>
+                       
                         <th>Quantity</th>
                         <th>Unit</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if($adjustment && $adjustment->details->count())
-                        @foreach($adjustment->details as $detail)
+                    @if ($adjustment && $adjustment->details->count())
+                        @foreach ($adjustment->details as $detail)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>
-                                    <input type="text" class="form-control item-name" value="{{ $detail->item->item_name }}" name="details[{{ $loop->iteration }}][item_name]" required>
-                                    <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}" name="details[{{ $loop->iteration }}][item_id]" required>
+                                    <input type="text" class="form-control item-name"
+                                        value="{{ $detail->item->item_name }}"
+                                        name="details[{{ $loop->iteration }}][item_name]" required>
+                                    <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
+                                        name="details[{{ $loop->iteration }}][item_id]" required>
                                 </td>
                                 <td>
-                                    <select class="form-control stock-type" name="details[{{ $loop->iteration }}][stock_type_id]" required>
-                                        @foreach($stockTypes as $stockType)
-                                            <option value="{{ $stockType->id }}" {{ $detail->stock_type_id == $stockType->id ? 'selected' : '' }}>
+                                    <select class="form-control stock-type"
+                                        name="details[{{ $loop->iteration }}][stock_type_id]" required>
+                                        @foreach ($stockTypes as $stockType)
+                                            <option value="{{ $stockType->id }}"
+                                                {{ $detail->stock_type_id == $stockType->id ? 'selected' : '' }}>
                                                 {{ $stockType->stock_type_name }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </td>
-                                <td><input type="text" class="form-control godown" value="{{ $detail->godown }}" name="details[{{ $loop->iteration }}][godown]" disabled></td>
-                                <td><input type="text" class="form-control shop" value="{{ $detail->shop }}" name="details[{{ $loop->iteration }}][shop]" disabled></td>
-                                <td><input type="number" class="form-control quantity" value="{{ $detail->quantity }}" min="1" name="details[{{ $loop->iteration }}][quantity]" required></td>
+                                <td><input type="text" class="form-control godown" value="{{ $detail->godown }}"
+                                        name="details[{{ $loop->iteration }}][godown]" disabled></td>
+                                <td><input type="text" class="form-control shop" value="{{ $detail->shop }}"
+                                        name="details[{{ $loop->iteration }}][shop]" disabled></td>
+                                <td><input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
+                                        min="1" name="details[{{ $loop->iteration }}][quantity]" required></td>
                                 <td>
-                                    <input type="text" class="form-control unit" value="{{ $detail->unit->unit_name }}" name="details[{{ $loop->iteration }}][unit_name]" disabled>
-                                    <input type="hidden" class="form-control unit-id" value="{{ $detail->unit_id }}" name="details[{{ $loop->iteration }}][unit_id]" required>
+                                    <input type="text" class="form-control unit" value="{{ $detail->unit->unit_name }}"
+                                        name="details[{{ $loop->iteration }}][unit_name]" disabled>
+                                    <input type="hidden" class="form-control unit-id" value="{{ $detail->unit_id }}"
+                                        name="details[{{ $loop->iteration }}][unit_id]" required>
                                 </td>
                                 <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
                             </tr>
@@ -81,7 +96,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="5" class="text-right">Total Quantity:</th>
+                        <th colspan="7" class="text-right">Total Quantity:</th>
                         <th>
                             <input type="number" class="form-control" id="total_quantity" name="total_quantity"
                                 value="{{ $adjustment ? $adjustment->details->sum('quantity') : 0 }}" disabled>
@@ -134,7 +149,7 @@
 @stop
 
 @section('js')
-   @include('partials.import-cdn')
+    @include('partials.import-cdn')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         let rowIndex = {{ $adjustment ? $adjustment->details->count() + 1 : 1 }};
@@ -163,8 +178,15 @@
                         const row = $(this).closest('tr');
                         // Populate hidden fields and others based on the selected item
                         row.find('.item-id').val(selectedItem.item_id);
-                        row.find('.godown').val(selectedItem.godown || ''); // Assuming you have godown info
-                        row.find('.shop').val(selectedItem.shop || ''); // Assuming you have shop info
+                        row.find('.godown_quantity').val(selectedItem.godown_quantity ||
+                            '0'); // Assuming you have godown info
+                        row.find('.shop_quantity').val(selectedItem.shop_quantity ||
+                            '0'); // Assuming you have shop info
+                        row.find('.shop_ashak').val(selectedItem.shop_ashaks_quantity ||
+                            '0'); // Assuming you have godown info
+                        row.find('.shop_service').val(selectedItem.shop_service ||
+                            '0'); // Assuming you have shop info
+
                         row.find('.unit').val(selectedItem.unit_name);
                         row.find('.unit-id').val(selectedItem.unit_id);
                     }
@@ -181,14 +203,35 @@
                         <input type="text" class="form-control item-name" placeholder="Item Name" name="details[${rowIndex}][item_name]" required>
                         <input type="hidden" class="form-control item-id" name="details[${rowIndex}][item_id]" required>
                     </td>
+                     <td>
+                                               <input  class="form-control godown_quantity"  disabled>
+
+
+                    </td>
+
+ <td>
+                                               <input  class="form-control shop_quantity"  disabled>
+
+
+                    </td>
+
+
+                     <td>
+                                               <input  class="form-control shop_ashak"  disabled>
+
+
+                    </td>
+                     <td>
+                                               <input  class="form-control shop_service"  disabled>
+
+
+                    </td>
                     <td>
                         <select class="form-control stock-type" name="details[${rowIndex}][stock_type_id]" required>
                             <option value="">Select Stock Type</option>
                             ${stockTypes.map(stockType => `<option value="${stockType.id}">${stockType.stock_type_name}</option>`).join('')}
                         </select>
                     </td>
-                    <td><input type="text" class="form-control godown" name="details[${rowIndex}][godown]" disabled></td>
-                    <td><input type="text" class="form-control shop" name="details[${rowIndex}][shop]" disabled></td>
                     <td><input type="number" class="form-control quantity" min="1" placeholder="Quantity" name="details[${rowIndex}][quantity]" required></td>
                     <td>
                         <input type="text" class="form-control unit" name="details[${rowIndex}][unit_name]" disabled>
@@ -242,7 +285,8 @@
                 data: formData,
                 success: function(response) {
                     $('#successToast').toast('show');
-                    window.location.href = "{{ route('adjustments.index') }}"; // Redirect after success
+                    window.location.href =
+                        "{{ route('adjustments.index') }}"; // Redirect after success
                 },
                 error: function(xhr) {
                     const errors = xhr.responseJSON.errors;
