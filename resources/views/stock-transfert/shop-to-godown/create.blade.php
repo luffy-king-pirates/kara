@@ -48,6 +48,8 @@
                             <tr>
                                 <th>S/N</th>
                                 <th>Item Name</th>
+                                <th>Godwan</th>
+                                <th>Shop</th>
                                 <th>Unit</th>
                                 <th>Quantity</th>
                                 <th>Action</th>
@@ -62,16 +64,17 @@
                                             <input type="text" class="form-control item-name"
                                                 value="{{ $detail->item->item_name }}"
                                                 name="details[{{ $loop->iteration }}][item_name]" required>
-                                            <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
+                                            <input type="hidden" class="form-control item-id"
+                                                value="{{ $detail->item_id }}"
                                                 name="details[{{ $loop->iteration }}][item_id]" required>
                                         </td>
                                         <td>
                                             <input type="text" class="form-control unit"
-                                                value="{{ $detail->unit->unit_name }}" name="details[{{ $loop->iteration }}][unit]"
-                                                disabled>
+                                                value="{{ $detail->unit->unit_name }}"
+                                                name="details[{{ $loop->iteration }}][unit]" disabled>
                                             <input type="hidden" class="form-control unit-id"
-                                                value="{{ $detail->unit->id }}" name="details[{{ $loop->iteration }}][unit_id]"
-                                                required>
+                                                value="{{ $detail->unit->id }}"
+                                                name="details[{{ $loop->iteration }}][unit_id]" required>
                                         </td>
                                         <td>
                                             <input type="number" class="form-control quantity"
@@ -87,7 +90,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="3" class="text-right">Total Quantity:</th>
+                                <th colspan="5" class="text-right">Total Quantity:</th>
                                 <th>
                                     <input type="number" class="form-control" id="total_quantity" name="total_quantity"
                                         value="0" disabled>
@@ -177,6 +180,18 @@
                         <input type="text" class="form-control item-name" placeholder="Item Name" name="details[${rowIndex}][item_name]" required>
                         <input type="hidden" class="form-control item-id" name="details[${rowIndex}][item_id]" required>
                     </td>
+                                           <td>
+                                               <input  class="form-control item-godown_quantity"  disabled>
+
+
+                    </td>
+                   <td>
+                                               <input  class="form-control item-shop_quantity"  disabled>
+
+
+                    </td>
+
+
                     <td>
                         <input type="text" class="form-control unit" name="details[${rowIndex}][unit]" disabled>
                         <input type="hidden" class="form-control unit-id" name="details[${rowIndex}][unit_id]" required>
@@ -204,6 +219,10 @@
                         row.find('.item-id').val(selectedItem.item_id);
                         row.find('.unit').val(selectedItem.unit_name);
                         row.find('.unit-id').val(selectedItem.unit_id);
+                        row.find('.item-godown_quantity').val(selectedItem.godown_quantity);
+                        row.find('.item-shop_quantity').val(selectedItem.shop_quantity);
+
+
                     }
                 }
             });
@@ -236,7 +255,8 @@
                         if (response.success) {
                             $('#successToast').toast('show');
                             setTimeout(() => {
-                                window.location.href = "{{ route('shopGodown.index') }}";
+                                window.location.href =
+                                    "{{ route('shopGodown.index') }}";
                             }, 2000);
                         }
                     },

@@ -83,16 +83,20 @@ class GodwanShopAshokController extends Controller
     public function create()
     {
         $units = Item::with('unit')->get(['id', 'item_name', 'item_unit']);
-        $result = Item::with('unit')->get(['id', 'item_name', 'item_unit']);
+        $result = Item::with(['unit', 'godown','shopAshaks'])->get(['id', 'item_name', 'item_unit']);
 
-        $items = $result->map(function ($item) {
-            return [
-                'item_name' => $item->item_name,
-                'unit_name' => $item->unit ? $item->unit->unit_name : null,
-                'item_id' => $item->id,
-                'unit_id' => $item->unit ? $item->unit->id : null,
-            ];
-        });
+$items = $result->map(function ($item) {
+    return [
+        'item_name' => $item->item_name,
+        'unit_name' => $item->unit ? $item->unit->unit_name : null,
+        'item_id' => $item->id,
+        'unit_id' => $item->unit ? $item->unit->id : null,
+        'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+        'shop_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0
+    ];
+});
+
+
         $godownshop = null;
         $units = Units::all();
         return view('stock-transfert.godown-to-shop-ashok.create', compact('items', 'units','godownshop'));

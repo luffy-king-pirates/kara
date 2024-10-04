@@ -42,7 +42,7 @@
 
                     <!-- Table inside Card -->
                     <div class="card mt-4 shadow-sm">
-                        <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-header d-flex justify-content-between ">
                             <h4>Items Transfer</h4>
                             <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
                         </div>
@@ -52,6 +52,8 @@
                                     <tr>
                                         <th>S/N</th>
                                         <th>Item Name</th>
+                                        <th>Godown</th>
+                                        <th>Shop Ashok</th>
                                         <th>Unit</th>
                                         <th>Quantity</th>
                                         <th>Action</th>
@@ -93,7 +95,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="3" class="text-right">Total Quantity:</th>
+                                        <th colspan="5" class="text-right">Total Quantity:</th>
                                         <th>
                                             <input type="number" class="form-control" id="total_quantity"
                                                 name="total_quantity" value="0" disabled>
@@ -174,6 +176,16 @@
                         <input type="text" class="form-control item-name" placeholder="Item Name" name="details[${rowIndex}][item_name]" required>
                         <input type="hidden" class="form-control item-id" name="details[${rowIndex}][item_id]" required>
                     </td>
+                      <td>
+                                               <input  class="form-control item-godown_quantity"  disabled>
+
+
+                    </td>
+                   <td>
+                                               <input  class="form-control item-shop_quantity"  disabled>
+
+
+                    </td>
                     <td>
                         <input type="text" class="form-control unit" name="details[${rowIndex}][unit]" disabled>
                         <input type="hidden" class="form-control unit-id" name="details[${rowIndex}][unit_id]" required>
@@ -201,6 +213,10 @@
                         row.find('.item-id').val(selectedItem.item_id);
                         row.find('.unit').val(selectedItem.unit_name);
                         row.find('.unit-id').val(selectedItem.unit_id);
+                           row.find('.item-godown_quantity').val(selectedItem.godown_quantity);
+                        row.find('.item-shop_quantity').val(selectedItem.shop_quantity);
+
+
                     }
                 }
             });

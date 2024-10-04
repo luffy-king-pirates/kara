@@ -50,6 +50,8 @@
                                 <tr>
                                     <th>S/N</th>
                                     <th>Item Name</th>
+                                    <th>Shop(Service)</th>
+                                    <th>Godwan</th>
                                     <th>Unit</th>
                                     <th>Quantity</th>
                                     <th>Action</th>
@@ -81,17 +83,18 @@
                                                     value="{{ $detail->quantity }}" min="1"
                                                     name="details[{{ $loop->iteration }}][quantity]" required>
                                             </td>
-                                            <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
+                                            <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endif
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="3" class="text-right">Total Quantity:</th>
+                                    <th colspan="5" class="text-right">Total Quantity:</th>
                                     <th>
-                                        <input type="number" class="form-control" id="total_quantity"
-                                            name="total_quantity" value="0" disabled>
+                                        <input type="number" class="form-control" id="total_quantity" name="total_quantity"
+                                            value="0" disabled>
                                     </th>
                                 </tr>
                             </tfoot>
@@ -149,7 +152,8 @@
             border-bottom: none;
         }
 
-        .btn-primary, .btn-success {
+        .btn-primary,
+        .btn-success {
             border-radius: 20px;
         }
 
@@ -159,7 +163,8 @@
             border-color: #dc3545;
         }
 
-        .table th, .table td {
+        .table th,
+        .table td {
             vertical-align: middle;
         }
 
@@ -193,6 +198,16 @@
                         <input type="text" class="form-control item-name" placeholder="Item Name" name="details[${rowIndex}][item_name]" required>
                         <input type="hidden" class="form-control item-id" name="details[${rowIndex}][item_id]" required>
                     </td>
+  <td>
+                                               <input  class="form-control item-godown_quantity"  disabled>
+
+
+                    </td>
+                   <td>
+                                               <input  class="form-control item-shop_quantity"  disabled>
+
+
+                    </td>
                     <td>
                         <input type="text" class="form-control unit" name="details[${rowIndex}][unit]" disabled>
                         <input type="hidden" class="form-control unit-id" name="details[${rowIndex}][unit_id]" required>
@@ -218,6 +233,9 @@
                     if (selectedItem) {
                         const row = $(this).closest('tr');
                         row.find('.item-id').val(selectedItem.item_id);
+                        row.find('.item-godown_quantity').val(selectedItem.godown_quantity);
+                        row.find('.item-shop_quantity').val(selectedItem.shop_quantity);
+
                         row.find('.unit').val(selectedItem.unit_name);
                         row.find('.unit-id').val(selectedItem.unit_id);
                     }
