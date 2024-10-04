@@ -185,15 +185,7 @@
 
         <canvas id="itemsChart"></canvas>
     </div>
-    <table id="itemsTable" class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Brand</th>
-                <th>Quantity Sold</th>
-            </tr>
-        </thead>
-    </table>
+
 
 @stop
 

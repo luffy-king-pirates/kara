@@ -513,6 +513,7 @@ return [
         ]
     ],
 
+
     [
         'text' => 'Dashboard',
         'icon' => 'fas fa-shopping-cart', // Icon for Sales
@@ -532,6 +533,26 @@ return [
         ]
     ],
 
+
+
+    [
+        'text' => 'Purshase',
+        'icon' => 'fas fa-shopping-cart', // Icon for Sales
+        'submenu' => [
+            [
+                'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
+                'text' => 'Local Purshase (Create)',
+                "url" => 'purchase/create'
+            ],
+            [
+                'icon' => 'fas fa-credit-card', // Icon for Credit submenu
+                'text' => 'Local Purshase (View)',
+                "url" => 'purchase'
+
+            ],
+
+        ]
+    ],
 
 
 

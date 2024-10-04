@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', $godownshop ? 'Edit Godown to Shop (Ashok) Transfer' : 'Create Godown to Shop (Ashok)Transfer')
+@section('title', $godownshop ? 'Edit Godown to Shop (Ashok) Transfer' : 'Create Godown to Shop (Ashok) Transfer')
 
 @section('content_header')
     <h1>{{ $godownshop ? 'Edit' : 'Create' }} Godown to Shop (Ashok) Transfer</h1>
@@ -8,111 +8,132 @@
 
 @section('content')
     <div class="container">
-        <form id="godown_shop_form" method="POST"
-            action="{{ $godownshop ? route(' godownShopAshok.update', $godownshop->id) : route('godownShopAshok.store') }}">
-            @csrf
-            @if ($godownshop)
-                @method('PUT')
-            @endif
-
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="transfert_number">Transfer Number</label>
-                        <input type="text" class="form-control" id="transfert_number" name="transfert_number"
-                            value="{{ $godownshop ? $godownshop->transfert_number : old('transfert_number') }}"
-                            placeholder="Enter Transfer Number" required>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="transfert_date">Creation Date</label>
-                        <input type="text" class="form-transfert_date" id="transfert_date" name="transfert_date"
-                            value="{{ $godownshop ? $godownshop->transfert_date : \Carbon\Carbon::now()->toDateString() }}"
-                            readonly>
-                    </div>
-                </div>
+        <!-- Start Card Wrapper -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3>{{ $godownshop ? 'Edit' : 'Create' }} Transfer</h3>
             </div>
-
-
-            <div class="text-right mb-3">
-                <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
-            </div>
-
-            <table class="table table-bordered" id="godown_shop_table">
-                <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Item Name</th>
-                        <th>Unit</th>
-                        <th>Quantity</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($godownshop && $godownshop->details->count())
-                        @foreach ($godownshop->details as $detail)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>
-                                    <input type="text" class="form-control item-name"
-                                        value="{{ $detail->item->item_name }}"
-                                        name="details[{{ $loop->iteration }}][item_name]" required>
-                                    <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
-                                        name="details[{{ $loop->iteration }}][item_id]" required>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control unit" value="{{ $detail->unit->unit_name }}"
-                                        name="details[{{ $loop->iteration }}][unit]" disabled>
-                                    <input type="hidden" class="form-control unit-id" value="{{ $detail->unit->id }}"
-                                        name="details[{{ $loop->iteration }}][unit_id]" required>
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
-                                        min="1" name="details[{{ $loop->iteration }}][quantity]" required>
-                                </td>
-                                <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
-                            </tr>
-                        @endforeach
+            <div class="card-body">
+                <form id="godown_shop_form" method="POST"
+                    action="{{ $godownshop ? route('godownShopAshok.update', $godownshop->id) : route('godownShopAshok.store') }}">
+                    @csrf
+                    @if ($godownshop)
+                        @method('PUT')
                     @endif
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="2" class="text-right">Total Quantity:</th>
-                        <th>
-                            <input type="number" class="form-control" id="total_quantity" name="total_quantity"
-                                value="0" disabled>
-                        </th>
-                    </tr>
-                </tfoot>
-            </table>
 
-            <div class="text-right mb-3">
-                <a href="{{ route('godownShopAshok.index') }}" class="btn btn-danger">Discard</a>
-                <button type="button" class="btn btn-success" id="save_btn">Save</button>
-            </div>
-        </form>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="transfert_number">Transfer Number</label>
+                                <input type="text" class="form-control" id="transfert_number" name="transfert_number"
+                                    value="{{ $godownshop ? $godownshop->transfert_number : old('transfert_number') }}"
+                                    placeholder="Enter Transfer Number" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="transfert_date">Creation Date</label>
+                                <input type="text" class="form-control form-transfert_date" id="transfert_date" name="transfert_date"
+                                    value="{{ $godownshop ? $godownshop->transfert_date : \Carbon\Carbon::now()->toDateString() }}"
+                                    readonly>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Toasts for Success/Error Messages -->
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-                aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">Transfer saved successfully!</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-                </div>
-            </div>
+                    <!-- Table inside Card -->
+                    <div class="card mt-4 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4>Items Transfer</h4>
+                            <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered" id="godown_shop_table">
+                                <thead>
+                                    <tr>
+                                        <th>S/N</th>
+                                        <th>Item Name</th>
+                                        <th>Unit</th>
+                                        <th>Quantity</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if ($godownshop && $godownshop->details->count())
+                                        @foreach ($godownshop->details as $detail)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>
+                                                    <input type="text" class="form-control item-name"
+                                                        value="{{ $detail->item->item_name }}"
+                                                        name="details[{{ $loop->iteration }}][item_name]" required>
+                                                    <input type="hidden" class="form-control item-id"
+                                                        value="{{ $detail->item_id }}"
+                                                        name="details[{{ $loop->iteration }}][item_id]" required>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control unit"
+                                                        value="{{ $detail->unit->unit_name }}"
+                                                        name="details[{{ $loop->iteration }}][unit]" disabled>
+                                                    <input type="hidden" class="form-control unit-id"
+                                                        value="{{ $detail->unit->id }}"
+                                                        name="details[{{ $loop->iteration }}][unit_id]" required>
+                                                </td>
+                                                <td>
+                                                    <input type="number" class="form-control quantity"
+                                                        value="{{ $detail->quantity }}" min="1"
+                                                        name="details[{{ $loop->iteration }}][quantity]" required>
+                                                </td>
+                                                <td>
+                                                    <button type="button"
+                                                        class="btn btn-danger remove-row-btn">Remove</button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="3" class="text-right">Total Quantity:</th>
+                                        <th>
+                                            <input type="number" class="form-control" id="total_quantity"
+                                                name="total_quantity" value="0" disabled>
+                                        </th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- End Table Card -->
 
-            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-                aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
+                    <div class="text-right mb-3 mt-3">
+                        <a href="{{ route('godownShopAshok.index') }}" class="btn btn-danger">Discard</a>
+                        <button type="button" class="btn btn-success" id="save_btn">Save</button>
+                    </div>
+                </form>
+
+                <!-- Toasts for Success/Error Messages -->
+                <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+                    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                        aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">Transfer saved successfully!</div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                                aria-label="Close"></button>
+                        </div>
+                    </div>
+
+                    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                        aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                                aria-label="Close"></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        <!-- End Card Wrapper -->
     </div>
 @stop
 
@@ -138,7 +159,7 @@
 
         function calculateTotals() {
             let totalQuantity = 0;
-            $('#godown_shop_table tbody tr').each(function() {
+            $('#godown_shop_table tbody tr').each(function () {
                 const quantity = parseFloat($(this).find('.quantity').val()) || 0;
                 totalQuantity += quantity;
             });
@@ -173,7 +194,7 @@
         function initializeAutocomplete(element) {
             $(element).autocomplete({
                 source: items.map(item => item.item_name), // Autocomplete based on item names
-                select: function(event, ui) {
+                select: function (event, ui) {
                     const selectedItem = items.find(item => item.item_name === ui.item.value);
                     if (selectedItem) {
                         const row = $(this).closest('tr');
@@ -185,41 +206,40 @@
             });
         }
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             initializeAutocomplete($('#godown_shop_table tbody .item-name'));
 
-            $('#add_row_btn').click(function() {
+            $('#add_row_btn').click(function () {
                 addRow();
             });
 
-            $(document).on('input', '.quantity', function() {
+            $(document).on('input', '.quantity', function () {
                 calculateTotals();
             });
 
-            $(document).on('click', '.remove-row-btn', function() {
+            $(document).on('click', '.remove-row-btn', function () {
                 $(this).closest('tr').remove();
                 calculateTotals();
             });
 
-            $('#save_btn').click(function() {
+            $('#save_btn').click(function () {
                 $('.form-control').removeClass('is-invalid');
                 const formData = $('#godown_shop_form').serialize();
                 $.ajax({
                     url: $('#godown_shop_form').attr('action'),
                     method: 'POST',
                     data: formData,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             $('#successToast').toast('show');
                             setTimeout(() => {
-                                window.location.href =
-                                    "{{ route('godownShopAshok.index') }}";
+                                window.location.href = "{{ route('godownShopAshok.index') }}";
                             }, 2000);
                         }
                     },
-                    error: function(response) {
+                    error: function (response) {
                         const errors = response.responseJSON.errors;
-                        $.each(errors, function(field, messages) {
+                        $.each(errors, function (field, messages) {
                             $(`[name="${field}"]`).addClass('is-invalid');
                         });
                         $('#errorToastMessage').text('Please correct the highlighted errors.');

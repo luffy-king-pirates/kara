@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', $godownshop ? 'Edit  Shop (Sevices) to Godown Transfer' : 'Create Shop (Services) to Godown Transfer')
+@section('title', $godownshop ? 'Edit Shop (Services) to Godown Transfer' : 'Create Shop (Services) to Godown Transfer')
 
 @section('content_header')
     <h1>{{ $godownshop ? 'Edit' : 'Create' }} Shop (Services) to Godown Transfer</h1>
@@ -8,90 +8,103 @@
 
 @section('content')
     <div class="container">
-        <form id="godown_shop_form" method="POST"
-            action="{{ $godownshop ? route(' services.update', $godownshop->id) : route('services.store') }}">
-            @csrf
-            @if ($godownshop)
-                @method('PUT')
-            @endif
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title">{{ $godownshop ? 'Edit' : 'Create' }} Shop (Services) to Godown Transfer</h3>
+            </div>
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="transfert_number">Transfer Number</label>
-                        <input type="text" class="form-control" id="transfert_number" name="transfert_number"
-                            value="{{ $godownshop ? $godownshop->transfert_number : old('transfert_number') }}"
-                            placeholder="Enter Transfer Number" required>
+            <form id="godown_shop_form" method="POST"
+                action="{{ $godownshop ? route('services.update', $godownshop->id) : route('services.store') }}">
+                @csrf
+                @if ($godownshop)
+                    @method('PUT')
+                @endif
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="transfert_number">Transfer Number</label>
+                                <input type="text" class="form-control" id="transfert_number" name="transfert_number"
+                                    value="{{ $godownshop ? $godownshop->transfert_number : old('transfert_number') }}"
+                                    placeholder="Enter Transfer Number" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="transfert_date">Creation Date</label>
+                                <input type="text" class="form-control" id="transfert_date" name="transfert_date"
+                                    value="{{ $godownshop ? $godownshop->transfert_date : \Carbon\Carbon::now()->toDateString() }}"
+                                    readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-right mb-3">
+                        <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="godown_shop_table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>S/N</th>
+                                    <th>Item Name</th>
+                                    <th>Unit</th>
+                                    <th>Quantity</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if ($godownshop && $godownshop->details->count())
+                                    @foreach ($godownshop->details as $detail)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>
+                                                <input type="text" class="form-control item-name"
+                                                    value="{{ $detail->item->item_name }}"
+                                                    name="details[{{ $loop->iteration }}][item_name]" required>
+                                                <input type="hidden" class="form-control item-id"
+                                                    value="{{ $detail->item_id }}"
+                                                    name="details[{{ $loop->iteration }}][item_id]" required>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control unit"
+                                                    value="{{ $detail->unit->unit_name }}"
+                                                    name="details[{{ $loop->iteration }}][unit]" disabled>
+                                                <input type="hidden" class="form-control unit-id"
+                                                    value="{{ $detail->unit->id }}"
+                                                    name="details[{{ $loop->iteration }}][unit_id]" required>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control quantity"
+                                                    value="{{ $detail->quantity }}" min="1"
+                                                    name="details[{{ $loop->iteration }}][quantity]" required>
+                                            </td>
+                                            <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-right">Total Quantity:</th>
+                                    <th>
+                                        <input type="number" class="form-control" id="total_quantity"
+                                            name="total_quantity" value="0" disabled>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="transfert_date">Creation Date</label>
-                        <input type="text" class="form-transfert_date" id="transfert_date" name="transfert_date"
-                            value="{{ $godownshop ? $godownshop->transfert_date : \Carbon\Carbon::now()->toDateString() }}"
-                            readonly>
-                    </div>
+
+                <div class="card-footer text-right">
+                    <a href="{{ route('godownshop.index') }}" class="btn btn-danger">Discard</a>
+                    <button type="button" class="btn btn-success" id="save_btn">Save</button>
                 </div>
-            </div>
-
-
-            <div class="text-right mb-3">
-                <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
-            </div>
-
-            <table class="table table-bordered" id="godown_shop_table">
-                <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Item Name</th>
-                        <th>Unit</th>
-                        <th>Quantity</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($godownshop && $godownshop->details->count())
-                        @foreach ($godownshop->details as $detail)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>
-                                    <input type="text" class="form-control item-name"
-                                        value="{{ $detail->item->item_name }}"
-                                        name="details[{{ $loop->iteration }}][item_name]" required>
-                                    <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
-                                        name="details[{{ $loop->iteration }}][item_id]" required>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control unit" value="{{ $detail->unit->unit_name }}"
-                                        name="details[{{ $loop->iteration }}][unit]" disabled>
-                                    <input type="hidden" class="form-control unit-id" value="{{ $detail->unit->id }}"
-                                        name="details[{{ $loop->iteration }}][unit_id]" required>
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
-                                        min="1" name="details[{{ $loop->iteration }}][quantity]" required>
-                                </td>
-                                <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="2" class="text-right">Total Quantity:</th>
-                        <th>
-                            <input type="number" class="form-control" id="total_quantity" name="total_quantity"
-                                value="0" disabled>
-                        </th>
-                    </tr>
-                </tfoot>
-            </table>
-
-            <div class="text-right mb-3">
-                <a href="{{ route('godownshop.index') }}" class="btn btn-danger">Discard</a>
-                <button type="button" class="btn btn-success" id="save_btn">Save</button>
-            </div>
-        </form>
+            </form>
+        </div>
 
         <!-- Toasts for Success/Error Messages -->
         <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
@@ -125,6 +138,33 @@
 
         .is-invalid {
             border-color: red;
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .card-header {
+            border-bottom: none;
+        }
+
+        .btn-primary, .btn-success {
+            border-radius: 20px;
+        }
+
+        .btn-danger {
+            border-radius: 20px;
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .toast-container {
+            z-index: 1055;
         }
     </style>
 @stop
