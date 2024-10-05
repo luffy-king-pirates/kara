@@ -244,6 +244,8 @@ class CreditController extends Controller
     $cash = Credit::with([
         'details.item',      // Load item details
         'details.unit',      // Load unit details
+        'createdByUser',       // Load the user who created the cash entry
+        'updatedByUser',       // Load the user who updated the cash entry
     ])->findOrFail($id);
 
     return response()->json($cash); // Return cash transaction with details

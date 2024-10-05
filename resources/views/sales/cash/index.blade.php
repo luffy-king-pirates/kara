@@ -88,6 +88,7 @@
 
             // Row detail format function to show details
             function formatDetails(rowData) {
+                console.log(rowData)
                 var detailTable = `
                     <table class="table table-bordered">
                         <thead>
@@ -101,14 +102,14 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                        <tr>
-                                            <td>${item.item?.item_name}</td>
-                                            <td>${item.quantity}</td>
-                                            <td>${item.unit?.unit_name}</td>
-                                            <td>${item.price}</td>
-                                            <td>${item.total}</td>
-                                        </tr>
-                                    `).join('')}
+                                                    <tr>
+                                                        <td>${item.item?.item_name}</td>
+                                                        <td>${item.quantity}</td>
+                                                        <td>${item.unit?.unit_name}</td>
+                                                        <td>${item.price}</td>
+                                                        <td>${item.total}</td>
+                                                    </tr>
+                                                `).join('')}
                         </tbody>
                          <tfoot>
         <tr>
@@ -118,9 +119,23 @@
             <td></td>
             <td><strong>${rowData.details.reduce((sum, item) => parseFloat(sum) + parseFloat(item.total), 0)}</strong></td>
         </tr>
+
     </tfoot>
                     </table>
+                    <table>
+  <tr>
 
+            <td>Created By<td>
+
+            <td style="color:red">${rowData?.created_by_user?.name}<td>
+
+            <td>Updated By<td>
+
+            <td style="color:red">${rowData?.updated_by_user?.name}<td>
+
+        </tr>
+        </table>
+        <br>
                     <div class="btn-group" role="group" aria-label="Cash Transaction Actions">
                         <!-- Edit Button -->
                         <a href="/cash/${rowData.id}/edit" class="btn btn-warning btn-sm">

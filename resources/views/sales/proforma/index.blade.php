@@ -120,7 +120,19 @@
         </tr>
     </tfoot>
                     </table>
+            <table>
+  <tr>
 
+            <td>Created By<td>
+
+            <td style="color:red">${rowData?.created_by_user?.name}<td>
+
+            <td>Updated By<td>
+
+            <td style="color:red">${rowData?.updated_by_user?.name}<td>
+
+        </tr>
+        </table>
                     <div class="btn-group" role="group" aria-label="Proforma Transaction Actions">
                         <!-- Edit Button -->
                         <a href="/proforma/${rowData.id}/edit" class="btn btn-warning btn-sm">

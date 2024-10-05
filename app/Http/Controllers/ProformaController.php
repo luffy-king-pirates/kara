@@ -244,6 +244,8 @@ if ($request->type == 'shop_service') {
         $proforma = Proforma::with([
             'details.item',      // Load item details
             'details.unit',      // Load unit details
+            'createdByUser',       // Load the user who created the cash entry
+            'updatedByUser',       // Load the user who updated the cash entry
         ])->findOrFail($id);
 
         return response()->json($proforma); // Return proforma transaction with details
