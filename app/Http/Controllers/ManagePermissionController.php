@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
-
+use Illuminate\Support\Facades\Log;
 class ManagePermissionController extends Controller
 {
 
@@ -68,8 +68,9 @@ class ManagePermissionController extends Controller
 
         // Filter the data array based on the filters from the DataTables UI
         if ($role_name) {
+
             $data = array_filter($data, function($row) use ($role_name) {
-                return stripos($row['role_name'], $role_name) !== false;
+                return $row['role_name'] === $role_name;
             });
         }
 

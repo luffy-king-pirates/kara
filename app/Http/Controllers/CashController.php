@@ -176,9 +176,10 @@ if ($request->type == 'shop') {
     // Add items to godown
     Shops::removeItemsFromTransfert($cash);
 }
-if ($request->type == 'Godwan') {
-    // Add items to godown
-    Godown::removeItemsFromTransfert($cash);
+if ($request->type == 'shop_ashak') {
+
+
+    ShopAshaks::removeItemsFromTransfert($cash);
 }
 if ($request->type == 'shop_service') {
     // Add items to godown

@@ -22,6 +22,8 @@ class CreateAdjustmentDetailsTable extends Migration
             $table->integer('shop')->nullable(); // Shop as a number, default null
             $table->integer('quantity');
             $table->foreignId('unit_id')->constrained('units')->onDelete('cascade'); // Reference to Unit model
+            
+
             $table->timestamps();
 
         });

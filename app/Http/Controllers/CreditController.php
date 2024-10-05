@@ -167,9 +167,10 @@ class CreditController extends Controller
             // Add items to godown
             Shops::removeItemsFromTransfert($credit);
         }
-        if ($request->type == 'Godwan') {
-            // Add items to godown
-            Godown::removeItemsFromTransfert($credit);
+        if ($request->type == 'shop_ashak') {
+
+
+            ShopAshaks::removeItemsFromTransfert($cash);
         }
         if ($request->type == 'shop_service') {
             // Add items to godown

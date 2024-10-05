@@ -7,136 +7,148 @@
 @stop
 
 @section('content')
-   <div class="card p-2">
-            <div class="card-header bg-primary text-white">
+    <div class="card p-2">
+        <div class="card-header bg-primary text-white">
             {{ $adjustment ? 'Edit' : 'Create' }} Stock Adjustment
-            </div>
-    <div class="container">
-        <form id="adjustment_form" method="POST"
-            action="{{ $adjustment ? route('adjustments.update', $adjustment->id) : route('adjustments.store') }}">
-            @csrf
-            @if ($adjustment)
-                @method('PUT')
-            @endif
+        </div>
+        <div class="container">
+            <form id="adjustment_form" method="POST"
+                action="{{ $adjustment ? route('adjustments.update', $adjustment->id) : route('adjustments.store') }}">
+                @csrf
+                @if ($adjustment)
+                    @method('PUT')
+                @endif
 
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="adjustment_number">Adjustment Number</label>
-                        <input type="text" class="form-control" id="adjustment_number" name="adjustment_number"
-                            value="{{ $adjustment ? $adjustment->adjustment_number : old('adjustment_number') }}"
-                            placeholder="Enter Adjustment Number" required>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="adjustment_number">Adjustment Number</label>
+                            <input type="text" class="form-control" id="adjustment_number" name="adjustment_number"
+                                value="{{ $adjustment ? $adjustment->adjustment_number : old('adjustment_number') }}"
+                                placeholder="Enter Adjustment Number" required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="adjustment_date">Adjustment Date</label>
+                            <input type="text" class="form-control" id="adjustment_date" name="adjustment_date"
+                                value="{{ $adjustment ? $adjustment->adjustment_date : \Carbon\Carbon::now()->toDateString() }}"
+                                readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select class="form-control" id="type" name="type" required>
+                                <option value="shop" selected>Shop</option>
+                                <option value="Godwan">Godwan</option>
+                                <option value="shop_ashak">Shop (Ashak)</option>
+                                <option value="shop_service">Shop (Service)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="adjustment_date">Adjustment Date</label>
-                        <input type="text" class="form-control" id="adjustment_date" name="adjustment_date"
-                            value="{{ $adjustment ? $adjustment->adjustment_date : \Carbon\Carbon::now()->toDateString() }}"
-                            readonly>
+
+                <div class="text-right mb-3">
+                    <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
+                </div>
+
+                <table class="table table-bordered" id="transfer_table">
+                    <thead>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Item Name</th>
+                            <th>Godwan</th>
+                            <th>Shop</th>
+                            <th>Shop Ashak</th>
+                            <th>Shop Services</th>
+                            <th>Stock Type</th>
+
+                            <th>Quantity</th>
+                            <th>Unit</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if ($adjustment && $adjustment->details->count())
+                            @foreach ($adjustment->details as $detail)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <input type="text" class="form-control item-name"
+                                            value="{{ $detail->item->item_name }}"
+                                            name="details[{{ $loop->iteration }}][item_name]" required>
+                                        <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
+                                            name="details[{{ $loop->iteration }}][item_id]" required>
+                                    </td>
+                                    <td>
+                                        <select class="form-control stock-type"
+                                            name="details[{{ $loop->iteration }}][stock_type_id]" required>
+                                            @foreach ($stockTypes as $stockType)
+                                                <option value="{{ $stockType->id }}"
+                                                    {{ $detail->stock_type_id == $stockType->id ? 'selected' : '' }}>
+                                                    {{ $stockType->stock_type_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td><input type="text" class="form-control godown" value="{{ $detail->godown }}"
+                                            name="details[{{ $loop->iteration }}][godown]" disabled></td>
+                                    <td><input type="text" class="form-control shop" value="{{ $detail->shop }}"
+                                            name="details[{{ $loop->iteration }}][shop]" disabled></td>
+                                    <td><input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
+                                            min="1" name="details[{{ $loop->iteration }}][quantity]" required></td>
+                                    <td>
+                                        <input type="text" class="form-control unit"
+                                            value="{{ $detail->unit->unit_name }}"
+                                            name="details[{{ $loop->iteration }}][unit_name]" disabled>
+                                        <input type="hidden" class="form-control unit-id" value="{{ $detail->unit_id }}"
+                                            name="details[{{ $loop->iteration }}][unit_id]" required>
+                                    </td>
+                                    <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="7" class="text-right">Total Quantity:</th>
+                            <th>
+                                <input type="number" class="form-control" id="total_quantity" name="total_quantity"
+                                    value="{{ $adjustment ? $adjustment->details->sum('quantity') : 0 }}" disabled>
+                            </th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="text-right mb-3">
+                    <a href="{{ route('adjustments.index') }}" class="btn btn-danger">Discard</a>
+                    <button type="button" class="btn btn-success" id="save_btn">Save</button>
+                </div>
+            </form>
+
+            <!-- Toasts for Success/Error Messages -->
+            <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+                <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">Adjustment saved successfully!</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
                     </div>
                 </div>
-            </div>
 
-            <div class="text-right mb-3">
-                <button type="button" class="btn btn-primary" id="add_row_btn">Add Row</button>
-            </div>
-
-            <table class="table table-bordered" id="transfer_table">
-                <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Item Name</th>
-                        <th>Godwan</th>
-                        <th>Shop</th>
-                        <th>Shop Ashak</th>
-                        <th>Shop Services</th>
-                        <th>Stock Type</th>
-
-                        <th>Quantity</th>
-                        <th>Unit</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($adjustment && $adjustment->details->count())
-                        @foreach ($adjustment->details as $detail)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>
-                                    <input type="text" class="form-control item-name"
-                                        value="{{ $detail->item->item_name }}"
-                                        name="details[{{ $loop->iteration }}][item_name]" required>
-                                    <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
-                                        name="details[{{ $loop->iteration }}][item_id]" required>
-                                </td>
-                                <td>
-                                    <select class="form-control stock-type"
-                                        name="details[{{ $loop->iteration }}][stock_type_id]" required>
-                                        @foreach ($stockTypes as $stockType)
-                                            <option value="{{ $stockType->id }}"
-                                                {{ $detail->stock_type_id == $stockType->id ? 'selected' : '' }}>
-                                                {{ $stockType->stock_type_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </td>
-                                <td><input type="text" class="form-control godown" value="{{ $detail->godown }}"
-                                        name="details[{{ $loop->iteration }}][godown]" disabled></td>
-                                <td><input type="text" class="form-control shop" value="{{ $detail->shop }}"
-                                        name="details[{{ $loop->iteration }}][shop]" disabled></td>
-                                <td><input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
-                                        min="1" name="details[{{ $loop->iteration }}][quantity]" required></td>
-                                <td>
-                                    <input type="text" class="form-control unit" value="{{ $detail->unit->unit_name }}"
-                                        name="details[{{ $loop->iteration }}][unit_name]" disabled>
-                                    <input type="hidden" class="form-control unit-id" value="{{ $detail->unit_id }}"
-                                        name="details[{{ $loop->iteration }}][unit_id]" required>
-                                </td>
-                                <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="7" class="text-right">Total Quantity:</th>
-                        <th>
-                            <input type="number" class="form-control" id="total_quantity" name="total_quantity"
-                                value="{{ $adjustment ? $adjustment->details->sum('quantity') : 0 }}" disabled>
-                        </th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-            </table>
-
-            <div class="text-right mb-3">
-                <a href="{{ route('adjustments.index') }}" class="btn btn-danger">Discard</a>
-                <button type="button" class="btn btn-success" id="save_btn">Save</button>
-            </div>
-        </form>
-
-        <!-- Toasts for Success/Error Messages -->
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-                aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">Adjustment saved successfully!</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-                </div>
-            </div>
-
-            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-                aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
+                <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 @stop
 
@@ -233,7 +245,7 @@
                     </td>
                     <td>
                         <select class="form-control stock-type" name="details[${rowIndex}][stock_type_id]" required>
-                            <option value="">Select Stock Type</option>
+                          
                             ${stockTypes.map(stockType => `<option value="${stockType.id}">${stockType.stock_type_name}</option>`).join('')}
                         </select>
                     </td>

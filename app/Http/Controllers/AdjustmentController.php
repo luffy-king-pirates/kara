@@ -17,6 +17,13 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use App\Models\ShopService;
+use App\Models\Shops;
+use App\Models\ShopAshaks;
+use App\Models\Godown;
+
+
+
 class AdjustmentController extends Controller
 {
     public function index(Request $request)
@@ -152,15 +159,37 @@ class AdjustmentController extends Controller
             'adjustment_number' => $request->adjustment_number,
             'adjustment_date' => $request->adjustment_date,
             'created_by' => auth()->user()->id,  // Add created_by field
-            'updated_by' => auth()->user()->id   // Add updated_by field initially as the same user
-
+            'updated_by' => auth()->user()->id,   // Add updated_by field initially as the same user
+            'type' => $request->type
         ]);
 
         foreach ($request->details as $detail) {
             $adjustment->details()->create($detail);
         }
 
-        
+        if ($request->type == 'Godwan') {
+            // Add items to godown
+            Godown::addItemsFromTransfert($adjustment);
+
+        }
+        if ($request->type == 'shop') {
+
+
+            Shops::addItemsFromTransfert($adjustment);
+
+        }
+        if ($request->type == 'shop_ashak') {
+
+            ShopAshaks::addItemsFromTransfert($adjustment);
+        }
+        if ($request->type == 'shop_service') {
+            // Add items to godown
+
+
+
+            ShopService::addItemsFromTransfert($adjustment);
+            
+        }
 
 
         return response()->json(['success' => true]);
