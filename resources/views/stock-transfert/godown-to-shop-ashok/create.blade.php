@@ -33,7 +33,8 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="transfert_date">Creation Date</label>
-                                <input type="text" class="form-control form-transfert_date" id="transfert_date" name="transfert_date"
+                                <input type="text" class="form-control form-transfert_date" id="transfert_date"
+                                    name="transfert_date"
                                     value="{{ $godownshop ? $godownshop->transfert_date : \Carbon\Carbon::now()->toDateString() }}"
                                     readonly>
                             </div>
@@ -106,7 +107,7 @@
                         </div>
                     </div>
                     <!-- End Table Card -->
-
+                    <div id="alert-container"></div>
                     <div class="text-right mb-3 mt-3">
                         <a href="{{ route('godownShopAshok.index') }}" class="btn btn-danger">Discard</a>
                         <button type="button" class="btn btn-success" id="save_btn">Save</button>
@@ -161,7 +162,7 @@
 
         function calculateTotals() {
             let totalQuantity = 0;
-            $('#godown_shop_table tbody tr').each(function () {
+            $('#godown_shop_table tbody tr').each(function() {
                 const quantity = parseFloat($(this).find('.quantity').val()) || 0;
                 totalQuantity += quantity;
             });
@@ -206,14 +207,14 @@
         function initializeAutocomplete(element) {
             $(element).autocomplete({
                 source: items.map(item => item.item_name), // Autocomplete based on item names
-                select: function (event, ui) {
+                select: function(event, ui) {
                     const selectedItem = items.find(item => item.item_name === ui.item.value);
                     if (selectedItem) {
                         const row = $(this).closest('tr');
                         row.find('.item-id').val(selectedItem.item_id);
                         row.find('.unit').val(selectedItem.unit_name);
                         row.find('.unit-id').val(selectedItem.unit_id);
-                           row.find('.item-godown_quantity').val(selectedItem.godown_quantity);
+                        row.find('.item-godown_quantity').val(selectedItem.godown_quantity);
                         row.find('.item-shop_quantity').val(selectedItem.shop_quantity);
 
 
@@ -222,46 +223,89 @@
             });
         }
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             initializeAutocomplete($('#godown_shop_table tbody .item-name'));
 
-            $('#add_row_btn').click(function () {
+            $('#add_row_btn').click(function() {
                 addRow();
             });
 
-            $(document).on('input', '.quantity', function () {
+            $(document).on('input', '.quantity', function() {
                 calculateTotals();
             });
 
-            $(document).on('click', '.remove-row-btn', function () {
+            $(document).on('click', '.remove-row-btn', function() {
                 $(this).closest('tr').remove();
                 calculateTotals();
             });
 
-            $('#save_btn').click(function () {
-                $('.form-control').removeClass('is-invalid');
-                const formData = $('#godown_shop_form').serialize();
-                $.ajax({
-                    url: $('#godown_shop_form').attr('action'),
-                    method: 'POST',
-                    data: formData,
-                    success: function (response) {
-                        if (response.success) {
-                            $('#successToast').toast('show');
-                            setTimeout(() => {
-                                window.location.href = "{{ route('godownShopAshok.index') }}";
-                            }, 2000);
+            $('#save_btn').click(function() {
+                var tableData = [];
+                var errorFound = false;
+
+                // Clear any previous alerts
+                $('#alert-container').empty();
+
+                // Loop through each row of the table
+                $('#godown_shop_table tr').each(function(index, row) {
+                    var rowData = {};
+
+                    // Get quantity input value
+                    var quantity = $(row).find('.quantity').val();
+
+                    // Get godown quantity value (even though it's disabled)
+                    var godownQuantity = $(row).find('.item-godown_quantity').val();
+
+                    // Ensure there's valid data
+                    if (quantity && godownQuantity) {
+                        rowData['quantity'] = quantity;
+                        rowData['godown_quantity'] = godownQuantity;
+
+                        // Check if the quantity exceeds godown_quantity
+                        if (parseInt(quantity) > parseInt(godownQuantity)) {
+                            errorFound = true;
+
+                            // Display error alert if quantity is more than godown quantity
+                            $('#alert-container').append(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error!</strong> Quantity (${quantity}) exceeds available godown quantity (${godownQuantity}) in row ${index }.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          `);
                         }
-                    },
-                    error: function (response) {
-                        const errors = response.responseJSON.errors;
-                        $.each(errors, function (field, messages) {
-                            $(`[name="${field}"]`).addClass('is-invalid');
-                        });
-                        $('#errorToastMessage').text('Please correct the highlighted errors.');
-                        $('#errorToast').toast('show');
+
+                        // Add this row's data to tableData array
+                        tableData.push(rowData);
                     }
                 });
+                $('.form-control').removeClass('is-invalid');
+                if (!errorFound) {
+                    const formData = $('#godown_shop_form').serialize();
+                    $.ajax({
+                        url: $('#godown_shop_form').attr('action'),
+                        method: 'POST',
+                        data: formData,
+                        success: function(response) {
+                            if (response.success) {
+                                $('#successToast').toast('show');
+                                setTimeout(() => {
+                                    window.location.href =
+                                        "{{ route('godownShopAshok.index') }}";
+                                }, 2000);
+                            }
+                        },
+                        error: function(response) {
+                            const errors = response.responseJSON.errors;
+                            $.each(errors, function(field, messages) {
+                                $(`[name="${field}"]`).addClass('is-invalid');
+                            });
+                            $('#errorToastMessage').text(
+                                'Please correct the highlighted errors.');
+                            $('#errorToast').toast('show');
+                        }
+                    });
+                }
+
             });
         });
     </script>

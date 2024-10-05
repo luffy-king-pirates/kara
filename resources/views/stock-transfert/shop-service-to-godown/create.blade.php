@@ -101,7 +101,7 @@
                         </table>
                     </div>
                 </div>
-
+                <div id="alert-container"></div>
                 <div class="card-footer text-right">
                     <a href="{{ route('godownshop.index') }}" class="btn btn-danger">Discard</a>
                     <button type="button" class="btn btn-success" id="save_btn">Save</button>
@@ -260,30 +260,73 @@
             });
 
             $('#save_btn').click(function() {
-                $('.form-control').removeClass('is-invalid');
-                const formData = $('#godown_shop_form').serialize();
-                $.ajax({
-                    url: $('#godown_shop_form').attr('action'),
-                    method: 'POST',
-                    data: formData,
-                    success: function(response) {
-                        if (response.success) {
-                            $('#successToast').toast('show');
-                            setTimeout(() => {
-                                window.location.href =
-                                    "{{ route('services.index') }}";
-                            }, 2000);
+                var tableData = [];
+                var errorFound = false;
+
+                // Clear any previous alerts
+                $('#alert-container').empty();
+
+                // Loop through each row of the table
+                $('#godown_shop_table tr').each(function(index, row) {
+                    var rowData = {};
+
+                    // Get quantity input value
+                    var quantity = $(row).find('.quantity').val();
+
+                    // Get godown quantity value (even though it's disabled)
+                    var godownQuantity = $(row).find('.item-shop_quantity').val();
+
+                    // Ensure there's valid data
+                    if (quantity && godownQuantity) {
+                        rowData['quantity'] = quantity;
+                        rowData['item-shop_quantity'] = godownQuantity;
+
+                        // Check if the quantity exceeds godown_quantity
+                        if (parseInt(quantity) > parseInt(godownQuantity)) {
+                            errorFound = true;
+
+                            // Display error alert if quantity is more than godown quantity
+                            $('#alert-container').append(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error!</strong> Quantity (${quantity}) exceeds available shop service  quantity (${godownQuantity}) in row ${index }.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          `);
                         }
-                    },
-                    error: function(response) {
-                        const errors = response.responseJSON.errors;
-                        $.each(errors, function(field, messages) {
-                            $(`[name="${field}"]`).addClass('is-invalid');
-                        });
-                        $('#errorToastMessage').text('Please correct the highlighted errors.');
-                        $('#errorToast').toast('show');
+
+                        // Add this row's data to tableData array
+                        tableData.push(rowData);
                     }
                 });
+                $('.form-control').removeClass('is-invalid');
+
+                if (!errorFound) {
+                    const formData = $('#godown_shop_form').serialize();
+                    $.ajax({
+                        url: $('#godown_shop_form').attr('action'),
+                        method: 'POST',
+                        data: formData,
+                        success: function(response) {
+                            if (response.success) {
+                                $('#successToast').toast('show');
+                                setTimeout(() => {
+                                    window.location.href =
+                                        "{{ route('services.index') }}";
+                                }, 2000);
+                            }
+                        },
+                        error: function(response) {
+                            const errors = response.responseJSON.errors;
+                            $.each(errors, function(field, messages) {
+                                $(`[name="${field}"]`).addClass('is-invalid');
+                            });
+                            $('#errorToastMessage').text(
+                                'Please correct the highlighted errors.');
+                            $('#errorToast').toast('show');
+                        }
+                    });
+                }
+
             });
         });
     </script>
