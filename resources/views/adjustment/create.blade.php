@@ -3,10 +3,14 @@
 @section('title', $adjustment ? 'Edit Stock Adjustment' : 'Create Stock Adjustment')
 
 @section('content_header')
-    <h1>{{ $adjustment ? 'Edit' : 'Create' }} Stock Adjustment</h1>
+
 @stop
 
 @section('content')
+   <div class="card p-2">
+            <div class="card-header bg-primary text-white">
+            {{ $adjustment ? 'Edit' : 'Create' }} Stock Adjustment
+            </div>
     <div class="container">
         <form id="adjustment_form" method="POST"
             action="{{ $adjustment ? route('adjustments.update', $adjustment->id) : route('adjustments.store') }}">
@@ -48,7 +52,7 @@
                         <th>Shop Ashak</th>
                         <th>Shop Services</th>
                         <th>Stock Type</th>
-                       
+
                         <th>Quantity</th>
                         <th>Unit</th>
                         <th>Action</th>
@@ -132,6 +136,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 @stop
 

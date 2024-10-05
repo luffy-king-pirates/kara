@@ -105,6 +105,10 @@
                                     <input class="form-check-input" type="checkbox" value="export" id="export-${row.id}-${row.page}" ${row.permissions.includes('export') ? 'checked' : ''}>
                                     <label class="form-check-label" for="export-${row.id}-${row.page}">Export</label>
                                 </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="manage" id="manage-${row.id}-${row.page}" ${row.permissions.includes('manage') ? 'checked' : ''}>
+                                    <label class="form-check-label" for="manage-${row.id}-${row.page}">Manage</label>
+                                </div>
                             `;
                         }
                     },
