@@ -98,7 +98,7 @@
                         <div class="form-group">
                             <label for="percent">Percentage</label>
                             <input type="number" class="form-control" id="percent" name="percent"
-                                placeholder="Enter Percentage" min="0" max="100" step="0.01" required>
+                                placeholder="Enter Percentage" min="0" max="100" step="0.01" >
                         </div>
                     </div>
                 </div>
@@ -189,9 +189,75 @@
                     </tfoot>
                 </table>
 
-                <div class="text-right mb-3">
-                    <a href="{{ route('proforma.index') }}" class="btn btn-danger">Discard</a>
-                    <button type="button" class="btn btn-success" id="save_btn">Save</button>
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <!-- Comment Section -->
+                            <div class="mb-3">
+                                <label for="comment" class="form-label">Comment</label>
+                                <textarea name="comment" class="form-control" id="comment" rows="3"></textarea>
+                            </div>
+
+                            <!-- Special Relief Number -->
+                            <div class="mb-3">
+                                <label for="special_releif_number" class="form-label">Special Relief Number</label>
+                                <input name="special_releif_number" type="text" class="form-control"
+                                    id="special_releif_number" placeholder="Enter special relief number">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+
+
+                            <!-- Discount -->
+                            <div class="mb-3">
+                                <label for="discount" class="form-label">Discount</label>
+                                <input type="number" name="discount" class="form-control" id="discount"
+                                    placeholder="Enter discount">
+                            </div>
+
+                            <!-- Status -->
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" name="status" id="status">
+                                    <option value="Incomplete">Incomplete</option>
+                                    <option value="Print">Print</option>
+                                </select>
+                            </div>
+
+                            <!-- LPO # -->
+                            <div class="mb-3">
+                                <label for="lpoNumber" class="form-label">LPO #</label>
+                                <input type="text" name="lpo" class="form-control" id="lpoNumber"
+                                    placeholder="Enter LPO number">
+                            </div>
+
+                            <!-- LPO Date -->
+                            <div class="mb-3">
+                                <label for="lpoDate" class="form-label">LPO Date</label>
+                                <input type="date" name="lpo_date" class="form-control" id="lpoDate"
+                                    max="<?php echo date('Y-m-d'); ?>">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <!-- Summary Section -->
+                            <div class="">
+                                <div class="border p-3 bg-light">
+                                    <p><strong>Subtotal:</strong> <span id="subtotal">0</span></p>
+                                    <p><strong>Discount:</strong> <span id="summaryDiscount">0</span></p>
+                                    <p><strong>Total:</strong> <span id="total">0</span></p>
+                                    <p><strong>VAT:</strong> <span id="vat">0</span></p>
+                                    <p><strong>Grand Total:</strong> <span id="grandTotal">0</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="alert-container"></div>
+                        <div class="text-right mb-3">
+                            <a href="{{ route('proforma.index') }}" class="btn btn-danger">Discard</a>
+                            <button type="button" class="btn btn-success" id="save_btn">Save</button>
+                        </div>
+                    </div>
                 </div>
             </form>
 
@@ -288,7 +354,7 @@
                 let totalAmount = 0;
                 const percent = parseFloat($('#percent').val()) ||
                     0; // Get percentage value (e.g., discount or markup)
-
+                const discount = parseFloat($('#discount').val()) || 0
                 $('#proforma_table tbody tr').each(function() {
                     const quantity = parseFloat($(this).find('.quantity').val()) || 0;
                     const price = parseFloat($(this).find('.price').val()) || 0;
@@ -301,7 +367,13 @@
                 totalAmount -= percentAmount; // Subtract the percentage amount from the total
 
                 $('#total_amount').val(totalAmount.toFixed(2));
-                $('#total_amount_table').val(totalAmount.toFixed(2));
+                $('#subtotal').text(totalAmount.toFixed(2));
+
+                $("#summaryDiscount").text(discount)
+                $("#total").text(totalAmount - discount)
+
+                $('#total_amount_table').val((totalAmount - discount).toFixed(2));
+                $('#grandTotal').text((totalAmount - discount).toFixed(2));
 
             }
 
@@ -433,27 +505,107 @@
 
                 updateTotalQuantity()
             });
+
+            $(document).on('input', '#discount', function() {
+
+                calculateTotals()
+            });
+
             // Save Button
             $('#save_btn').click(function() {
-                if ($('#proforma_form')[0].checkValidity()) {
-                    $.ajax({
-                        url: $('#proforma_form').attr('action'),
-                        type: $('#proforma_form').attr('method'),
-                        data: $('#proforma_form').serialize(),
-                        success: function(response) {
-                            $('#successToast').toast('show');
-                            setTimeout(function() {
-                                window.location.href = '{{ route('proforma.index') }}';
-                            }, 2000);
-                        },
-                        error: function(xhr) {
-                            $('#errorToastMessage').text(xhr.responseText);
-                            $('#errorToast').toast('show');
+
+
+
+                // Loop through each row of the table
+                var tableData = [];
+                var errorFound = false;
+
+                // Clear any previous alerts
+                $('#alert-container').empty();
+
+                // Loop through each row of the table
+                $('#proforma_table tr').each(function(index, row) {
+                    var rowData = {};
+
+                    // Get quantity input value
+                    var quantity = $(row).find('.quantity').val();
+
+                    // Get godown quantity value (even though it's disabled)
+                    let classToUse = ""
+                    switch ($("#type").val()) {
+                        case "Godwan":
+                            classToUse = ".godown_quantity"
+                            break;
+                        case "shop":
+                            classToUse = ".shop_quantity"
+                            break;
+                        case "shop_ashak":
+                            classToUse = ".shop_ashak"
+                            break;
+                        case "shop_service":
+                            classToUse = ".shop_service"
+                            break;
+                    }
+
+                    var godownQuantity = $(row).find(classToUse).val();
+                    // Ensure there's valid data
+                    if (quantity && godownQuantity) {
+
+                        // Check if     the quantity exceeds godown_quantity
+                        if (parseInt(quantity) > parseInt(godownQuantity)) {
+                            errorFound = true;
+
+                            // Display error alert if quantity is more than godown quantity
+                            $('#alert-container').append(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error!</strong> Quantity (${quantity}) exceeds available ${$("#type").val()} quantity (${godownQuantity}) in row ${index }.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          `);
                         }
-                    });
-                } else {
-                    $('#proforma_form')[0].reportValidity();
+
+                        // Add this row's data to tableData array
+                        tableData.push(rowData);
+                    }
+                });
+
+
+                if ($('#total_amount_table').val() <= 0) {
+                    errorFound = true;
+
+                    // Display error alert if quantity is more than godown quantity
+                    $('#alert-container').append(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error!</strong> Total amount  must be greater then 0.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          `);
                 }
+
+                if (!errorFound) {
+                    if ($('#proforma_form')[0].checkValidity()) {
+                        $.ajax({
+                            url: $('#proforma_form').attr('action'),
+                            type: $('#proforma_form').attr('method'),
+                            data: $('#proforma_form').serialize(),
+                            success: function(response) {
+                                $('#successToast').toast('show');
+                                setTimeout(function() {
+                                    window.location.href =
+                                        '{{ route('proforma.index') }}';
+                                }, 2000);
+                            },
+                            error: function(xhr) {
+                                $('#errorToastMessage').text(xhr.responseText);
+                                $('#errorToast').toast('show');
+                            }
+                        });
+                    } else {
+                        $('#proforma_form')[0].reportValidity();
+                    }
+                }
+
+
             });
         });
     </script>

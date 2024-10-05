@@ -148,6 +148,14 @@ $items = $result->map(function ($item) {
             'total_amount' =>number_format((float) $request->total_amount, 2, '.', ''),
             'customer_id' => $request->customer_id,
             'type' => $request->type,
+            'comment'=>$request->comment,
+            'special_releif_number'=> $request->special_releif_number,
+            'discount' => $request->discount,
+            'lpo' => $request->lpo,
+            'status' => $request->status,
+            'total_qty' => $request ->total_qty,
+            'vat' => $request->vat,
+            'lpo_date' => $request->lpo_date,
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id,
         ]);
@@ -157,7 +165,7 @@ $items = $result->map(function ($item) {
         }
 
           // Check if transfert_to is a godown
-          Log::info('Type', ['type' => $request->type]);
+
 
   if ($request->type == 'Godwan') {
     // Add items to godown

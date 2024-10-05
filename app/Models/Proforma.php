@@ -20,6 +20,15 @@ class Proforma extends Model
         'customer_id',      // Foreign key for Customer
         'created_at',
         'updated_at',
+        'type',
+        'comment',
+        'special_releif_number',
+        'discount',
+        'lpo',
+        'status',
+        'total_qty',
+        'vat',
+        'lpo_date'
     ];
 
     // Relationship with the User who created the cash entry
