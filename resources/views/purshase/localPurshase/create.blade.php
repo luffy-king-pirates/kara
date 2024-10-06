@@ -60,6 +60,14 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="pdf">Upload Purchase PDF</label>
+                            <input type="file" class="form-control" id="pdf" name="pdf"
+                                accept="application/pdf">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="text-right mb-3">
@@ -432,13 +440,17 @@
           `);
             }
             if (!errorFound) {
-                // Serialize the form data
-                const formData = $('#purchase_form').serialize();
+                const form = $('#purchase_form')[0];
+
+                // Create a FormData object
+                const formData = new FormData(form); // This will include all form fields and the file input
 
                 $.ajax({
                     url: $('#purchase_form').attr('action'), // The action URL of the form
                     method: 'POST', // The HTTP method to use
                     data: formData, // The serialized form data
+                    processData: false, // Prevent jQuery from processing the data (required for FormData)
+                    contentType: false, // Prevent jQuery from setting the content type (required for FormData)
                     success: function(response) {
                         // Show success toast
                         $('#successToast').toast('show');

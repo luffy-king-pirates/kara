@@ -23,6 +23,8 @@ use App\Models\ShopService;
 use App\Models\Shops;
 use App\Models\ShopAshaks;
 use App\Models\Godown;
+use Illuminate\Support\Facades\Log;
+
 class LocalPurshaseController extends Controller
 {
     public function index(Request $request)
@@ -132,47 +134,46 @@ class LocalPurshaseController extends Controller
             'details.*.quantity' => 'required|numeric|min:1',
             'details.*.cost' => 'required|numeric|min:0',
             'details.*.total' => 'required|numeric|min:0',
+            'pdf' => 'nullable|mimes:pdf|max:10000',
         ]);
 
-        $purchase = Purchase::create([
-            'receipt_number' => $request->receipt_number,
-            'purchase_date' => $request->purchase_date,
-            'total_amount' => number_format((float)$request->total_amount, 2, '.', ''),
-            'supplier_id' => $request->supplier_id,
-            'created_by' => auth()->user()->id,
-            'updated_by' => auth()->user()->id,
-        ]);
 
+        $purchase = new Purchase();
+        $purchase->receipt_number = $request->input('receipt_number');
+        $purchase->purchase_date = $request->input('purchase_date');
+        $purchase->supplier_id = $request->input('supplier_id');
+        $purchase->created_by = auth()->user()->id;
+        $purchase->updated_by = auth()->user()->id;
+
+        // Handle PDF file upload
+        if ($request->hasFile('pdf')) {
+            $pdfPath = $request->file('pdf')->store('purchases', 'public');
+            $purchase->pdf = $pdfPath;
+        }
+
+        $purchase->save();
         foreach ($request->details as $detail) {
             $purchase->details()->create($detail);
         }
 
+
+
+        // Log success message if the PDF was saved
+
+
         if ($request->type == 'Godwan') {
-            // Add items to godown
             Godown::addItemsFromTransfert($purchase);
-
-        }
-        if ($request->type == 'shop') {
-
-
+        } elseif ($request->type == 'shop') {
             Shops::addItemsFromTransfert($purchase);
-
-        }
-        if ($request->type == 'shop_ashak') {
-
+        } elseif ($request->type == 'shop_ashak') {
             ShopAshaks::addItemsFromTransfert($purchase);
-        }
-        if ($request->type == 'shop_service') {
-            // Add items to godown
-
-
-
+        } elseif ($request->type == 'shop_service') {
             ShopService::addItemsFromTransfert($purchase);
-
         }
 
         return response()->json(['success' => true]);
     }
+
 
     public function show($id)
     {

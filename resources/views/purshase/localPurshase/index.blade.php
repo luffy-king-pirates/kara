@@ -132,17 +132,15 @@
                         </a>
 
                         <!-- Export Button -->
-                        <a href="/export/purchase/exportDetails/${rowData.id}" class="btn btn-success btn-sm">
+                        <a href="/export/purchase/exportDetails/${rowData.id}" class="btn mr-3 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
 
-                        {{-- <a href="/purchase/${rowData?.id}/pdf/true" class="btn btn-success btn-sm">
-                            <i class="fas fa-file-export"></i> Export pdf with headers
+                         <a href="/storage/${rowData?.pdf}" download class="btn btn-success btn-sm">
+                            <i class="fas fa-file-export"></i> Export purchase pdf
                         </a>
 
-                        <a href="/purchase/${rowData?.id}/pdf/false" class="btn btn-success btn-sm">
-                            <i class="fas fa-file-export"></i> Export pdf no headers
-                        </a> --}}
+
                     </div>
                 `;
                 return detailTable;
