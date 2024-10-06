@@ -19,7 +19,10 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
 use PhpOffice\PhpSpreadsheet\Style\Alignment; // Import Alignment
-
+use App\Models\ShopService;
+use App\Models\Shops;
+use App\Models\ShopAshaks;
+use App\Models\Godown;
 class LocalPurshaseController extends Controller
 {
     public function index(Request $request)
@@ -47,7 +50,7 @@ class LocalPurshaseController extends Controller
                     return $row->updatedByUser ? $row->updatedByUser->name : 'Not updated';
                 })
                 ->addColumn('supplier', function ($row) {
-                    
+
                     return $row->supplier ? $row->supplier->supplier_name : 'Unknown';
                 })
                 ->addColumn('details', function ($row) {
@@ -96,7 +99,20 @@ class LocalPurshaseController extends Controller
 
     public function create()
     {
-        $items = Item::with('unit')->get(['id', 'item_name', 'item_unit']);
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
+
+        $items = $result->map(function ($item) {
+            return [
+                'item_name' => $item->item_name,
+                'unit_name' => $item->unit ? $item->unit->unit_name : null,
+                'item_id' => $item->id,
+                'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+            ];
+        });
         $suppliers = Suppliers::all();
         $units = Units::all();
         $currencies = Currency::all();
@@ -129,6 +145,30 @@ class LocalPurshaseController extends Controller
 
         foreach ($request->details as $detail) {
             $purchase->details()->create($detail);
+        }
+
+        if ($request->type == 'Godwan') {
+            // Add items to godown
+            Godown::addItemsFromTransfert($purchase);
+
+        }
+        if ($request->type == 'shop') {
+
+
+            Shops::addItemsFromTransfert($purchase);
+
+        }
+        if ($request->type == 'shop_ashak') {
+
+            ShopAshaks::addItemsFromTransfert($purchase);
+        }
+        if ($request->type == 'shop_service') {
+            // Add items to godown
+
+
+
+            ShopService::addItemsFromTransfert($purchase);
+
         }
 
         return response()->json(['success' => true]);

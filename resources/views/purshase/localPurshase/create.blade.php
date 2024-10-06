@@ -32,8 +32,7 @@
                         <div class="form-group">
                             <label for="purchase_date">Purchase Date</label>
                             <input type="text" class="form-control" id="purchase_date" name="purchase_date"
-                                value="{{ $purchase ? $purchase->purchase_date : \Carbon\Carbon::now()->toDateString() }}"
-                                readonly>
+                                value="{{ $purchase ? $purchase->purchase_date : \Carbon\Carbon::now()->toDateString() }}">
                         </div>
                     </div>
                 </div>
@@ -50,6 +49,17 @@
                                 type="hidden" class="form-control supplier_id" name="supplier_id" required>
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select class="form-control" id="type" name="type" required>
+                                <option value="shop" selected>Shop</option>
+                                <option value="Godwan">Godwan</option>
+                                <option value="shop_ashak">Shop (Ashak)</option>
+                                <option value="shop_service">Shop (Service)</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="text-right mb-3">
@@ -61,6 +71,10 @@
                         <tr>
                             <th>S/N</th>
                             <th>Item Name</th>
+                            <th>Godwan</th>
+                            <th>Shop</th>
+                            <th>Shop Ashak</th>
+                            <th>Shop Services</th>
                             <th>Unit</th>
                             <th>Quantity</th>
                             <th>Cost</th>
@@ -120,20 +134,21 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="3" class="text-right">Total Quantity:</th>
+                            <th colspan="7" class="text-right">Total Quantity:</th>
                             <th>
                                 <input type="number" class="form-control" id="total_quantity" name="total_quantity"
                                     value="0" disabled>
                             </th>
                             <th colspan="2" class="text-right">Total Amount:</th>
                             <th>
-                                <input type="number" class="form-control" id="total_amount_table" name="total_amount_table"
+                                <input type="number" class="form-control" id="total_amount_table"
+                                    name="total_amount_table"
                                     value="{{ $purchase ? $purchase->details->sum('total') : 0 }}" disabled>
                             </th>
                         </tr>
                     </tfoot>
                 </table>
-
+                <div id="alert-container"></div>
                 <div class="text-right mb-3">
                     <a href="{{ route('purchase.index') }}" class="btn btn-danger">Discard</a>
                     <button type="submit" class="btn btn-success" id="save_btn">Save</button>
@@ -214,6 +229,29 @@
                         <input type="text" class="form-control item-name" name="details[${rowIndex}][item_name]" required>
                         <input type="hidden" class="form-control item-id" name="details[${rowIndex}][item_id]" required>
                     </td>
+                             <td>
+                                               <input  class="form-control godown_quantity"  disabled>
+
+
+                    </td>
+
+ <td>
+                                               <input  class="form-control shop_quantity"  disabled>
+
+
+                    </td>
+
+
+                     <td>
+                                               <input  class="form-control shop_ashak"  disabled>
+
+
+                    </td>
+                     <td>
+                                               <input  class="form-control shop_service"  disabled>
+
+
+                    </td>
                     <td>
                         <input type="hidden" class="form-control unit-id" name="details[${rowIndex}][unit_id]" required>
                         <input type="text" class="form-control unit" name="details[${rowIndex}][unit]" disabled>
@@ -261,9 +299,17 @@
                         const row = $(this).closest('tr');
                         console.log("selectedItem = ", selectedItem)
                         // Populate hidden fields and others based on the selected item
-                        row.find('.item-id').val(selectedItem.id);
-                        row.find('.unit').val(selectedItem.unit.unit_name);
-                        row.find('.unit-id').val(selectedItem.unit.id);
+                        row.find('.item-id').val(selectedItem.item_id);
+                        row.find('.unit').val(selectedItem.unit_name);
+                        row.find('.unit-id').val(selectedItem.unit_id);
+                        row.find('.godown_quantity').val(selectedItem.godown_quantity ||
+                            '0'); // Assuming you have godown info
+                        row.find('.shop_quantity').val(selectedItem.shop_quantity ||
+                            '0'); // Assuming you have shop info
+                        row.find('.shop_ashak').val(selectedItem.shop_ashaks_quantity ||
+                            '0'); // Assuming you have godown info
+                        row.find('.shop_service').val(selectedItem.shop_service ||
+                            '0'); // Assuming you have shop info
 
                     }
                 }
@@ -309,42 +355,116 @@
 
 
         $('#save_btn').click(function(event) {
+
+
+
+
+
+
+
             event.preventDefault(); // Prevent the default form submission behavior
 
             // Remove previous error styles
             $('.form-control').removeClass('is-invalid');
 
-            // Serialize the form data
-            const formData = $('#purchase_form').serialize();
+            var tableData = [];
+            var errorFound = false;
 
-            $.ajax({
-                url: $('#purchase_form').attr('action'), // The action URL of the form
-                method: 'POST', // The HTTP method to use
-                data: formData, // The serialized form data
-                success: function(response) {
-                    // Show success toast
-                    $('#successToast').toast('show');
-                    window.location.href = "{{ route('purchase.index') }}"; // Redirect after success
+            // Clear any previous alerts
+            $('#alert-container').empty();
 
-                    // Optionally, clear form fields or reset the form (if needed)
-                    $('#purchase_form')[0].reset();
-                },
-                error: function(xhr) {
-                    const errors = xhr.responseJSON.errors;
-                    let errorMessage = '';
+            // Loop through each row of the table
+            $('#purchase_table tr').each(function(index, row) {
+                var rowData = {};
 
-                    // Loop through errors and apply styles to invalid fields
-                    for (let field in errors) {
-                        errorMessage += errors[field].join(', ') + '\n';
-                        $(`[name="${field}"]`).addClass(
-                            'is-invalid'); // Add red border to the invalid fields
+                // Get quantity input value
+                var quantity = $(row).find('.quantity').val();
+
+                // Get godown quantity value (even though it's disabled)
+                let classToUse = ""
+                switch ($("#type").val()) {
+                    case "Godwan":
+                        classToUse = ".godown_quantity"
+                        break;
+                    case "shop":
+                        classToUse = ".shop_quantity"
+                        break;
+                    case "shop_ashak":
+                        classToUse = ".shop_ashak"
+                        break;
+                    case "shop_service":
+                        classToUse = ".shop_service"
+                        break;
+                }
+
+                var godownQuantity = $(row).find(classToUse).val();
+                // Ensure there's valid data
+                if (quantity && godownQuantity) {
+
+                    // Check if     the quantity exceeds godown_quantity
+                    if (parseInt(quantity) > parseInt(godownQuantity)) {
+                        errorFound = true;
+
+                        // Display error alert if quantity is more than godown quantity
+                        $('#alert-container').append(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error!</strong> Quantity (${quantity}) exceeds available ${$("#type").val()} quantity (${godownQuantity}) in row ${index }.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          `);
                     }
 
-                    // Display the error message in the error toast
-                    $('#errorToastMessage').text(errorMessage);
-                    $('#errorToast').toast('show');
+                    // Add this row's data to tableData array
+                    tableData.push(rowData);
                 }
             });
+
+
+            if ($('#total_amount_table').val() <= 0) {
+                errorFound = true;
+
+                // Display error alert if quantity is more than godown quantity
+                $('#alert-container').append(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error!</strong> Total amount  must be greater then 0.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          `);
+            }
+            if (!errorFound) {
+                // Serialize the form data
+                const formData = $('#purchase_form').serialize();
+
+                $.ajax({
+                    url: $('#purchase_form').attr('action'), // The action URL of the form
+                    method: 'POST', // The HTTP method to use
+                    data: formData, // The serialized form data
+                    success: function(response) {
+                        // Show success toast
+                        $('#successToast').toast('show');
+                        window.location.href =
+                            "{{ route('purchase.index') }}"; // Redirect after success
+
+                        // Optionally, clear form fields or reset the form (if needed)
+                        $('#purchase_form')[0].reset();
+                    },
+                    error: function(xhr) {
+                        const errors = xhr.responseJSON.errors;
+                        let errorMessage = '';
+
+                        // Loop through errors and apply styles to invalid fields
+                        for (let field in errors) {
+                            errorMessage += errors[field].join(', ') + '\n';
+                            $(`[name="${field}"]`).addClass(
+                                'is-invalid'); // Add red border to the invalid fields
+                        }
+
+                        // Display the error message in the error toast
+                        $('#errorToastMessage').text(errorMessage);
+                        $('#errorToast').toast('show');
+                    }
+                });
+            }
         });
     </script>
 @stop

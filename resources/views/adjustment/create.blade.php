@@ -121,7 +121,7 @@
                         </tr>
                     </tfoot>
                 </table>
-
+                <div id="alert-container"></div>
                 <div class="text-right mb-3">
                     <a href="{{ route('adjustments.index') }}" class="btn btn-danger">Discard</a>
                     <button type="button" class="btn btn-success" id="save_btn">Save</button>
@@ -245,7 +245,7 @@
                     </td>
                     <td>
                         <select class="form-control stock-type" name="details[${rowIndex}][stock_type_id]" required>
-                          
+
                             ${stockTypes.map(stockType => `<option value="${stockType.id}">${stockType.stock_type_name}</option>`).join('')}
                         </select>
                     </td>
@@ -295,28 +295,95 @@
             // Remove previous error styles
             $('.form-control').removeClass('is-invalid');
 
-            const formData = $('#adjustment_form').serialize();
-            $.ajax({
-                url: $('#adjustment_form').attr('action'),
-                method: 'POST',
-                data: formData,
-                success: function(response) {
-                    $('#successToast').toast('show');
-                    window.location.href =
-                        "{{ route('adjustments.index') }}"; // Redirect after success
-                },
-                error: function(xhr) {
-                    const errors = xhr.responseJSON.errors;
-                    let errorMessage = '';
-                    for (let field in errors) {
-                        errorMessage += errors[field].join(', ') + '\n';
-                        // Add red border to fields with errors
-                        $(`[name="${field}"]`).addClass('is-invalid');
+            var tableData = [];
+            var errorFound = false;
+
+            // Clear any previous alerts
+            $('#alert-container').empty();
+
+            // Loop through each row of the table
+            $('#transfer_table tr').each(function(index, row) {
+                var rowData = {};
+
+                // Get quantity input value
+                var quantity = $(row).find('.quantity').val();
+
+                // Get godown quantity value (even though it's disabled)
+                let classToUse = ""
+                switch ($("#type").val()) {
+                    case "Godwan":
+                        classToUse = ".godown_quantity"
+                        break;
+                    case "shop":
+                        classToUse = ".shop_quantity"
+                        break;
+                    case "shop_ashak":
+                        classToUse = ".shop_ashak"
+                        break;
+                    case "shop_service":
+                        classToUse = ".shop_service"
+                        break;
+                }
+
+                var godownQuantity = $(row).find(classToUse).val();
+                // Ensure there's valid data
+                if (quantity && godownQuantity) {
+
+                    // Check if     the quantity exceeds godown_quantity
+                    if (parseInt(quantity) > parseInt(godownQuantity)) {
+                        errorFound = true;
+
+                        // Display error alert if quantity is more than godown quantity
+                        $('#alert-container').append(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error!</strong> Quantity (${quantity}) exceeds available ${$("#type").val()} quantity (${godownQuantity}) in row ${index }.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          `);
                     }
-                    $('#errorToastMessage').text('Error saving the adjustment: ' + errorMessage);
-                    $('#errorToast').toast('show');
+
+                    // Add this row's data to tableData array
+                    tableData.push(rowData);
                 }
             });
+
+
+            if ($('#total_amount_table').val() <= 0) {
+                errorFound = true;
+
+                // Display error alert if quantity is more than godown quantity
+                $('#alert-container').append(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error!</strong> Total amount  must be greater then 0.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          `);
+            }
+            if (!errorFound) {
+                const formData = $('#adjustment_form').serialize();
+                $.ajax({
+                    url: $('#adjustment_form').attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        $('#successToast').toast('show');
+                        window.location.href =
+                            "{{ route('adjustments.index') }}"; // Redirect after success
+                    },
+                    error: function(xhr) {
+                        const errors = xhr.responseJSON.errors;
+                        let errorMessage = '';
+                        for (let field in errors) {
+                            errorMessage += errors[field].join(', ') + '\n';
+                            // Add red border to fields with errors
+                            $(`[name="${field}"]`).addClass('is-invalid');
+                        }
+                        $('#errorToastMessage').text('Error saving the adjustment: ' + errorMessage);
+                        $('#errorToast').toast('show');
+                    }
+                });
+            }
+
         });
     </script>
 @stop
