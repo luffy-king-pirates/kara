@@ -92,27 +92,27 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                            <tr>
-                                                <td>${item.item?.item_name}</td>
-                                                <td>${item.quantity}</td>
-                                                <td>${item.unit?.unit_name}</td>
-                                            </tr>
-                                        `).join('')}
+                                                <tr>
+                                                    <td>${item.item?.item_name}</td>
+                                                    <td>${item.quantity}</td>
+                                                    <td>${item.unit?.unit_name}</td>
+                                                </tr>
+                                            `).join('')}
                         </tbody>
                     </table>
 
-                    <div class="btn-group" role="group" aria-label="Godown to Shop Transaction Actions">
+                    <div class="btn-group  " role="group" aria-label="Godown to Shop Transaction Actions">
                         <!-- Edit Button -->
-                        <a href="/godownShopAshok/${rowData.id}/edit" class="btn btn-warning btn-sm">
+                        <a href="/godownShopAshok/${rowData.id}/edit" class="btn mr-3 btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
 
                         <!-- Export Button -->
-                        <a href="/export/godownShopAshok/exportDetails/${rowData.id}" class="btn btn-success btn-sm">
+                        <a href="/export/godownShopAshok/exportDetails/${rowData.id}" class="btn  mr-3 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
                              <a href="/godownShopAshok/${rowData.id}/pdf/true" class="btn btn-success btn-sm">
-                            <i class="fas fa-file-export"></i> Export pdf 
+                            <i class="fas fa-file-export"></i> Export pdf
                         </a>
 
                     </div>

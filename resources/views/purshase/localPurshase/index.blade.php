@@ -26,7 +26,8 @@
                 <tr>
                     <th></th> <!-- Expand button -->
                     <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                    <th><input type="text" id="filter-receipt-number" class="form-control" placeholder="Receipt Number"></th>
+                    <th><input type="text" id="filter-receipt-number" class="form-control" placeholder="Receipt Number">
+                    </th>
                     <th><input type="text" id="filter-supplier" class="form-control" placeholder="Supplier"></th>
                     <th><input type="date" id="filter-creation-date" class="form-control"></th>
                 </tr>
@@ -54,21 +55,40 @@
                         d.total_amount = $('#filter-total-amount').val();
                     }
                 },
-                columns: [
-                    { className: 'dt-control', orderable: false, data: null, defaultContent: '' },
-                    { data: 'id', name: 'id' },
-                    { data: 'receipt_number', name: 'receipt_number' },
-                    { data: 'supplier', name: 'supplier' },
-                    { data: 'created_at', name: 'created_at' },
+                columns: [{
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: ''
+                    },
+                    {
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'receipt_number',
+                        name: 'receipt_number'
+                    },
+                    {
+                        data: 'supplier',
+                        name: 'supplier'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
 
                 ],
-                order: [[1, 'asc']] // Order by ID
+                order: [
+                    [1, 'asc']
+                ] // Order by ID
             });
 
             // Filter functionality
-            $('#filter-id, #filter-receipt-number, #filter-supplier, #filter-creation-date, #filter-total-amount').on('keyup change', function() {
-                table.draw();
-            });
+            $('#filter-id, #filter-receipt-number, #filter-supplier, #filter-creation-date, #filter-total-amount')
+                .on('keyup change', function() {
+                    table.draw();
+                });
 
             // Row detail format function to show details
             function formatDetails(rowData) {
@@ -85,14 +105,14 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                <tr>
-                                    <td>${item.item?.item_name}</td>
-                                    <td>${item.quantity}</td>
-                                    <td>${item.unit?.unit_name}</td>
-                                    <td>${item.cost}</td>
-                                    <td>${item.total}</td>
-                                </tr>
-                            `).join('')}
+                                    <tr>
+                                        <td>${item.item?.item_name}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${item.unit?.unit_name}</td>
+                                        <td>${item.cost}</td>
+                                        <td>${item.total}</td>
+                                    </tr>
+                                `).join('')}
                         </tbody>
                          <tfoot>
                             <tr>
@@ -107,7 +127,7 @@
 
                     <div class="btn-group" role="group" aria-label="Purchase Transaction Actions">
                         <!-- Edit Button -->
-                        <a href="/purchase/${rowData.id}/edit" class="btn btn-warning btn-sm">
+                        <a href="/purchase/${rowData.id}/edit" class="btn btn-warning btn-sm mr-3">
                             <i class="fas fa-edit"></i> Edit
                         </a>
 
@@ -150,9 +170,11 @@
             $('#apply-filter').click(function() {
                 let queryString = '?';
                 queryString += 'id=' + encodeURIComponent($('#filter-id').val()) + '&';
-                queryString += 'receipt_number=' + encodeURIComponent($('#filter-receipt-number').val()) + '&';
+                queryString += 'receipt_number=' + encodeURIComponent($('#filter-receipt-number').val()) +
+                    '&';
                 queryString += 'supplier=' + encodeURIComponent($('#filter-supplier').val()) + '&';
-                queryString += 'creation_date=' + encodeURIComponent($('#filter-creation-date').val()) + '&';
+                queryString += 'creation_date=' + encodeURIComponent($('#filter-creation-date').val()) +
+                '&';
 
                 window.open('/export/purchase' + queryString, '_blank');
             });

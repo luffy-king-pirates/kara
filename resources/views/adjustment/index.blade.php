@@ -96,26 +96,26 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                                <tr>
-                                                    <td>${item.item?.item_name}</td>
-                                                    <td>${item.stock_type?.stock_type_name}</td>
-                                                    <td>${item.godown || 0}</td>
-                                                    <td>${item.shop || 0}</td>
-                                                    <td>${item.quantity}</td>
-                                                    <td>${item.unit ? item.unit.unit_name : ''}</td>
+                                                    <tr>
+                                                        <td>${item.item?.item_name}</td>
+                                                        <td>${item.stock_type?.stock_type_name}</td>
+                                                        <td>${item.godown || 0}</td>
+                                                        <td>${item.shop || 0}</td>
+                                                        <td>${item.quantity}</td>
+                                                        <td>${item.unit ? item.unit.unit_name : ''}</td>
 
-                                                </tr>
-                                            `).join('')}
+                                                    </tr>
+                                                `).join('')}
                         </tbody>
 
-                 <div class="btn-group" role="group" aria-label="Adjustment Actions">
+                 <div class="btn-group " role="group" aria-label="Adjustment Actions">
     <!-- Edit Button -->
-    <a href="/adjustments/${rowData.id}/edit" class="btn btn-warning btn-sm">
+    <a href="/adjustments/${rowData.id}/edit" class="btn  mr-3 btn-warning btn-sm">
         <i class="fas fa-edit"></i> Edit
     </a>
 
     <!-- Export Button -->
-    <a href="/export/adjustments/exportDetails/${rowData.id}" class="btn btn-success btn-sm">
+    <a href="/export/adjustments/exportDetails/${rowData.id}" class="btn  mr-3 btn-success btn-sm">
         <i class="fas fa-file-export"></i> Export
     </a>
 </div>

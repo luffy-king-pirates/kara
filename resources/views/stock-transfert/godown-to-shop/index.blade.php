@@ -198,17 +198,17 @@
 </tfoot>
                     </table>
 
-                    <div class="btn-group" role="group" aria-label="Godown to Shop Transaction Actions">
+                    <div class="btn-group  " role="group" aria-label="Godown to Shop Transaction Actions">
                         <!-- Edit Button -->
-                        <a href="/godownshop/${rowData.id}/edit" class="btn btn-warning btn-sm">
+                        <a href="/godownshop/${rowData.id}/edit" class="btn  mr-3 btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
 
                         <!-- Export Button -->
-                        <a href="/export/godownshop/exportDetails/${rowData.id}" class="btn btn-success btn-sm">
+                        <a href="/export/godownshop/exportDetails/${rowData.id}" class="btn   mr-3 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
-                             <a href="/godownshop/${rowData.id}/pdf/true" class="btn btn-success btn-sm">
+                             <a href="/godownshop/${rowData.id}/pdf/true" class="btn  mr-3 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export pdf
                         </a>
                            <!-- Approve Button -->
