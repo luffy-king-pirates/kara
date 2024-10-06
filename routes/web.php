@@ -242,16 +242,7 @@ Route::middleware(['auth',App\Http\Middleware\UserActionLogger::class])->group(f
 
     Route::get('/sales/data', [DashboardController::class, 'getSalesData'])->name('getSalesData');
 
-    Route::get('sales/hourly', [DashboardController::class, 'getHourlySales']);
-    Route::get('sales/weekly', [DashboardController::class, 'getWeeklySales']);
-    Route::get('sales/monthly', [DashboardController::class, 'getMonthlySales']);
-    Route::get('sales/yearly', [DashboardController::class, 'getYearlySales']);
-
-    Route::get('sales/sales-item-credit-cash', [DashboardController::class, 'salesChart'])->name('salesChart');
-    Route::get('dashboard/items/top-sold-cash', [DashboardController::class, 'getTopSoldItemsCash']);
-    Route::get('dashboard/items/top-sold-credit', [DashboardController::class, 'getTopSoldItemsCredit']);
-    Route::get('dashboard/items/worst-sold-cash', [DashboardController::class, 'getWorstSoldItemsCash']);
-    Route::get('dashboard/items/worst-sold-credit', [DashboardController::class, 'getWorstSoldItemsCredit']);
+    Route::get('/dashboard/get-sales-data', [DashboardController::class, 'getSalesData'])->name('dashboard.getSalesData');
 
     Route::get('/dashboard-stock-transfert', [DashboardStockTransfertController::class, 'index'])->name('dashboard-stock-transfert');
     Route::get('/dashboard-stock-transfert/transfert-stats', [DashboardStockTransfertController::class, 'getTransfertStatsAjax']);
