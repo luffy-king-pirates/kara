@@ -138,20 +138,20 @@
         <br>
                     <div class="btn-group" role="group" aria-label="Cash Transaction Actions">
                         <!-- Edit Button -->
-                        <a href="/cash/${rowData.id}/edit" class="btn btn-warning btn-sm">
+                        <a href="/cash/${rowData.id}/edit" class="btn mr-4 btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
 
                         <!-- Export Button -->
-                        <a href="/export/cash/exportDetails/${rowData.id}" class="btn btn-success btn-sm">
+                        <a href="/export/cash/exportDetails/${rowData.id}" class="btn mr-4 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
 
-                        <a href="/cash/${rowData?.id}/pdf/true" class="btn btn-success btn-sm">
+                        <a href="/cash/${rowData?.id}/pdf/true" class="btn btn-success mr-4 btn-sm">
     <i class="fas fa-file-export"></i> Export pdf with headers
 </a>
 
-                        <a href="/cash/${rowData?.id}/pdf/false" class="btn btn-success btn-sm">
+                        <a href="/cash/${rowData?.id}/pdf/false" class="btn btn-success mr-4 btn-sm">
     <i class="fas fa-file-export"></i> Export pdf no headers
 </a>
                     </div>

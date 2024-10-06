@@ -135,16 +135,16 @@
         </table>
                     <div class="btn-group" role="group" aria-label="Proforma Transaction Actions">
                         <!-- Edit Button -->
-                        <a href="/proforma/${rowData.id}/edit" class="btn btn-warning btn-sm">
+                        <a href="/proforma/${rowData.id}/edit" class="btn mr-4 btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
 
                         <!-- Export Button -->
-                        <a href="/export/proforma/exportDetails/${rowData.id}" class="btn btn-success btn-sm">
+                        <a href="/export/proforma/exportDetails/${rowData.id}" class="btn mr-4 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
 
-                        <a href="/proforma/${rowData?.id}/pdf/true" class="btn btn-success btn-sm">
+                        <a href="/proforma/${rowData?.id}/pdf/true" class="btn btn-success mr-4 btn-sm">
     <i class="fas fa-file-export"></i> Export PDF with headers
 </a>
     <a href="/proforma/${rowData?.id}/pdf/false" class="btn btn-success btn-sm">
