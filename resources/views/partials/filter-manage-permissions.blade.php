@@ -4,7 +4,7 @@
     </div>
     <div class="card-body">
         <div class="d-flex flex-wrap">
-       
+
 
             <!-- Page Filter -->
             <div class="form-group col-md-4 mb-3">
@@ -21,6 +21,7 @@
                     <option value="read">Read</option>
                     <option value="update">Update</option>
                     <option value="delete">Delete</option>
+                     <option value="manage">Manage</option>
                 </select>
             </div>
         </div>

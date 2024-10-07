@@ -9,6 +9,7 @@
 
 @section('content')
     <div style="height: 700px; overflow-y: auto;">
+        @include('partials.expiration.expire')
         <!-- Add Month Button -->
         @can('create-month')
             <a href="javascript:void(0)" class="btn btn-success" id="addMonthBtn">Add Month</a>

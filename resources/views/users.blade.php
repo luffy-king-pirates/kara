@@ -8,6 +8,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Add User Button -->
         @can('create-user')
@@ -445,3 +446,27 @@
         });
     </script>
 @stop
+
+
+
+
+// Select all rows with the class "row-padding"
+const rows = document.querySelectorAll("tr.row-padding");
+
+// Initialize an empty array to hold the results
+let result = [];
+
+// Iterate over each row
+rows.forEach(el => {
+// Create an object for each row
+let object = {
+role_name: el.querySelector('[data-col-seq="1"]').innerText,
+description: el.querySelector('[data-col-seq="2"]').innerText,
+};
+
+// Push the object into the result array
+result.push(object);
+});
+
+// Log the result to the console
+console.log("result = ", result);

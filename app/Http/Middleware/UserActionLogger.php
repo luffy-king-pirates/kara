@@ -23,11 +23,6 @@ class UserActionLogger
             // Get the user's IP address
             $ip = $request->ip();
 
-            // Get the user's location using their IP address
-            $location = Location::get($ip);
-
-            // Format the location (city, country) as a string
-            $locationString = $location ? $location->city . ', ' . $location->countryName : 'Unknown';
 
             // Log the action, user details, payload, IP address, and location
             Logs::create([
@@ -36,7 +31,7 @@ class UserActionLogger
                 'action_time' => now(),
                 'payload' => $payload,
                 'ip_address' => $ip,
-                'location' => $locationString,
+               
             ]);
 
             // Maintain only 10 rows in the logs table

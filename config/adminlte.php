@@ -632,55 +632,64 @@ return [
                     'icon' => 'fas fa-fw fa-tags',
                     'text' => 'Item Categories',
                     'url' => 'categories',
-                    'can' => 'admin'
+                    'can' => 'manage-category'
 
                 ],
                 [
                     'icon' => 'fas fa-fw fa-dollar-sign',
                     'text' => 'Currencies',
                     'url' => 'currencies',
+                      'can' => 'manage-currency'
                 ],
                 [
                     'icon' => 'fas fa-fw fa-warehouse',
                     'text' => 'Suppliers',
                     'url' => 'suppliers',
+                       'can' => 'manage-supplier'
                 ],
                 [
                     'icon' => 'fas fa-fw fa-globe',
                     'text' => 'Product Countries',
                     'url' => 'countries',
+                         'can' => 'manage-country'
                 ],
 
                 [
                     'icon' => 'fas fa-fw fa-address-book',
                     'text' => 'Customers',
                     'url' => 'customers',
+     'can' => 'manage-customer'
                 ],
                 [
                     'icon' => 'fas fa-fw fa-boxes',
                     'text' => 'Stock Types',
                     'url' => 'type',
+                    'can' => 'manage-stock-type'
                 ],
                 [
                     'icon' => 'fas fa-fw fa-calendar year-icon',
                     'text' => 'Years',
                     'url' => 'years',
+                     'can' => 'manage-year'
                 ],
                 [
                     'icon' => 'fas fa-fw fa-ruler',
                     'text' => 'Units',
                     'url' => 'units',
+                     'can' => 'manage-unit'
                 ],
 
                 [
                     'icon' => 'fas fa-fw fa-calendar-week',
                     'text' => 'Months',
                     'url' => 'months',
+                      'can' => 'manage-month'
                 ],
                 [
                     'icon' => 'fas fa-fw fa-trademark',
                     'text' => 'Brands',
                     'url' => 'brands',
+                      'can' => 'manage-brand'
                 ],
             ]
         ]

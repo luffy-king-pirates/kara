@@ -18,6 +18,13 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
+
+use App\Models\ShopService;
+use App\Models\Shops;
+use App\Models\ShopAshaks;
+use App\Models\Godown;
+
+use Illuminate\Support\Facades\Log;
 class CashController extends Controller
 {
     public function index(Request $request)
@@ -86,6 +93,7 @@ class CashController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -99,17 +107,21 @@ class CashController extends Controller
     public function create()
     {
         $stockTypes = StockTypes::all();
-        $result = Item::with('unit')->get(['id', 'item_name', 'item_unit']);
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
 
-        // Transform the result to return only the needed fields
-        $items = $result->map(function ($item) {
-            return [
-                'item_name' => $item->item_name,
-                'unit_name' => $item->unit ? $item->unit->unit_name : null, // Get the unit name
-                'item_id' => $item->id, // Now this will return the item ID
-                'unit_id' => $item->unit ? $item->unit->id : null, // Unit ID
-            ];
-        });
+$items = $result->map(function ($item) {
+    return [
+        'item_name' => $item->item_name,
+        'unit_name' => $item->unit ? $item->unit->unit_name : null,
+        'item_id' => $item->id,
+        'unit_id' => $item->unit ? $item->unit->id : null,
+        'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+        'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+        'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+        'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+
+    ];
+});
         $units = Units::all();
         $cash = null;
         $customers = Customers::all();
@@ -121,7 +133,7 @@ class CashController extends Controller
         $validatedData = $request->validate([
             'cash_number' => 'required|string|max:255',
             'creation_date' => 'required|date',
-
+            'type' =>'required|string',
             'customer_id' => 'required|exists:customers,id',
             'details.*.item_id' => 'required|exists:items,id',
 
@@ -136,6 +148,15 @@ class CashController extends Controller
             'creation_date' => $request->creation_date,
             'total_amount' =>number_format((float) $request->total_amount, 2, '.', ''),
             'customer_id' => $request->customer_id,
+            'type' => $request->type,
+            'comment'=>$request->comment,
+            'special_releif_number'=> $request->special_releif_number,
+            'discount' => $request->discount,
+            'lpo' => $request->lpo,
+            'status' => $request->status,
+            'total_qty' => $request ->total_qty,
+            'vat' => $request->vat,
+            'lpo_date' => $request->lpo_date,
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id,
         ]);
@@ -143,6 +164,30 @@ class CashController extends Controller
         foreach ($request->details as $detail) {
             $cash->details()->create($detail);
         }
+
+          // Check if transfert_to is a godown
+
+
+  if ($request->type == 'Godwan') {
+    // Add items to godown
+    Godown::removeItemsFromTransfert($cash);
+}
+if ($request->type == 'shop') {
+    Log::info('Enter to Shop ');
+    // Add items to godown
+    Shops::removeItemsFromTransfert($cash);
+}
+if ($request->type == 'shop_ashak') {
+
+
+    ShopAshaks::removeItemsFromTransfert($cash);
+}
+if ($request->type == 'shop_service') {
+    // Add items to godown
+    ShopService::removeItemsFromTransfert($cash);
+}
+
+
 
         return response()->json(['success' => true]);
     }
@@ -156,7 +201,21 @@ class CashController extends Controller
     public function edit($id)
     {
         $cash = Cash::with(['details','customer','details.unit'])->findOrFail($id);
-        $items = Item::all();
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
+
+        $items = $result->map(function ($item) {
+            return [
+                'item_name' => $item->item_name,
+                'unit_name' => $item->unit ? $item->unit->unit_name : null,
+                'item_id' => $item->id,
+                'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+
+            ];
+        });
         $units = Units::all();
         $customers = Customers::all();
 
@@ -169,11 +228,22 @@ class CashController extends Controller
         $validatedData = $request->validate([
             'cash_number' => 'required|string',
             'total_amount' => 'required|numeric',
+            'type' =>'required|string',
             'details.*.item_id' => 'required|integer',
             'details.*.unit_id' => 'required|integer',
             'details.*.quantity' => 'required|numeric|min:1',
             'details.*.price' => 'required|numeric|min:0',
             'details.*.total' => 'required|numeric|min:0',
+            'cash_number' => 'required|string|max:255',
+
+    'comment' => 'nullable|string|max:500',
+    'special_releif_number' => 'nullable|string|max:50', // Add this line
+    'discount' => 'nullable|numeric',
+    'lpo' => 'nullable|string|max:255',
+    'status' => 'required|string|max:50',
+
+
+    'lpo_date' => 'nullable|date',
         ]);
 
         $cash = Cash::findOrFail($id);
@@ -181,6 +251,14 @@ class CashController extends Controller
             'cash_number' => $validatedData['cash_number'],
             'total_amount' => $validatedData['total_amount'],
             'updated_by' => auth()->user()->id,
+             'type' => $validatedData['type'],
+             'comment'=>$request->comment,
+            'special_releif_number'=> $validatedData['special_releif_number'],
+            'discount' => $validatedData['discount'],
+            'lpo' => $validatedData['lpo'],
+            'status' =>$validatedData['status'],
+
+            'lpo_date' => $validatedData['lpo_date'],
         ]);
 
         foreach ($validatedData['details'] as $detail) {
@@ -191,6 +269,7 @@ class CashController extends Controller
                     'price' => $detail['price'],
                     'total' => $detail['total'],
                     'unit_id' => $detail['unit_id'],
+
                 ]
             );
         }
@@ -346,6 +425,8 @@ class CashController extends Controller
     $cash = Cash::with([
         'details.item',      // Load item details
         'details.unit',      // Load unit details
+        'createdByUser',       // Load the user who created the cash entry
+        'updatedByUser',       // Load the user who updated the cash entry
     ])->findOrFail($id);
 
     return response()->json($cash); // Return cash transaction with details

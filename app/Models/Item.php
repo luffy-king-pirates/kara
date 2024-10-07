@@ -72,4 +72,31 @@ public function updatedByUser() {
     {
         return $query->where('is_deleted', false);
     }
+
+
+    public function godown()
+    {
+        return $this->hasOne(Godown::class, 'item_id');
+    }
+
+    public function shops()
+    {
+        return $this->hasOne(Shops::class, 'item_id');
+    }
+
+    public function shopAshaks()
+    {
+        return $this->hasOne(ShopAshaks::class, 'item_id');
+    }
+
+
+
+    public function shopService()
+    {
+        return $this->hasOne(ShopService::class, 'item_id');
+    }
+
+
+
+
 }

@@ -76,6 +76,13 @@ class AppServiceProvider extends ServiceProvider
                     $query->where('action', 'export')->where('page', $entityCapitalized);
                 })->exists();
             });
+
+              // Create Gate for manage operation
+              Gate::define("manage-$entity", function (User $user) use ($entityCapitalized) {
+                return $user->roles()->whereHas('permissions', function($query) use ($entityCapitalized) {
+                    $query->where('action', 'manage')->where('page', $entityCapitalized);
+                })->exists();
+            });
         }
 
     }

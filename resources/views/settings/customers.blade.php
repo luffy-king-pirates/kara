@@ -8,6 +8,7 @@
 
 @section('content')
     <div style="height: 700px; overflow-y: auto;">
+        @include('partials.expiration.expire')
         <!-- Add Customer Button -->
         @can('create-customer')
             <a href="javascript:void(0)" class="btn btn-success" id="addCustomerBtn">Add Customer</a>

@@ -8,6 +8,7 @@
 
 @section('content')
     <div style="height: 700px; overflow-y: auto;">
+        @include('partials.expiration.expire')
         <!-- Add Country Button -->
         @can('create-country')
             <a href="javascript:void(0)" class="btn btn-success" id="addCountryBtn">Add Country</a>

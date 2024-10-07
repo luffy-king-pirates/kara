@@ -3,10 +3,31 @@
 @section('title', 'Dashboard')
 
 @section('content_header')
-    <h1>Stock Transfert Dashboard</h1>
+    <h1>Stock Transfer Dashboard</h1>
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
+    <div class="row">
+        <div class="col-md-4">
+            <label for="from_date">From Date</label>
+            <input type="date" id="from_date" class="form-control" value="{{ \Carbon\Carbon::today()->format('Y-m-d') }}">
+        </div>
+        <div class="col-md-4">
+            <label for="to_date">To Date</label>
+            <input type="date" id="to_date" class="form-control" value="{{ \Carbon\Carbon::today()->format('Y-m-d') }}">
+        </div>
+        <div class="col-md-4">
+            <label for="item_id">Item</label>
+            <select id="item_id" class="form-control">
+                <option value="all">All Items</option>
+                @foreach ($items as $item)
+                    <option value="{{ $item->id }}">{{ $item->item_name }}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+
     <div class="row" id="transfert-stats-container">
         <!-- Cards will be dynamically inserted here -->
     </div>
@@ -27,7 +48,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    Percentage Change (Line Chart)
+                    Total Transfers (Line Chart)
                 </div>
                 <div class="card-body">
                     <canvas id="lineChart"></canvas>
@@ -47,11 +68,23 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        $(document).ready(function() {
-            // Make the AJAX request when the page loads
+        let doughnutChart;
+        let lineChart;
+
+        function fetchTransferData() {
+            const fromDate = $('#from_date').val();
+            const toDate = $('#to_date').val();
+            const itemId = $('#item_id').val();
+
+            // AJAX request to fetch transfer stats
             $.ajax({
-                url: '/dashboard-stock-transfert/transfert-stats', // URL to your route
+                url: '/dashboard-stock-transfert/transfert-stats',
                 method: 'GET',
+                data: {
+                    from_date: fromDate,
+                    to_date: toDate,
+                    item_id: itemId
+                },
                 dataType: 'json',
                 success: function(data) {
                     let container = $('#transfert-stats-container');
@@ -63,60 +96,44 @@
                         <div class="col-md-3">
                             <div class="card text-center">
                                 <div class="card-header">
-                                    ${route.replace('_', ' ')}
+                                    ${stat.route.replace('_', ' ')}
                                 </div>
                                 <div class="card-body">
-                                    <h5 class="card-title">Today's Transfers: ${stat.today}</h5>
-                                    <p class="card-text">
-                                        Percentage Change:
-                                        ${stat.percentage_change > 0
-                                            ? '<span class="text-success">+' + stat.percentage_change + '%</span>'
-                                            : '<span class="text-danger">' + stat.percentage_change + '%</span>'}
-                                    </p>
+                                    <h5 class="card-title">Total Transfers: ${stat.total_quantity}</h5>
                                 </div>
                             </div>
                         </div>
                     `;
                         container.append(card); // Add the card to the container
                     });
-                },
-                error: function(error) {
-                    console.log("Error fetching transfert stats:", error);
-                }
-            });
-        });
 
-
-        $(document).ready(function() {
-            // AJAX request to fetch transfer stats
-            $.ajax({
-                url: '/dashboard-stock-transfert/transfert-stats',
-                method: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    // Prepare data for Doughnut chart
+                    // Prepare data for Doughnut and Line charts
                     const labels = [];
-                    const todayData = [];
-                    const percentageChange = [];
+                    const todayData = []; // For Doughnut Chart
+                    const lineChartData = []; // For Line Chart
 
                     $.each(data, function(route, stat) {
-                        labels.push(route.replace('_', ' ')); // Label for each transfer route
-                        todayData.push(stat.today); // Today's transfer numbers
-                        percentageChange.push(stat.percentage_change); // Percentage changes
+                        labels.push(stat.route.replace('_', ' ')); // Label for each transfer route
+                        todayData.push(stat.total_quantity); // Total transfer quantities for Doughnut
+                        lineChartData.push(stat
+                        .total_quantity); // Total transfer quantities for Line Chart
                     });
 
+                    // Destroy existing doughnut chart if it exists
+                    if (doughnutChart) {
+                        doughnutChart.destroy();
+                    }
                     // Initialize Doughnut Chart
                     const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
-                    const doughnutChart = new Chart(doughnutCtx, {
+                    doughnutChart = new Chart(doughnutCtx, {
                         type: 'doughnut',
                         data: {
                             labels: labels,
                             datasets: [{
-                                label: 'Today\'s Transfers',
+                                label: 'Total Transfers',
                                 data: todayData,
                                 backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56',
-                                    '#4BC0C0'
-                                ], // Different colors for each route
+                                '#4BC0C0'], // Different colors for each route
                             }]
                         },
                         options: {
@@ -125,15 +142,19 @@
                         }
                     });
 
-                    // Initialize Line Chart
+                    // Destroy existing line chart if it exists
+                    if (lineChart) {
+                        lineChart.destroy();
+                    }
+                    // Initialize Line Chart with total quantities
                     const lineCtx = document.getElementById('lineChart').getContext('2d');
-                    const lineChart = new Chart(lineCtx, {
+                    lineChart = new Chart(lineCtx, {
                         type: 'line',
                         data: {
                             labels: labels,
                             datasets: [{
-                                label: 'Percentage Change',
-                                data: percentageChange,
+                                label: 'Total Transfers',
+                                data: lineChartData,
                                 borderColor: '#36A2EB',
                                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                                 fill: true
@@ -145,20 +166,23 @@
                             scales: {
                                 y: {
                                     beginAtZero: true,
-                                    ticks: {
-                                        callback: function(value) {
-                                            return value + '%'; // Add percentage symbol
-                                        }
-                                    }
                                 }
                             }
                         }
                     });
                 },
                 error: function(error) {
-                    console.log("Error fetching transfert stats:", error);
+                    console.log("Error fetching transfer stats:", error);
                 }
             });
+        }
+
+        $(document).ready(function() {
+            // Fetch initial data
+            fetchTransferData();
+
+            // Event listeners for input changes
+            $('#from_date, #to_date, #item_id').change(fetchTransferData);
         });
     </script>
 @stop

@@ -81,6 +81,9 @@
             </table>
         @endcan
 
+
+        @include('partials.expiration.expire')
+
         <!-- Modal for Add/Edit Brand -->
         <div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="brandModalLabel" aria-hidden="true">
             <div class="modal-dialog">

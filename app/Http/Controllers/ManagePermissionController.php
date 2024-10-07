@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
-
+use Illuminate\Support\Facades\Log;
 class ManagePermissionController extends Controller
 {
 
@@ -25,20 +25,20 @@ class ManagePermissionController extends Controller
 
     // Define static pages and actions
     $pages = [
-        'brand' => ['create', 'read', 'update', 'delete','export'],
-        'category' => ['create', 'read', 'update', 'delete','export'],
-        'country' => ['create', 'read', 'update', 'delete','export'],
-        'currency' => ['create', 'read', 'update', 'delete','export'],
-        'customer' => ['create', 'read', 'update', 'delete','export'],
-        'month' => ['create', 'read', 'update', 'delete','export'],
-        'role' => ['create', 'read', 'update', 'delete','export'],
-        'stock-type' => ['create', 'read', 'update', 'delete','export'],
-        'supplier' => ['create', 'read', 'update', 'delete','export'],
-        'unit' => ['create', 'read', 'update', 'delete','export'],
-        'user' => ['create', 'read', 'update', 'delete','export'],
-        'year' => ['create', 'read', 'update', 'delete','export'],
-        'user-assigned-role' => ['create', 'read', 'update', 'delete','export'],
-        'items' => ['create', 'read', 'update', 'delete','export'],
+        'brand' => ['create', 'read', 'update', 'delete','export','manage'],
+        'category' => ['create', 'read', 'update', 'delete','export','manage'],
+        'country' => ['create', 'read', 'update', 'delete','export','manage'],
+        'currency' => ['create', 'read', 'update', 'delete','export','manage'],
+        'customer' => ['create', 'read', 'update', 'delete','export','manage'],
+        'month' => ['create', 'read', 'update', 'delete','export','manage'],
+        'role' => ['create', 'read', 'update', 'delete','export','manage'],
+        'stock-type' => ['create', 'read', 'update', 'delete','export','manage'],
+        'supplier' => ['create', 'read', 'update', 'delete','export','manage'],
+        'unit' => ['create', 'read', 'update', 'delete','export','manage'],
+        'user' => ['create', 'read', 'update', 'delete','export','manage'],
+        'year' => ['create', 'read', 'update', 'delete','export','manage'],
+        'user-assigned-role' => ['create', 'read', 'update', 'delete','export','manage'],
+        'items' => ['create', 'read', 'update', 'delete','export','manage'],
     ];
 
     // Prepare data for DataTables
@@ -68,8 +68,9 @@ class ManagePermissionController extends Controller
 
         // Filter the data array based on the filters from the DataTables UI
         if ($role_name) {
+
             $data = array_filter($data, function($row) use ($role_name) {
-                return stripos($row['role_name'], $role_name) !== false;
+                return $row['role_name'] === $role_name;
             });
         }
 

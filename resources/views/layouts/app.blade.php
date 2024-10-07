@@ -82,9 +82,30 @@
         </nav>
 
         <main class="py-4">
+
             @yield('content')
         </main>
     </div>
 
+    <!-- Session Expiry Modal -->
+<div class="modal fade" id="sessionExpireModal" tabindex="-1" role="dialog" aria-labelledby="sessionExpireLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="sessionExpireLabel">Session Expiring Soon</h5>
+      </div>
+      <div class="modal-body">
+        Your session will expire in <span id="session-expire-counter">30</span> seconds. Would you like to continue your session?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="continueSessionBtn">Continue Session</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 </body>
+
 </html>

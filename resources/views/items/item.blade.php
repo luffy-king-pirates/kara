@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Add Item Button -->
         @can('create-items')

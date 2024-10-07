@@ -18,7 +18,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use App\Models\ShopService;
+use App\Models\Shops;
+use App\Models\ShopAshaks;
+use App\Models\Godown;
 class CreditController extends Controller
 {
     public function index(Request $request)
@@ -87,6 +90,7 @@ class CreditController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -100,7 +104,7 @@ class CreditController extends Controller
     public function create()
     {
         $stockTypes = StockTypes::all();
-        $result = Item::with('unit')->get(['id', 'item_name', 'item_unit']);
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
 
         $items = $result->map(function ($item) {
             return [
@@ -108,9 +112,13 @@ class CreditController extends Controller
                 'unit_name' => $item->unit ? $item->unit->unit_name : null,
                 'item_id' => $item->id,
                 'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+
             ];
         });
-
         $units = Units::all();
         $credit = null;
         $customers = Customers::all();
@@ -133,8 +141,18 @@ class CreditController extends Controller
         $credit = Credit::create([
             'credit_number' => $request->credit_number,
             'creation_date' => $request->creation_date,
+            'type' => $request->type,
             'total_amount' => number_format((float) $request->total_amount, 2, '.', ''),
             'customer_id' => $request->customer_id,
+            'type' => $request->type,
+            'comment'=>$request->comment,
+            'special_releif_number'=> $request->special_releif_number,
+            'discount' => $request->discount,
+            'lpo' => $request->lpo,
+            'status' => $request->status,
+            'total_qty' => $request ->total_qty,
+            'vat' => $request->vat,
+            'lpo_date' => $request->lpo_date,
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id,
         ]);
@@ -142,6 +160,25 @@ class CreditController extends Controller
         foreach ($request->details as $detail) {
             $credit->details()->create($detail);
         }
+        if ($request->type == 'Godwan') {
+            // Add items to godown
+            Godown::removeItemsFromTransfert($credit);
+        }
+        if ($request->type == 'shop') {
+            // Add items to godown
+            Shops::removeItemsFromTransfert($credit);
+        }
+        if ($request->type == 'shop_ashak') {
+
+
+            ShopAshaks::removeItemsFromTransfert($cash);
+        }
+        if ($request->type == 'shop_service') {
+            // Add items to godown
+            ShopService::removeItemsFromTransfert($credit);
+        }
+
+
 
         return response()->json(['success' => true]);
     }
@@ -155,7 +192,21 @@ class CreditController extends Controller
     public function edit($id)
     {
         $credit = Credit::with(['details', 'customer', 'details.unit'])->findOrFail($id);
-        $items = Item::all();
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
+
+        $items = $result->map(function ($item) {
+            return [
+                'item_name' => $item->item_name,
+                'unit_name' => $item->unit ? $item->unit->unit_name : null,
+                'item_id' => $item->id,
+                'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+
+            ];
+        });
         $units = Units::all();
         $customers = Customers::all();
 
@@ -172,6 +223,14 @@ class CreditController extends Controller
             'details.*.quantity' => 'required|numeric|min:1',
             'details.*.price' => 'required|numeric|min:0',
             'details.*.total' => 'required|numeric|min:0',
+            'comment' => 'nullable|string|max:500',
+            'special_releif_number' => 'nullable|string|max:50', // Add this line
+            'discount' => 'nullable|numeric',
+            'lpo' => 'nullable|string|max:255',
+            'status' => 'required|string|max:50',
+
+
+            'lpo_date' => 'nullable|date',
         ]);
 
         $credit = Credit::findOrFail($id);
@@ -179,6 +238,13 @@ class CreditController extends Controller
             'credit_number' => $validatedData['credit_number'],
             'total_amount' => $validatedData['total_amount'],
             'updated_by' => auth()->user()->id,
+            'comment'=>$request->comment,
+            'special_releif_number'=> $validatedData['special_releif_number'],
+            'discount' => $validatedData['discount'],
+            'lpo' => $validatedData['lpo'],
+            'status' =>$validatedData['status'],
+
+            'lpo_date' => $validatedData['lpo_date'],
         ]);
 
         foreach ($validatedData['details'] as $detail) {
@@ -209,6 +275,8 @@ class CreditController extends Controller
     $cash = Credit::with([
         'details.item',      // Load item details
         'details.unit',      // Load unit details
+        'createdByUser',       // Load the user who created the cash entry
+        'updatedByUser',       // Load the user who updated the cash entry
     ])->findOrFail($id);
 
     return response()->json($cash); // Return cash transaction with details

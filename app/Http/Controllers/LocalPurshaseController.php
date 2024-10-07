@@ -19,6 +19,11 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
 use PhpOffice\PhpSpreadsheet\Style\Alignment; // Import Alignment
+use App\Models\ShopService;
+use App\Models\Shops;
+use App\Models\ShopAshaks;
+use App\Models\Godown;
+use Illuminate\Support\Facades\Log;
 
 class LocalPurshaseController extends Controller
 {
@@ -47,7 +52,7 @@ class LocalPurshaseController extends Controller
                     return $row->updatedByUser ? $row->updatedByUser->name : 'Not updated';
                 })
                 ->addColumn('supplier', function ($row) {
-                    
+
                     return $row->supplier ? $row->supplier->supplier_name : 'Unknown';
                 })
                 ->addColumn('details', function ($row) {
@@ -84,6 +89,7 @@ class LocalPurshaseController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -96,7 +102,20 @@ class LocalPurshaseController extends Controller
 
     public function create()
     {
-        $items = Item::with('unit')->get(['id', 'item_name', 'item_unit']);
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
+
+        $items = $result->map(function ($item) {
+            return [
+                'item_name' => $item->item_name,
+                'unit_name' => $item->unit ? $item->unit->unit_name : null,
+                'item_id' => $item->id,
+                'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+            ];
+        });
         $suppliers = Suppliers::all();
         $units = Units::all();
         $currencies = Currency::all();
@@ -116,23 +135,46 @@ class LocalPurshaseController extends Controller
             'details.*.quantity' => 'required|numeric|min:1',
             'details.*.cost' => 'required|numeric|min:0',
             'details.*.total' => 'required|numeric|min:0',
+            'pdf' => 'nullable|mimes:pdf|max:10000',
         ]);
 
-        $purchase = Purchase::create([
-            'receipt_number' => $request->receipt_number,
-            'purchase_date' => $request->purchase_date,
-            'total_amount' => number_format((float)$request->total_amount, 2, '.', ''),
-            'supplier_id' => $request->supplier_id,
-            'created_by' => auth()->user()->id,
-            'updated_by' => auth()->user()->id,
-        ]);
 
+        $purchase = new Purchase();
+        $purchase->receipt_number = $request->input('receipt_number');
+        $purchase->purchase_date = $request->input('purchase_date');
+        $purchase->supplier_id = $request->input('supplier_id');
+        $purchase->created_by = auth()->user()->id;
+        $purchase->updated_by = auth()->user()->id;
+
+        // Handle PDF file upload
+        if ($request->hasFile('pdf')) {
+            $pdfPath = $request->file('pdf')->store('purchases', 'public');
+            $purchase->pdf = $pdfPath;
+        }
+
+        $purchase->save();
         foreach ($request->details as $detail) {
             $purchase->details()->create($detail);
         }
 
+
+
+        // Log success message if the PDF was saved
+
+
+        if ($request->type == 'Godwan') {
+            Godown::addItemsFromTransfert($purchase);
+        } elseif ($request->type == 'shop') {
+            Shops::addItemsFromTransfert($purchase);
+        } elseif ($request->type == 'shop_ashak') {
+            ShopAshaks::addItemsFromTransfert($purchase);
+        } elseif ($request->type == 'shop_service') {
+            ShopService::addItemsFromTransfert($purchase);
+        }
+
         return response()->json(['success' => true]);
     }
+
 
     public function show($id)
     {
@@ -142,19 +184,33 @@ class LocalPurshaseController extends Controller
 
     public function edit($id)
     {
+
         $purchase = Purchase::with(['details', 'supplier', 'details.unit'])->findOrFail($id);
-        $items = Item::all();
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
+
+        $items = $result->map(function ($item) {
+            return [
+                'item_name' => $item->item_name,
+                'unit_name' => $item->unit ? $item->unit->unit_name : null,
+                'item_id' => $item->id,
+                'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+            ];
+        });
         $units = Units::all();
         $suppliers = Suppliers::all();
-
-        return view('purshase.localPurshase.create', compact('purchase', 'items', 'suppliers', 'units'));
+        $currencies = Currency::all();
+        return view('purshase.localPurshase.create', compact('purchase', 'items', 'suppliers', 'units','currencies'));
     }
 
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'purchase_number' => 'required|string',
-            'total_amount' => 'required|numeric',
+            'receipt_number' => 'required|string',
+            'pdf' => 'nullable|mimes:pdf|max:2048',
             'details.*.item_id' => 'required|integer',
             'details.*.unit_id' => 'required|integer',
             'details.*.currency_id' => 'required|integer',
@@ -164,9 +220,23 @@ class LocalPurshaseController extends Controller
         ]);
 
         $purchase = Purchase::findOrFail($id);
+        // Handle profile picture upload
+        if ($request->hasFile('pdf')) {
+            // Delete old profile picture if exists
+            if ($purchase->pdf) {
+                Storage::delete('public/' . $purchase->pdf);
+            }
+
+            // Store new profile picture
+            $path = $request->file('pdf')->store('purchases', 'public');
+            $purchase->pdf = $path;
+        }else {
+            // Set profile picture to null if no file is uploaded
+            $purchase->pdf = null;
+        }
         $purchase->update([
-            'purchase_number' => $validatedData['purchase_number'],
-            'total_amount' => $validatedData['total_amount'],
+            'receipt_number' => $validatedData['receipt_number'],
+            'pdf' => $purchase->pdf,
             'updated_by' => auth()->user()->id,
         ]);
 
@@ -179,7 +249,7 @@ class LocalPurshaseController extends Controller
                         'cost' => $detail['cost'],
                         'total' => $detail['total'],
                         'unit_id' => $detail['unit_id'],
-                        'currency_id'
+                        'currency_id' => $detail['currency_id']
                     ]
                 );
             }
@@ -344,6 +414,9 @@ public function export(Request $request)
 
     return response()->download(storage_path($filePath))->deleteFileAfterSend(true);
 }
+
+
+
 
 
 }

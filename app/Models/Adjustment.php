@@ -12,7 +12,7 @@ class Adjustment extends Model
     protected $fillable = ['adjustment_number', 'adjustment_date',  'created_by',
     'updated_by',
     'created_at',
-    'updated_by',];
+    'updated_by','is_deleted'];
            // Relationship for the user who created the unit
            public function createdByUser() {
             return $this->belongsTo(User::class, 'created_by');

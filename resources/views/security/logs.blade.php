@@ -9,6 +9,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Export Logs Button -->
         @can('export-logs')
@@ -31,7 +32,8 @@
                         <th>User Name</th>
                         <th>Action Time</th>
                         <th>IP Address</th>
-                        <th>payload<th>
+                        <th>payload
+                        <th>
                     </tr>
                 </thead>
             </table>
@@ -104,7 +106,7 @@
                         name: 'ip_address'
                     },
 
-                      {
+                    {
                         data: 'payload',
                         name: 'payload'
                     },

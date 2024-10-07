@@ -17,6 +17,13 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use App\Models\ShopService;
+use App\Models\Shops;
+use App\Models\ShopAshaks;
+use App\Models\Godown;
+
+
+
 class AdjustmentController extends Controller
 {
     public function index(Request $request)
@@ -99,6 +106,7 @@ class AdjustmentController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -117,15 +125,18 @@ class AdjustmentController extends Controller
         $adjustment = null;
         $stockTypes = StockTypes::all();
         $units = Units::all();
-        $result = Item::with('unit')->get(['id', 'item_name', 'item_unit']);
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
 
-        // Transform the result to return only the needed fields
         $items = $result->map(function ($item) {
             return [
                 'item_name' => $item->item_name,
-                'unit_name' => $item->unit ? $item->unit->unit_name : null, // Get the unit name
-                'item_id' => $item->id, // Now this will return the item ID
-                'unit_id' => $item->unit ? $item->unit->id : null, // Unit ID
+                'unit_name' => $item->unit ? $item->unit->unit_name : null,
+                'item_id' => $item->id,
+                'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
             ];
         });
 
@@ -149,13 +160,39 @@ class AdjustmentController extends Controller
             'adjustment_number' => $request->adjustment_number,
             'adjustment_date' => $request->adjustment_date,
             'created_by' => auth()->user()->id,  // Add created_by field
-            'updated_by' => auth()->user()->id   // Add updated_by field initially as the same user
-
+            'updated_by' => auth()->user()->id,   // Add updated_by field initially as the same user
+            'type' => $request->type
         ]);
 
         foreach ($request->details as $detail) {
             $adjustment->details()->create($detail);
         }
+
+        if ($request->type == 'Godwan') {
+            // Add items to godown
+            Godown::addItemsFromTransfert($adjustment);
+
+        }
+        if ($request->type == 'shop') {
+
+
+            Shops::addItemsFromTransfert($adjustment);
+
+        }
+        if ($request->type == 'shop_ashak') {
+
+            ShopAshaks::addItemsFromTransfert($adjustment);
+        }
+        if ($request->type == 'shop_service') {
+            // Add items to godown
+
+
+
+            ShopService::addItemsFromTransfert($adjustment);
+
+        }
+
+
         return response()->json(['success' => true]);
     }
 
@@ -181,7 +218,20 @@ class AdjustmentController extends Controller
     public function edit($id)
     {
         $adjustment = Adjustment::with('details')->findOrFail($id);
-        $items = Item::all();
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
+
+        $items = $result->map(function ($item) {
+            return [
+                'item_name' => $item->item_name,
+                'unit_name' => $item->unit ? $item->unit->unit_name : null,
+                'item_id' => $item->id,
+                'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+            ];
+        });
         $stockTypes = StockTypes::all();
 
         return view('adjustment.create', compact('adjustment', 'items', 'stockTypes'));
@@ -468,5 +518,12 @@ class AdjustmentController extends Controller
         'Cache-Control' => 'max-age=0',
         'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
     ]);
+}
+
+public function destroy($id)
+{
+    $adjustment = Adjustment::findOrFail($id);
+    $adjustment->update(['is_deleted' => true]);
+    return response()->json(['success' => true]);
 }
 }

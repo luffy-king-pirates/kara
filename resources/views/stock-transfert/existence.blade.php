@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Filter and Export Buttons -->
         <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
@@ -36,6 +37,7 @@
     @include('partials.import-cdn')
     <script>
         $(function() {
+            let detail_link = ""
             // DataTable with expandable rows
             var table = $('#godownshop-table').DataTable({
                 processing: true,
@@ -91,29 +93,29 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                            <tr>
-                                                <td>${item.item?.item_name}</td>
-                                                <td>${item.quantity}</td>
-                                                <td>${item.unit?.unit_name}</td>
-                                            </tr>
-                                        `).join('')}
+                                                            <tr>
+                                                                <td>${item.item?.item_name}</td>
+                                                                <td>${item.quantity}</td>
+                                                                <td>${item.unit?.unit_name}</td>
+                                                            </tr>
+                                                        `).join('')}
                         </tbody>
                     </table>
 
                     <div class="btn-group" role="group" aria-label="Godown to Shop Transaction Actions">
                         <!-- Edit Button -->
-                        <a href="/godownshop/${rowData.id}/edit" class="btn btn-warning btn-sm">
+                        <a href="/${detail_link}/${rowData.id}/edit" class="btn  mr-3 btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
 
                         <!-- Export Button -->
-                        <a href="/export/godownshop/exportDetails/${rowData.id}" class="btn btn-success btn-sm">
+                        <a href="/export/${detail_link}/exportDetails/${rowData.id}" class="btn  mr-3 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
-                             <a href="/godownshop/${rowData.id}/pdf/true" class="btn btn-success btn-sm">
+                             <a href="/${detail_link}/${rowData.id}/pdf/true" class="btn  mr-3 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export pdf with headers
                         </a>
-                              <a href="/godownshop/${rowData.id}/pdf/false" class="btn btn-success btn-sm">
+                              <a href="/${detail_link}/${rowData.id}/pdf/false" class="btn btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export pdf without headers
                         </a>
                     </div>
@@ -131,8 +133,22 @@
                     row.child.hide();
                     tr.removeClass('shown');
                 } else {
+                    console.log("row.data()  = ", row.data())
+
+                    if (row.data()?.transfert_from === "godown" && row.data()?.transfert_to === "shop") {
+                        detail_link = "godownshop"
+                    } else if (row.data()?.transfert_from === "godown" && row.data()?.transfert_to ===
+                        "shop_ashok") {
+                        detail_link = "godownShopAshok"
+                    } else if (row.data()?.transfert_from === "shop-service" && row.data()?.transfert_to ===
+                        "godown") {
+                        detail_link = "services"
+                    } else if (row.data()?.transfert_from === "shop" && row.data()?.transfert_to ===
+                        "godown") {
+                        detail_link = "shopGodown"
+                    }
                     // Open the row to display details
-                    $.get(`/existence/${row.data().id}/details`, function(data) {
+                    $.get(`/${detail_link}/${row.data().id}/details`, function(data) {
                         row.child(formatDetails(data)).show();
                         tr.addClass('shown');
                     });

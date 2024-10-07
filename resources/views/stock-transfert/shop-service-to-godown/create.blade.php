@@ -8,6 +8,7 @@
 
 @section('content')
     <div class="container">
+        @include('partials.expiration.expire')
         <div class="card">
             <div class="card-header bg-primary text-white">
                 <h3 class="card-title">{{ $godownshop ? 'Edit' : 'Create' }} Shop (Services) to Godown Transfer</h3>
@@ -50,6 +51,8 @@
                                 <tr>
                                     <th>S/N</th>
                                     <th>Item Name</th>
+                                    <th>Shop(Service)</th>
+                                    <th>Godwan</th>
                                     <th>Unit</th>
                                     <th>Quantity</th>
                                     <th>Action</th>
@@ -63,42 +66,55 @@
                                             <td>
                                                 <input type="text" class="form-control item-name"
                                                     value="{{ $detail->item->item_name }}"
-                                                    name="details[{{ $loop->iteration }}][item_name]" required>
+                                                    name="details[{{ $loop->iteration }}][item_name]" readonly required>
                                                 <input type="hidden" class="form-control item-id"
                                                     value="{{ $detail->item_id }}"
-                                                    name="details[{{ $loop->iteration }}][item_id]" required>
+                                                    name="details[{{ $loop->iteration }}][item_id]" readonly required>
+                                            </td>
+
+
+
+
+                                            <td>
+                                                <input type="text" class="form-control shop-service"
+                                                    id="shop-service-{{ $loop->iteration }}" readonly required>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control godown-quantity"
+                                                    id="godown-quantity-{{ $loop->iteration }}" readonly required>
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control unit"
                                                     value="{{ $detail->unit->unit_name }}"
-                                                    name="details[{{ $loop->iteration }}][unit]" disabled>
+                                                    name="details[{{ $loop->iteration }}][unit]" readonly>
                                                 <input type="hidden" class="form-control unit-id"
                                                     value="{{ $detail->unit->id }}"
-                                                    name="details[{{ $loop->iteration }}][unit_id]" required>
+                                                    name="details[{{ $loop->iteration }}][unit_id]" readonly required>
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control quantity"
                                                     value="{{ $detail->quantity }}" min="1"
-                                                    name="details[{{ $loop->iteration }}][quantity]" required>
+                                                    name="details[{{ $loop->iteration }}][quantity]" readonly required>
                                             </td>
-                                            <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
+                                            <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endif
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="3" class="text-right">Total Quantity:</th>
+                                    <th colspan="5" class="text-right">Total Quantity:</th>
                                     <th>
-                                        <input type="number" class="form-control" id="total_quantity"
-                                            name="total_quantity" value="0" disabled>
+                                        <input type="number" class="form-control" id="total_quantity" name="total_quantity"
+                                            value="0" disabled>
                                     </th>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                 </div>
-
+                <div id="alert-container"></div>
                 <div class="card-footer text-right">
                     <a href="{{ route('godownshop.index') }}" class="btn btn-danger">Discard</a>
                     <button type="button" class="btn btn-success" id="save_btn">Save</button>
@@ -149,7 +165,8 @@
             border-bottom: none;
         }
 
-        .btn-primary, .btn-success {
+        .btn-primary,
+        .btn-success {
             border-radius: 20px;
         }
 
@@ -159,7 +176,8 @@
             border-color: #dc3545;
         }
 
-        .table th, .table td {
+        .table th,
+        .table td {
             vertical-align: middle;
         }
 
@@ -172,6 +190,23 @@
 @section('js')
     @include('partials.import-cdn')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    @if (isset($godownshop) && $godownshop->details)
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                let itemId
+                @foreach ($godownshop->details as $detail)
+                    itemId = {{ $detail->item_id }};
+                    // Update the input values using the JavaScript function
+                    document.getElementById(`godown-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'godown_quantity') || 0;
+
+                    document.getElementById(`shop-service-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_service') || 0;
+                @endforeach
+            });
+        </script>
+    @endif
+
     <script>
         let rowIndex = {{ $godownshop ? $godownshop->details->count() + 1 : 1 }};
         const items = @json($items); // Items fetched from the database
@@ -193,6 +228,17 @@
                         <input type="text" class="form-control item-name" placeholder="Item Name" name="details[${rowIndex}][item_name]" required>
                         <input type="hidden" class="form-control item-id" name="details[${rowIndex}][item_id]" required>
                     </td>
+                       <td>
+                                               <input  class="form-control item-shop_quantity"  disabled>
+
+
+                    </td>
+  <td>
+                                               <input  class="form-control item-godown_quantity"  disabled>
+
+
+                    </td>
+
                     <td>
                         <input type="text" class="form-control unit" name="details[${rowIndex}][unit]" disabled>
                         <input type="hidden" class="form-control unit-id" name="details[${rowIndex}][unit_id]" required>
@@ -217,7 +263,11 @@
                     const selectedItem = items.find(item => item.item_name === ui.item.value);
                     if (selectedItem) {
                         const row = $(this).closest('tr');
+                        console.log("selectedItem = ", selectedItem)
                         row.find('.item-id').val(selectedItem.item_id);
+                        row.find('.item-godown_quantity').val(selectedItem.godown_quantity);
+                        row.find('.item-shop_quantity').val(selectedItem.shop_service);
+
                         row.find('.unit').val(selectedItem.unit_name);
                         row.find('.unit-id').val(selectedItem.unit_id);
                     }
@@ -242,31 +292,79 @@
             });
 
             $('#save_btn').click(function() {
-                $('.form-control').removeClass('is-invalid');
-                const formData = $('#godown_shop_form').serialize();
-                $.ajax({
-                    url: $('#godown_shop_form').attr('action'),
-                    method: 'POST',
-                    data: formData,
-                    success: function(response) {
-                        if (response.success) {
-                            $('#successToast').toast('show');
-                            setTimeout(() => {
-                                window.location.href =
-                                    "{{ route('services.index') }}";
-                            }, 2000);
+                var tableData = [];
+                var errorFound = false;
+
+                // Clear any previous alerts
+                $('#alert-container').empty();
+
+                // Loop through each row of the table
+                $('#godown_shop_table tr').each(function(index, row) {
+                    var rowData = {};
+
+                    // Get quantity input value
+                    var quantity = $(row).find('.quantity').val();
+
+                    // Get godown quantity value (even though it's disabled)
+                    var godownQuantity = $(row).find('.item-shop_quantity').val();
+
+                    // Ensure there's valid data
+                    if (quantity && godownQuantity) {
+                        rowData['quantity'] = quantity;
+                        rowData['item-shop_quantity'] = godownQuantity;
+
+                        // Check if the quantity exceeds godown_quantity
+                        if (parseInt(quantity) > parseInt(godownQuantity)) {
+                            errorFound = true;
+
+                            // Display error alert if quantity is more than godown quantity
+                            $('#alert-container').append(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error!</strong> Quantity (${quantity}) exceeds available shop service  quantity (${godownQuantity}) in row ${index }.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          `);
                         }
-                    },
-                    error: function(response) {
-                        const errors = response.responseJSON.errors;
-                        $.each(errors, function(field, messages) {
-                            $(`[name="${field}"]`).addClass('is-invalid');
-                        });
-                        $('#errorToastMessage').text('Please correct the highlighted errors.');
-                        $('#errorToast').toast('show');
+
+                        // Add this row's data to tableData array
+                        tableData.push(rowData);
                     }
                 });
+                $('.form-control').removeClass('is-invalid');
+
+                if (!errorFound) {
+                    const formData = $('#godown_shop_form').serialize();
+                    $.ajax({
+                        url: $('#godown_shop_form').attr('action'),
+                        method: 'POST',
+                        data: formData,
+                        success: function(response) {
+                            if (response.success) {
+                                $('#successToast').toast('show');
+                                setTimeout(() => {
+                                    window.location.href =
+                                        "{{ route('services.index') }}";
+                                }, 2000);
+                            }
+                        },
+                        error: function(response) {
+                            const errors = response.responseJSON.errors;
+                            $.each(errors, function(field, messages) {
+                                $(`[name="${field}"]`).addClass('is-invalid');
+                            });
+                            $('#errorToastMessage').text(
+                                'Please correct the highlighted errors.');
+                            $('#errorToast').toast('show');
+                        }
+                    });
+                }
+
             });
         });
+        const getGodwanShopValue = (item_id, type) => {
+            const items = @json($items);
+            const item = items.find(el => el.item_id === item_id);
+            return item[type] !== undefined ? item[type] : 0; // Returns undefined if the item is not found
+        };
     </script>
 @stop

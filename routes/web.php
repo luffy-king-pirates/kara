@@ -67,7 +67,7 @@ Route::get('/', function () {
 Auth::routes();
 
 // Secured routes: only accessible if authenticated
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth',App\Http\Middleware\UserActionLogger::class])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::prefix('export')->as('settings.')->group(function () {
         // Export routes
@@ -242,16 +242,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/sales/data', [DashboardController::class, 'getSalesData'])->name('getSalesData');
 
-    Route::get('sales/hourly', [DashboardController::class, 'getHourlySales']);
-    Route::get('sales/weekly', [DashboardController::class, 'getWeeklySales']);
-    Route::get('sales/monthly', [DashboardController::class, 'getMonthlySales']);
-    Route::get('sales/yearly', [DashboardController::class, 'getYearlySales']);
-
-    Route::get('sales/sales-item-credit-cash', [DashboardController::class, 'salesChart'])->name('salesChart');
-    Route::get('dashboard/items/top-sold-cash', [DashboardController::class, 'getTopSoldItemsCash']);
-    Route::get('dashboard/items/top-sold-credit', [DashboardController::class, 'getTopSoldItemsCredit']);
-    Route::get('dashboard/items/worst-sold-cash', [DashboardController::class, 'getWorstSoldItemsCash']);
-    Route::get('dashboard/items/worst-sold-credit', [DashboardController::class, 'getWorstSoldItemsCredit']);
+    Route::get('/dashboard/get-sales-data', [DashboardController::class, 'getSalesData'])->name('dashboard.getSalesData');
 
     Route::get('/dashboard-stock-transfert', [DashboardStockTransfertController::class, 'index'])->name('dashboard-stock-transfert');
     Route::get('/dashboard-stock-transfert/transfert-stats', [DashboardStockTransfertController::class, 'getTransfertStatsAjax']);
@@ -261,6 +252,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('purchase/{id}/details', [LocalPurshaseController::class, 'details'])->name('purchase.details');
     Route::get('purchase/{id}/edit', [LocalPurshaseController::class, 'edit'])->name('purchase.edit');
 
+
+
+
+Route::post('/renew-session', function (Request $request) {
+    // Renew session manually to prevent timeout
+    session()->regenerate();  // Regenerate session ID and extend session
+    return response()->json(['status' => 'Session renewed']);
+})->name('renew-session');
 
 
 });

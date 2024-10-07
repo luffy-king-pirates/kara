@@ -27,7 +27,7 @@ class ExistenceController extends Controller
                 'details.unit:id,unit_name',
                 'createdByUser:id,name',
                 'updatedByUser:id,name'
-            ])->select(['id', 'transfert_number', 'transfert_date', 'created_by', 'updated_by']);
+            ])->select(['id', 'transfert_number','transfert_from','transfert_to', 'transfert_date', 'created_by', 'updated_by']);
             return DataTables::of($records)
                 ->addColumn('created_at', function ($row) {
                     return Carbon::parse($row->created_at)->format('M d, Y h:i A');
