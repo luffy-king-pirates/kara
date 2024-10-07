@@ -66,6 +66,27 @@
                             <label for="pdf">Upload Purchase PDF</label>
                             <input type="file" class="form-control" id="pdf" name="pdf"
                                 accept="application/pdf">
+                            <div id="showHidePdf">
+                                @if ($purchase && $purchase->pdf)
+                                    <div class="form-group mt-3">
+                                        <label>Current Purchase PDF:</label>
+                                        <!-- View PDF -->
+                                        <a href="{{ asset('storage/' . $purchase->pdf) }}" target="_blank"
+                                            class="btn btn-sm btn-primary">
+                                            View PDF
+                                        </a>
+                                        <!-- Remove PDF -->
+                                        <div id="removePdf" class="btn btn-sm btn-danger">
+                                            Remove PDF
+                                        </div>
+                                        <a id="downloadPdf" href="{{ asset('storage/' . $purchase->pdf) }}"
+                                            class="btn btn-sm btn-success" download>
+                                            <i class="fas fa-file-download"></i> Download PDF
+                                        </a>
+
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -99,36 +120,58 @@
                                     <td>
                                         <input type="text" class="form-control item-name"
                                             value="{{ $detail->item->item_name }}"
-                                            name="details[{{ $loop->iteration }}][item_name]" required>
+                                            name="details[{{ $loop->iteration }}][item_name]" readonly required>
                                         <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
-                                            name="details[{{ $loop->iteration }}][item_id]" required>
+                                            name="details[{{ $loop->iteration }}][item_id]" readonly required>
                                     </td>
                                     <td>
-                                        <input type="hidden" class="form-control unit_id" value="{{ $detail->unit->id }}"
+                                        <input type="text" class="form-control godown-quantity"
+                                            id="godown-quantity-{{ $loop->iteration }}" readonly required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control shop-quantity"
+                                            id="shop-quantity-{{ $loop->iteration }}" readonly required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control shop-ashak"
+                                            id="shop-ashak-{{ $loop->iteration }}" readonly required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control shop-service"
+                                            id="shop-service-{{ $loop->iteration }}" readonly required>
+                                    </td>
+                                    <td>
+                                        <input readonly type="hidden" class="form-control unit_id"
+                                            value="{{ $detail->unit->id }}"
                                             name="details[{{ $loop->iteration }}][unit_id]" required>
-                                        <input type="text" class="form-control unit"
+                                        <input readonly type="text" class="form-control unit"
                                             value="{{ $detail->unit->unit_name }}"
                                             name="details[{{ $loop->iteration }}][unit]" disabled>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
-                                            min="1" name="details[{{ $loop->iteration }}][quantity]" required>
+                                        <input readonly type="number" class="form-control quantity"
+                                            value="{{ $detail->quantity }}" min="1"
+                                            name="details[{{ $loop->iteration }}][quantity]" required>
                                     </td>
                                     <td>
                                         <input type="number" class="form-control cost" value="{{ $detail->cost }}"
                                             min="0" step="0.01" name="details[{{ $loop->iteration }}][cost]"
-                                            required>
+                                            required readonly>
                                     </td>
                                     <td>
-                                        <select class="form-control currency"
+
+
+                                        @php
+                                            $currencyName = $currencies->firstWhere('id', $detail->currency_id)
+                                                ?->currencie_name;
+                                        @endphp
+                                        <input type="text" class="form-control " value="{{ $currencyName }}"
+                                            readonly>
+                                        <input readonly type="hidden" class="form-control currency_id"
+                                            value="{{ $detail->currency_id }}"
                                             name="details[{{ $loop->iteration }}][currency_id]" required>
-                                            @foreach ($currencies as $currency)
-                                                <option value="{{ $currency->id }}"
-                                                    {{ $currency->id == $detail->currency_id ? 'selected' : '' }}>
-                                                    {{ $currency->currency_code }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+
+
                                     </td>
                                     <td>
                                         <input type="number" class="form-control total" value="{{ $detail->total }}"
@@ -204,6 +247,25 @@
 @section('js')
     @include('partials.import-cdn')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    @if (isset($purchase) && $purchase->details)
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                let itemId
+                @foreach ($purchase->details as $detail)
+                    itemId = {{ $detail->item_id }};
+                    // Update the input values using the JavaScript function
+                    document.getElementById(`godown-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'godown_quantity') || 0;
+                    document.getElementById(`shop-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_quantity') || 0;
+                    document.getElementById(`shop-ashak-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_ashak') || 0;
+                    document.getElementById(`shop-service-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_service') || 0;
+                @endforeach
+            });
+        </script>
+    @endif
     <script>
         let rowIndex = {{ $purchase ? $purchase->details->count() + 1 : 1 }};
         let totalQuantity = 0;
@@ -381,7 +443,7 @@
             // Clear any previous alerts
             $('#alert-container').empty();
 
-           
+
 
             if ($('#total_amount_table').val() <= 0) {
                 errorFound = true;
@@ -432,6 +494,20 @@
                     }
                 });
             }
+
+
         });
+        $('#removePdf').click(function() {
+            console.log("must display none ")
+            $('#pdf').val(null);
+
+            $('#showHidePdf').css('display', 'none');
+        });
+        const getGodwanShopValue = (item_id, type) => {
+            const items = @json($items);
+            const item = items.find(el => el.item_id === item_id);
+
+            return item[type] !== undefined ? item[type] : 0; // Returns undefined if the item is not found
+        };
     </script>
 @stop

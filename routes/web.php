@@ -251,7 +251,7 @@ Route::middleware(['auth',App\Http\Middleware\UserActionLogger::class])->group(f
     Route::resource('purchase', LocalPurshaseController::class);
     Route::get('purchase/{id}/details', [LocalPurshaseController::class, 'details'])->name('purchase.details');
     Route::get('purchase/{id}/edit', [LocalPurshaseController::class, 'edit'])->name('purchase.edit');
-
+ 
 
 
 });

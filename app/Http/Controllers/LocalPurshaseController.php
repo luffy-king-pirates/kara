@@ -208,8 +208,8 @@ class LocalPurshaseController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'purchase_number' => 'required|string',
-            'total_amount' => 'required|numeric',
+            'receipt_number' => 'required|string',
+            'pdf' => 'nullable|mimes:pdf|max:2048',
             'details.*.item_id' => 'required|integer',
             'details.*.unit_id' => 'required|integer',
             'details.*.currency_id' => 'required|integer',
@@ -219,9 +219,23 @@ class LocalPurshaseController extends Controller
         ]);
 
         $purchase = Purchase::findOrFail($id);
+        // Handle profile picture upload
+        if ($request->hasFile('pdf')) {
+            // Delete old profile picture if exists
+            if ($purchase->pdf) {
+                Storage::delete('public/' . $purchase->pdf);
+            }
+
+            // Store new profile picture
+            $path = $request->file('pdf')->store('purchases', 'public');
+            $purchase->pdf = $path;
+        }else {
+            // Set profile picture to null if no file is uploaded
+            $purchase->pdf = null;
+        }
         $purchase->update([
-            'purchase_number' => $validatedData['purchase_number'],
-            'total_amount' => $validatedData['total_amount'],
+            'receipt_number' => $validatedData['receipt_number'],
+            'pdf' => $purchase->pdf,
             'updated_by' => auth()->user()->id,
         ]);
 
@@ -234,7 +248,7 @@ class LocalPurshaseController extends Controller
                         'cost' => $detail['cost'],
                         'total' => $detail['total'],
                         'unit_id' => $detail['unit_id'],
-                        'currency_id'
+                        'currency_id' => $detail['currency_id']
                     ]
                 );
             }
@@ -399,6 +413,9 @@ public function export(Request $request)
 
     return response()->download(storage_path($filePath))->deleteFileAfterSend(true);
 }
+
+
+
 
 
 }

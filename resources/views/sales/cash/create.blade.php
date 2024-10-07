@@ -656,7 +656,7 @@
         const getGodwanShopValue = (item_id, type) => {
             const items = @json($items);
             const item = items.find(el => el.item_id === item_id);
-            console.log("item[type] = ", item[type])
+
             return item[type] !== undefined ? item[type] : 0; // Returns undefined if the item is not found
         };
     </script>
