@@ -93,6 +93,7 @@ class CashController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -268,7 +269,7 @@ if ($request->type == 'shop_service') {
                     'price' => $detail['price'],
                     'total' => $detail['total'],
                     'unit_id' => $detail['unit_id'],
-                    
+
                 ]
             );
         }

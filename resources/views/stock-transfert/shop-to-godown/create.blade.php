@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div class="container">
         <div class="card">
             <div class="card-header">

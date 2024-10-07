@@ -8,6 +8,7 @@
 
 @section('content')
     <div class="container">
+        @include('partials.expiration.expire')
         <div class="card">
             <div class="card-header bg-primary text-white">
                 <h3 class="card-title">{{ $godownshop ? 'Edit' : 'Create' }} Shop (Services) to Godown Transfer</h3>
@@ -88,7 +89,7 @@
                                                     name="details[{{ $loop->iteration }}][unit]" readonly>
                                                 <input type="hidden" class="form-control unit-id"
                                                     value="{{ $detail->unit->id }}"
-                                                    name="details[{{ $loop->iteration }}][unit_id]"  readonly required>
+                                                    name="details[{{ $loop->iteration }}][unit_id]" readonly required>
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control quantity"

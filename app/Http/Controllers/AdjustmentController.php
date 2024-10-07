@@ -106,6 +106,7 @@ class AdjustmentController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -517,5 +518,12 @@ class AdjustmentController extends Controller
         'Cache-Control' => 'max-age=0',
         'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
     ]);
+}
+
+public function destroy($id)
+{
+    $adjustment = Adjustment::findOrFail($id);
+    $adjustment->update(['is_deleted' => true]);
+    return response()->json(['success' => true]);
 }
 }

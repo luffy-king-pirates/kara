@@ -8,6 +8,7 @@
 
 @section('content')
     <div style="height: 700px; overflow-y: auto;">
+        @include('partials.expiration.expire')
         <!-- Add Currency Button -->
         @can('create-currency')
             <a href="javascript:void(0)" class="btn btn-success" id="addCurrencyBtn">Add Currency</a>

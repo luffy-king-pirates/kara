@@ -7,39 +7,40 @@
 @stop
 
 @section('content')
- <div style="height: 700px; overflow-y: auto;">
-    @include('partials.filter-manage-permissions')
-    <table id="permissions-table" class="table">
-        <thead>
-            <tr>
-                <th>Role Name</th>
-                <th>Page</th>
-                <th>Actions</th>
-                <th>Manage</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-    <!-- Toasts for Success/Error Messages -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">Permission Added successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+    @include('partials.expiration.expire')
+    <div style="height: 700px; overflow-y: auto;">
+        @include('partials.filter-manage-permissions')
+        <table id="permissions-table" class="table">
+            <thead>
+                <tr>
+                    <th>Role Name</th>
+                    <th>Page</th>
+                    <th>Actions</th>
+                    <th>Manage</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <!-- Toasts for Success/Error Messages -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">Permission Added successfully!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
             </div>
-        </div>
 
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
             </div>
         </div>
-    </div>
     </div>
 @stop
 

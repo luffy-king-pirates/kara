@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Filter and Export Buttons -->
         <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
@@ -92,12 +93,12 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                                        <tr>
-                                                            <td>${item.item?.item_name}</td>
-                                                            <td>${item.quantity}</td>
-                                                            <td>${item.unit?.unit_name}</td>
-                                                        </tr>
-                                                    `).join('')}
+                                                            <tr>
+                                                                <td>${item.item?.item_name}</td>
+                                                                <td>${item.quantity}</td>
+                                                                <td>${item.unit?.unit_name}</td>
+                                                            </tr>
+                                                        `).join('')}
                         </tbody>
                     </table>
 

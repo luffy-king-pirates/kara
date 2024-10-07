@@ -71,6 +71,7 @@ class shopServiceGodwanController extends Controller
                     if ($request->filled('transfert_number')) {
                         $query->where('transfert_number', 'like', "%" . $request->transfert_number . "%");
                     }
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }

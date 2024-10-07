@@ -9,6 +9,7 @@
 
 @section('content')
     <div style="height: 700px; overflow-y: auto;">
+        @include('partials.expiration.expire')
         <!-- Add Stock Type Button -->
         @can('create-stock-type')
             <a href="javascript:void(0)" class="btn btn-success" id="addStockTypeBtn">Add Stock Type</a>

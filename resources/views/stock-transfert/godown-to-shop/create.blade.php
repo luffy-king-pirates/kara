@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div class="card">
         <div class="container">
             <form id="godown_shop_form" method="POST"
@@ -83,7 +84,8 @@
                                     </td>
                                     <td>
                                         <input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
-                                            min="1" name="details[{{ $loop->iteration }}][quantity]" readonly required>
+                                            min="1" name="details[{{ $loop->iteration }}][quantity]" readonly
+                                            required>
                                     </td>
                                     <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
                                 </tr>
@@ -158,7 +160,6 @@
                         itemId, 'godown_quantity') || 0;
                     document.getElementById(`shop-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
                         itemId, 'shop_quantity') || 0;
-                  
                 @endforeach
             });
         </script>

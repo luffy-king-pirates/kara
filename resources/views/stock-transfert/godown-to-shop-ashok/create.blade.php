@@ -8,6 +8,7 @@
 
 @section('content')
     <div class="container">
+        @include('partials.expiration.expire')
         <!-- Start Card Wrapper -->
         <div class="card shadow-sm">
             <div class="card-header">
@@ -88,8 +89,7 @@
                                                         value="{{ $detail->unit->unit_name }}"
                                                         name="details[{{ $loop->iteration }}][unit]" readonly>
                                                     <input type="hidden" class="form-control unit-id"
-                                                        value="{{ $detail->unit->id }}"
-                                                        readonly
+                                                        value="{{ $detail->unit->id }}" readonly
                                                         name="details[{{ $loop->iteration }}][unit_id]" required>
                                                 </td>
                                                 <td>

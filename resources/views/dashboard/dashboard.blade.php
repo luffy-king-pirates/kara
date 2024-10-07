@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div class="container">
         <!-- Filters -->
         <div class="row">
@@ -116,7 +117,7 @@
                         updateDoughnutChart(response.cashSales, response.creditSales);
                         updateTopSoldItems(response.topSoldItemsCash, response.topSoldItemsCredit);
                         updateWorstSoldItems(response.worstSoldItemsCash, response
-                        .worstSoldItemsCredit);
+                            .worstSoldItemsCredit);
                     },
                     error: function(xhr) {
                         console.error('Error fetching data:', xhr.responseText);

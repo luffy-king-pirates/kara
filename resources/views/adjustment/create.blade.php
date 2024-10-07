@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div class="card p-2">
         <div class="card-header bg-primary text-white">
             {{ $adjustment ? 'Edit' : 'Create' }} Stock Adjustment
@@ -81,7 +82,7 @@
                                         <input type="hidden" class="form-control item-id" value="{{ $detail->item_id }}"
                                             name="details[{{ $loop->iteration }}][item_id]" readonly required>
                                     </td>
-                                      <td>
+                                    <td>
                                         <input type="text" class="form-control godown-quantity"
                                             id="godown-quantity-{{ $loop->iteration }}" readonly required>
                                     </td>
@@ -128,8 +129,10 @@
 
                                     <td>
 
-                                    <input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
-                                            min="1" name="details[{{ $loop->iteration }}][quantity]" readonly required></td>
+                                        <input type="number" class="form-control quantity" value="{{ $detail->quantity }}"
+                                            min="1" name="details[{{ $loop->iteration }}][quantity]" readonly
+                                            required>
+                                    </td>
                                     <td>
                                         <input type="text" class="form-control unit"
                                             value="{{ $detail->unit->unit_name }}"

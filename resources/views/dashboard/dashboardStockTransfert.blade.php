@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div class="row">
         <div class="col-md-4">
             <label for="from_date">From Date</label>
@@ -114,7 +115,8 @@
                     $.each(data, function(route, stat) {
                         labels.push(stat.route.replace('_', ' ')); // Label for each transfer route
                         todayData.push(stat.total_quantity); // Total transfer quantities for Doughnut
-                        lineChartData.push(stat.total_quantity); // Total transfer quantities for Line Chart
+                        lineChartData.push(stat
+                        .total_quantity); // Total transfer quantities for Line Chart
                     });
 
                     // Destroy existing doughnut chart if it exists
@@ -130,7 +132,8 @@
                             datasets: [{
                                 label: 'Total Transfers',
                                 data: todayData,
-                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'], // Different colors for each route
+                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56',
+                                '#4BC0C0'], // Different colors for each route
                             }]
                         },
                         options: {

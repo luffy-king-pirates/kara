@@ -8,6 +8,7 @@
 @stop
 
 @section('content')
+    @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Add User Button -->
         @can('create-user')

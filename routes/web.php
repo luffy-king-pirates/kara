@@ -251,7 +251,15 @@ Route::middleware(['auth',App\Http\Middleware\UserActionLogger::class])->group(f
     Route::resource('purchase', LocalPurshaseController::class);
     Route::get('purchase/{id}/details', [LocalPurshaseController::class, 'details'])->name('purchase.details');
     Route::get('purchase/{id}/edit', [LocalPurshaseController::class, 'edit'])->name('purchase.edit');
- 
+
+
+
+
+Route::post('/renew-session', function (Request $request) {
+    // Renew session manually to prevent timeout
+    session()->regenerate();  // Regenerate session ID and extend session
+    return response()->json(['status' => 'Session renewed']);
+})->name('renew-session');
 
 
 });

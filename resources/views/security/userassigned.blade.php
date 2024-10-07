@@ -9,113 +9,115 @@
 @stop
 
 @section('content')
- <div style="height: 700px; overflow-y: auto;">
-    <!-- Add User Assigned Unit Button -->
-    @can('create-user-assigned-role')
-        <a href="javascript:void(0)" class="btn btn-success" id="addUnitBtn">Add User Assigned Unit</a>
-    @endcan
-    @can('export-user-assigned-role')
-        <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
-    @endcan
+    @include('partials.expiration.expire')
+    <div style="height: 700px; overflow-y: auto;">
+        <!-- Add User Assigned Unit Button -->
+        @can('create-user-assigned-role')
+            <a href="javascript:void(0)" class="btn btn-success" id="addUnitBtn">Add User Assigned Unit</a>
+        @endcan
+        @can('export-user-assigned-role')
+            <button id="apply-filter" class="btn btn-success">Export Result in Excel</button>
+        @endcan
 
-    <!-- DataTable for User Assigned assignedRoles -->
-    @can('read-user-assigned-role')
-        <table class="table table-bordered" id="assignedRoles-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>User</th>
-                    <th>Role</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                    <th>Action</th>
-                </tr>
+        <!-- DataTable for User Assigned assignedRoles -->
+        @can('read-user-assigned-role')
+            <table class="table table-bordered" id="assignedRoles-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                        <th>Action</th>
+                    </tr>
 
-            </thead>
-        </table>
-    @endcan
-    <!-- Modal for Add/Edit User Assigned Unit -->
-    <div class="modal fade" id="unitModal" tabindex="-1" aria-labelledby="unitModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="unitModalLabel">Add User Assigned Unit</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </thead>
+            </table>
+        @endcan
+        <!-- Modal for Add/Edit User Assigned Unit -->
+        <div class="modal fade" id="unitModal" tabindex="-1" aria-labelledby="unitModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="unitModalLabel">Add User Assigned Unit</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="unitForm">
+                            @csrf
+                            <input type="hidden" name="unit_id" id="unit-id">
+
+                            <div class="mb-3 position-relative">
+                                <label for="user_id" class="form-label">User <span class="text-danger">*</span></label>
+                                <select class="form-control" id="user_id" name="user_id" required>
+                                    <option value="">Select User</option>
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                                <div id="user_id_error" class="text-danger"></div>
+                            </div>
+
+                            <div class="mb-3 position-relative">
+                                <label for="role_id" class="form-label">Role <span class="text-danger">*</span></label>
+                                <select class="form-control" id="role_id" name="role_id" required>
+                                    <option value="">Select Role</option>
+                                    @foreach ($roles as $role)
+                                        <option value="{{ $role->id }}">{{ $role->role_name }}</option>
+                                    @endforeach
+                                </select>
+                                <div id="role_id_error" class="text-danger"></div>
+                            </div>
+
+                            <button type="submit" id="saveUnitBtn" class="btn btn-primary" disabled>Save changes</button>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="unitForm">
-                        @csrf
-                        <input type="hidden" name="unit_id" id="unit-id">
+            </div>
+        </div>
 
-                        <div class="mb-3 position-relative">
-                            <label for="user_id" class="form-label">User <span class="text-danger">*</span></label>
-                            <select class="form-control" id="user_id" name="user_id" required>
-                                <option value="">Select User</option>
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-                            </select>
-                            <div id="user_id_error" class="text-danger"></div>
-                        </div>
+        <!-- Modal for Delete Confirmation -->
+        <div class="modal fade" id="deleteUnitModal" tabindex="-1" aria-labelledby="deleteUnitModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteUnitModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this user assigned unit?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteUnit">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        <div class="mb-3 position-relative">
-                            <label for="role_id" class="form-label">Role <span class="text-danger">*</span></label>
-                            <select class="form-control" id="role_id" name="role_id" required>
-                                <option value="">Select Role</option>
-                                @foreach ($roles as $role)
-                                    <option value="{{ $role->id }}">{{ $role->role_name }}</option>
-                                @endforeach
-                            </select>
-                            <div id="role_id_error" class="text-danger"></div>
-                        </div>
+        <!-- Toasts for Success/Error Messages -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">User Assigned Unit saved successfully!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
 
-                        <button type="submit" id="saveUnitBtn" class="btn btn-primary" disabled>Save changes</button>
-                    </form>
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="errorToastMessage">An error occurred!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Modal for Delete Confirmation -->
-    <div class="modal fade" id="deleteUnitModal" tabindex="-1" aria-labelledby="deleteUnitModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteUnitModalLabel">Confirm Deletion</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete this user assigned unit?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteUnit">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toasts for Success/Error Messages -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">User Assigned Unit saved successfully!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
-        </div>
-
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="errorToastMessage">An error occurred!</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-</div>
 @stop
 
 @section('js')

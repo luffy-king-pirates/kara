@@ -27,7 +27,7 @@
 
             </thead>
         </table>
-
+        @include('partials.expiration.expire')
         <!-- Modal for Add/Edit Category -->
         <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
             <div class="modal-dialog">
