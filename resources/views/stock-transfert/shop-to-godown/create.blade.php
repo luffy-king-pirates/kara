@@ -63,15 +63,25 @@
                                         <td>
                                             <input type="text" class="form-control item-name"
                                                 value="{{ $detail->item->item_name }}"
-                                                name="details[{{ $loop->iteration }}][item_name]" required>
+                                                name="details[{{ $loop->iteration }}][item_name]" readonly required>
                                             <input type="hidden" class="form-control item-id"
                                                 value="{{ $detail->item_id }}"
-                                                name="details[{{ $loop->iteration }}][item_id]" required>
+                                                name="details[{{ $loop->iteration }}][item_id]" readonly required>
                                         </td>
+                                        <td>
+                                            <input type="text" class="form-control shop-quantity"
+                                                id="shop-quantity-{{ $loop->iteration }}" readonly required>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control godown-quantity"
+                                                id="godown-quantity-{{ $loop->iteration }}" readonly required>
+                                        </td>
+
+
                                         <td>
                                             <input type="text" class="form-control unit"
                                                 value="{{ $detail->unit->unit_name }}"
-                                                name="details[{{ $loop->iteration }}][unit]" disabled>
+                                                name="details[{{ $loop->iteration }}][unit]" readonly>
                                             <input type="hidden" class="form-control unit-id"
                                                 value="{{ $detail->unit->id }}"
                                                 name="details[{{ $loop->iteration }}][unit_id]" required>
@@ -79,7 +89,7 @@
                                         <td>
                                             <input type="number" class="form-control quantity"
                                                 value="{{ $detail->quantity }}" min="1"
-                                                name="details[{{ $loop->iteration }}][quantity]" required>
+                                                name="details[{{ $loop->iteration }}][quantity]" readonly required>
                                         </td>
                                         <td>
                                             <button type="button" class="btn btn-danger remove-row-btn">Remove</button>
@@ -98,7 +108,7 @@
                             </tr>
                         </tfoot>
                     </table>
-      <div id="alert-container"></div>
+                    <div id="alert-container"></div>
                     <div class="text-right mb-3">
                         <a href="{{ route('godownshop.index') }}" class="btn btn-danger">Discard</a>
                         <button type="button" class="btn btn-success" id="save_btn">Save</button>
@@ -159,6 +169,21 @@
 @section('js')
     @include('partials.import-cdn')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    @if (isset($godownshop) && $godownshop->details)
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                let itemId
+                @foreach ($godownshop->details as $detail)
+                    itemId = {{ $detail->item_id }};
+                    // Update the input values using the JavaScript function
+                    document.getElementById(`godown-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'godown_quantity') || 0;
+                    document.getElementById(`shop-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_quantity') || 0;
+                @endforeach
+            });
+        </script>
+    @endif
     <script>
         let rowIndex = {{ $godownshop ? $godownshop->details->count() + 1 : 1 }};
         const items = @json($items); // Items fetched from the database
@@ -180,16 +205,17 @@
                         <input type="text" class="form-control item-name" placeholder="Item Name" name="details[${rowIndex}][item_name]" required>
                         <input type="hidden" class="form-control item-id" name="details[${rowIndex}][item_id]" required>
                     </td>
+                     <td>
+                                               <input  class="form-control item-shop_quantity"  disabled>
+
+
+                    </td>
                                            <td>
                                                <input  class="form-control item-godown_quantity"  disabled>
 
 
                     </td>
-                   <td>
-                                               <input  class="form-control item-shop_quantity"  disabled>
 
-
-                    </td>
 
 
                     <td>
@@ -246,7 +272,7 @@
 
             $('#save_btn').click(function() {
                 $('.form-control').removeClass('is-invalid');
- var tableData = [];
+                var tableData = [];
                 var errorFound = false;
 
                 // Clear any previous alerts
@@ -284,34 +310,40 @@
                         tableData.push(rowData);
                     }
                 });
-               
-                  if(!errorFound){
-              const formData = $('#godown_shop_form').serialize();
-                $.ajax({
-                    url: $('#godown_shop_form').attr('action'),
-                    method: 'POST',
-                    data: formData,
-                    success: function(response) {
-                        if (response.success) {
-                            $('#successToast').toast('show');
-                            setTimeout(() => {
-                                window.location.href =
-                                    "{{ route('shopGodown.index') }}";
-                            }, 2000);
+
+                if (!errorFound) {
+                    const formData = $('#godown_shop_form').serialize();
+                    $.ajax({
+                        url: $('#godown_shop_form').attr('action'),
+                        method: 'POST',
+                        data: formData,
+                        success: function(response) {
+                            if (response.success) {
+                                $('#successToast').toast('show');
+                                setTimeout(() => {
+                                    window.location.href =
+                                        "{{ route('shopGodown.index') }}";
+                                }, 2000);
+                            }
+                        },
+                        error: function(response) {
+                            const errors = response.responseJSON.errors;
+                            $.each(errors, function(field, messages) {
+                                $(`[name="${field}"]`).addClass('is-invalid');
+                            });
+                            $('#errorToastMessage').text(
+                                'Please correct the highlighted errors.');
+                            $('#errorToast').toast('show');
                         }
-                    },
-                    error: function(response) {
-                        const errors = response.responseJSON.errors;
-                        $.each(errors, function(field, messages) {
-                            $(`[name="${field}"]`).addClass('is-invalid');
-                        });
-                        $('#errorToastMessage').text('Please correct the highlighted errors.');
-                        $('#errorToast').toast('show');
-                    }
-                });
-                  }
+                    });
+                }
 
             });
         });
+        const getGodwanShopValue = (item_id, type) => {
+            const items = @json($items);
+            const item = items.find(el => el.item_id === item_id);
+            return item[type] !== undefined ? item[type] : 0; // Returns undefined if the item is not found
+        };
     </script>
 @stop

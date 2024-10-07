@@ -188,7 +188,7 @@ class AdjustmentController extends Controller
 
 
             ShopService::addItemsFromTransfert($adjustment);
-            
+
         }
 
 
@@ -217,7 +217,20 @@ class AdjustmentController extends Controller
     public function edit($id)
     {
         $adjustment = Adjustment::with('details')->findOrFail($id);
-        $items = Item::all();
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
+
+        $items = $result->map(function ($item) {
+            return [
+                'item_name' => $item->item_name,
+                'unit_name' => $item->unit ? $item->unit->unit_name : null,
+                'item_id' => $item->id,
+                'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+            ];
+        });
         $stockTypes = StockTypes::all();
 
         return view('adjustment.create', compact('adjustment', 'items', 'stockTypes'));

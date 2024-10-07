@@ -128,43 +128,57 @@
                                     <td>
                                         <input type="text" class="form-control item-name"
                                             value="{{ $detail->item->item_name }}"
-                                            name="details[{{ $loop->iteration }}][item_name]" required>
+                                            name="details[{{ $loop->iteration }}][item_name]" readonly>
                                         <input type="hidden" class="form-control item-id"
                                             value="{{ $detail->item_id }}"
-                                            name="details[{{ $loop->iteration }}][item_id]" required>
+                                            name="details[{{ $loop->iteration }}][item_id]" readonly>
+                                    </td>
+
+                                    <td>
+                                        <input type="text" class="form-control godown-quantity"
+                                            id="godown-quantity-{{ $loop->iteration }}" readonly required>
                                     </td>
                                     <td>
+                                        <input type="text" class="form-control shop-quantity"
+                                            id="shop-quantity-{{ $loop->iteration }}" readonly required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control shop-ashak"
+                                            id="shop-ashak-{{ $loop->iteration }}" readonly required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control shop-service"
+                                            id="shop-service-{{ $loop->iteration }}" readonly required>
+                                    </td>
 
+                                    <td>
                                         <input type="hidden" class="form-control unit_id"
-                                            value="{{ $detail->unit->id }}"
-                                            name="details[{{ $loop->iteration }}][unit_id]" disabled>
-
+                                            value="{{ $detail->unit_id }}" readonly
+                                            name="details[{{ $loop->iteration }}][unit_id]">
                                         <input type="text" class="form-control unit"
                                             value="{{ $detail->unit->unit_name }}"
-                                            name="details[{{ $loop->iteration }}][unit]" disabled>
+                                            name="details[{{ $loop->iteration }}][unit]" readonly>
                                     </td>
 
                                     <td>
-
                                         <input type="number" class="form-control quantity"
-                                            value="{{ $detail->quantity }}" min="1"
+                                            value="{{ $detail->quantity }}" min="1" readonly
                                             name="details[{{ $loop->iteration }}][quantity]" required>
                                     </td>
                                     <td>
-
                                         <input type="number" class="form-control price" value="{{ $detail->price }}"
                                             min="0" step="0.01" name="details[{{ $loop->iteration }}][price]"
-                                            required>
+                                            readonly required>
                                     </td>
                                     <td>
-
                                         <input type="number" class="form-control total" value="{{ $detail->total }}"
                                             min="0" step="0.01" name="details[{{ $loop->iteration }}][total]"
                                             required readonly>
                                     </td>
 
-
-                                    <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button></td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger remove-row-btn">Remove</button>
+                                    </td>
                                 </tr>
                             @endforeach
                         @endif
@@ -190,17 +204,22 @@
                 <div class="container mt-5">
                     <div class="row">
                         <div class="col-md-4">
+
+
                             <!-- Comment Section -->
                             <div class="mb-3">
                                 <label for="comment" class="form-label">Comment</label>
-                                <textarea name="comment" class="form-control" id="comment" rows="3"></textarea>
+                                <textarea name="comment" class="form-control" id="comment" rows="3">{{ $cash ? $cash->comment : old('comment') }}</textarea>
+
                             </div>
 
                             <!-- Special Relief Number -->
                             <div class="mb-3">
                                 <label for="special_releif_number" class="form-label">Special Relief Number</label>
                                 <input name="special_releif_number" type="text" class="form-control"
-                                    id="special_releif_number" placeholder="Enter special relief number">
+                                    id="special_releif_number"
+                                    value="{{ $cash ? $cash->special_releif_number : old('special_releif_number') }}"
+                                    placeholder="Enter special relief number">
                             </div>
                         </div>
 
@@ -211,13 +230,14 @@
                             <div class="mb-3">
                                 <label for="discount" class="form-label">Discount</label>
                                 <input type="number" name="discount" class="form-control" id="discount"
-                                    placeholder="Enter discount">
+                                    placeholder="Enter discount" value="{{ $cash ? $cash->discount : old('discount') }}">
                             </div>
 
                             <!-- Status -->
                             <div class="mb-3">
                                 <label for="status" class="form-label">Status</label>
-                                <select class="form-select" name="status" id="status">
+                                <select class="form-select" value="{{ $cash ? $cash->status : old('status') }}"
+                                    name="status" id="status">
                                     <option value="Incomplete">Incomplete</option>
                                     <option value="Print">Print</option>
                                 </select>
@@ -226,15 +246,15 @@
                             <!-- LPO # -->
                             <div class="mb-3">
                                 <label for="lpoNumber" class="form-label">LPO #</label>
-                                <input type="text" name="lpo" class="form-control" id="lpoNumber"
-                                    placeholder="Enter LPO number">
+                                <input type="text" value="{{ $cash ? $cash->lpo : old('lpo') }}" name="lpo"
+                                    class="form-control" id="lpoNumber" placeholder="Enter LPO number">
                             </div>
 
                             <!-- LPO Date -->
                             <div class="mb-3">
                                 <label for="lpoDate" class="form-label">LPO Date</label>
                                 <input type="date" name="lpo_date" class="form-control" id="lpoDate"
-                                    max="<?php echo date('Y-m-d'); ?>">
+                                    value="{{ $cash ? $cash->lpo_date : old('lpo_date') }}" max="<?php echo date('Y-m-d'); ?>">
                             </div>
                         </div>
 
@@ -299,11 +319,33 @@
 @section('js')
     @include('partials.import-cdn')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    @if (isset($cash) && $cash->details)
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                let itemId
+                @foreach ($cash->details as $detail)
+                    itemId = {{ $detail->item_id }};
+                    // Update the input values using the JavaScript function
+                    document.getElementById(`godown-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'godown_quantity') || 0;
+                    document.getElementById(`shop-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_quantity') || 0;
+                    document.getElementById(`shop-ashak-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_ashak') || 0;
+                    document.getElementById(`shop-service-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_service') || 0;
+                @endforeach
+            });
+        </script>
+    @endif
+
     <script>
         let rowIndex = {{ $cash ? $cash->details->count() + 1 : 1 }};
         let totalQuantity = 0;
         const items = @json($items); // Items fetched from the database
         const customers = @json($customers);
+
         calculateTotals()
         updateTotalQuantity()
         // Show/hide fields based on the selected existence option
@@ -395,7 +437,9 @@
 
 
  <td>
-                                               <input  class="form-control godown_quantity"  disabled>
+                                               <input
+
+                                                 class="form-control godown_quantity"  disabled>
 
 
                     </td>
@@ -446,6 +490,7 @@
                 select: function(event, ui) {
                     const selectedItem = items.find(item => item.item_name === ui.item.value);
                     if (selectedItem) {
+
                         const row = $(this).closest('tr');
                         // Populate hidden fields and others based on the selected item
                         row.find('.item-id').val(selectedItem.item_id);
@@ -584,7 +629,7 @@
                 const formData = $('#cash_form').serialize();
                 $.ajax({
                     url: $('#cash_form').attr('action'),
-                    method: 'POST',
+                    method: 'PUT',
                     data: formData,
                     success: function(response) {
                         $('#successToast').toast('show');
@@ -604,6 +649,15 @@
                 });
             }
 
+
+
         });
+
+        const getGodwanShopValue = (item_id, type) => {
+            const items = @json($items);
+            const item = items.find(el => el.item_id === item_id);
+            console.log("item[type] = ", item[type])
+            return item[type] !== undefined ? item[type] : 0; // Returns undefined if the item is not found
+        };
     </script>
 @stop

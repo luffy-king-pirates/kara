@@ -164,10 +164,24 @@ if ($godownshop->transfert_from == 'godown') {
     public function edit($id)
     {
         $godownshop = Transfert::with(['details'])->findOrFail($id);
-        $items = Item::all();
-        $units = Units::all();
 
-        return view('stock-transfert.godown-to-shop.edit', compact('godownshop', 'items', 'units'));
+        $units = Units::all();
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
+
+        $items = $result->map(function ($item) {
+            return [
+                'item_name' => $item->item_name,
+                'unit_name' => $item->unit ? $item->unit->unit_name : null,
+                'item_id' => $item->id,
+                'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+
+            ];
+        });
+        return view('stock-transfert.godown-to-shop.create', compact('godownshop', 'items', 'units'));
     }
 
     public function update(Request $request, $id)
@@ -177,8 +191,7 @@ if ($godownshop->transfert_from == 'godown') {
             'details.*.item_id' => 'required|integer',
             'details.*.unit_id' => 'required|integer',
             'details.*.quantity' => 'required|numeric|min:1',
-            'details.*.price' => 'required|numeric|min:0',
-            'details.*.total' => 'required|numeric|min:0',
+
         ]);
 
         $godownshop = Transfert::findOrFail($id);
@@ -192,8 +205,7 @@ if ($godownshop->transfert_from == 'godown') {
                 ['transfert_id' => $godownshop->id, 'item_id' => $detail['item_id']],
                 [
                     'quantity' => $detail['quantity'],
-                    'price' => $detail['price'],
-                    'total' => $detail['total'],
+
                     'unit_id' => $detail['unit_id'],
                 ]
             );

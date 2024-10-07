@@ -381,52 +381,7 @@
             // Clear any previous alerts
             $('#alert-container').empty();
 
-            // Loop through each row of the table
-            $('#purchase_table tr').each(function(index, row) {
-                var rowData = {};
-
-                // Get quantity input value
-                var quantity = $(row).find('.quantity').val();
-
-                // Get godown quantity value (even though it's disabled)
-                let classToUse = ""
-                switch ($("#type").val()) {
-                    case "Godwan":
-                        classToUse = ".godown_quantity"
-                        break;
-                    case "shop":
-                        classToUse = ".shop_quantity"
-                        break;
-                    case "shop_ashak":
-                        classToUse = ".shop_ashak"
-                        break;
-                    case "shop_service":
-                        classToUse = ".shop_service"
-                        break;
-                }
-
-                var godownQuantity = $(row).find(classToUse).val();
-                // Ensure there's valid data
-                if (quantity && godownQuantity) {
-
-                    // Check if     the quantity exceeds godown_quantity
-                    if (parseInt(quantity) > parseInt(godownQuantity)) {
-                        errorFound = true;
-
-                        // Display error alert if quantity is more than godown quantity
-                        $('#alert-container').append(`
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-              <strong>Error!</strong> Quantity (${quantity}) exceeds available ${$("#type").val()} quantity (${godownQuantity}) in row ${index }.
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          `);
-                    }
-
-                    // Add this row's data to tableData array
-                    tableData.push(rowData);
-                }
-            });
-
+           
 
             if ($('#total_amount_table').val() <= 0) {
                 errorFound = true;

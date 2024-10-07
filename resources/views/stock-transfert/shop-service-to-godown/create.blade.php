@@ -65,23 +65,35 @@
                                             <td>
                                                 <input type="text" class="form-control item-name"
                                                     value="{{ $detail->item->item_name }}"
-                                                    name="details[{{ $loop->iteration }}][item_name]" required>
+                                                    name="details[{{ $loop->iteration }}][item_name]" readonly required>
                                                 <input type="hidden" class="form-control item-id"
                                                     value="{{ $detail->item_id }}"
-                                                    name="details[{{ $loop->iteration }}][item_id]" required>
+                                                    name="details[{{ $loop->iteration }}][item_id]" readonly required>
+                                            </td>
+
+
+
+
+                                            <td>
+                                                <input type="text" class="form-control shop-service"
+                                                    id="shop-service-{{ $loop->iteration }}" readonly required>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control godown-quantity"
+                                                    id="godown-quantity-{{ $loop->iteration }}" readonly required>
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control unit"
                                                     value="{{ $detail->unit->unit_name }}"
-                                                    name="details[{{ $loop->iteration }}][unit]" disabled>
+                                                    name="details[{{ $loop->iteration }}][unit]" readonly>
                                                 <input type="hidden" class="form-control unit-id"
                                                     value="{{ $detail->unit->id }}"
-                                                    name="details[{{ $loop->iteration }}][unit_id]" required>
+                                                    name="details[{{ $loop->iteration }}][unit_id]"  readonly required>
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control quantity"
                                                     value="{{ $detail->quantity }}" min="1"
-                                                    name="details[{{ $loop->iteration }}][quantity]" required>
+                                                    name="details[{{ $loop->iteration }}][quantity]" readonly required>
                                             </td>
                                             <td><button type="button" class="btn btn-danger remove-row-btn">Remove</button>
                                             </td>
@@ -177,6 +189,23 @@
 @section('js')
     @include('partials.import-cdn')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    @if (isset($godownshop) && $godownshop->details)
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                let itemId
+                @foreach ($godownshop->details as $detail)
+                    itemId = {{ $detail->item_id }};
+                    // Update the input values using the JavaScript function
+                    document.getElementById(`godown-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'godown_quantity') || 0;
+
+                    document.getElementById(`shop-service-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_service') || 0;
+                @endforeach
+            });
+        </script>
+    @endif
+
     <script>
         let rowIndex = {{ $godownshop ? $godownshop->details->count() + 1 : 1 }};
         const items = @json($items); // Items fetched from the database
@@ -198,16 +227,17 @@
                         <input type="text" class="form-control item-name" placeholder="Item Name" name="details[${rowIndex}][item_name]" required>
                         <input type="hidden" class="form-control item-id" name="details[${rowIndex}][item_id]" required>
                     </td>
+                       <td>
+                                               <input  class="form-control item-shop_quantity"  disabled>
+
+
+                    </td>
   <td>
                                                <input  class="form-control item-godown_quantity"  disabled>
 
 
                     </td>
-                   <td>
-                                               <input  class="form-control item-shop_quantity"  disabled>
 
-
-                    </td>
                     <td>
                         <input type="text" class="form-control unit" name="details[${rowIndex}][unit]" disabled>
                         <input type="hidden" class="form-control unit-id" name="details[${rowIndex}][unit_id]" required>
@@ -232,9 +262,10 @@
                     const selectedItem = items.find(item => item.item_name === ui.item.value);
                     if (selectedItem) {
                         const row = $(this).closest('tr');
+                        console.log("selectedItem = ", selectedItem)
                         row.find('.item-id').val(selectedItem.item_id);
                         row.find('.item-godown_quantity').val(selectedItem.godown_quantity);
-                        row.find('.item-shop_quantity').val(selectedItem.shop_quantity);
+                        row.find('.item-shop_quantity').val(selectedItem.shop_service);
 
                         row.find('.unit').val(selectedItem.unit_name);
                         row.find('.unit-id').val(selectedItem.unit_id);
@@ -329,5 +360,10 @@
 
             });
         });
+        const getGodwanShopValue = (item_id, type) => {
+            const items = @json($items);
+            const item = items.find(el => el.item_id === item_id);
+            return item[type] !== undefined ? item[type] : 0; // Returns undefined if the item is not found
+        };
     </script>
 @stop

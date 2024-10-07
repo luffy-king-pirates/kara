@@ -200,7 +200,21 @@ if ($request->type == 'shop_service') {
     public function edit($id)
     {
         $cash = Cash::with(['details','customer','details.unit'])->findOrFail($id);
-        $items = Item::all();
+        $result = Item::with(['unit', 'godown','shops','shopAshaks','shopService'])->get(['id', 'item_name', 'item_unit']);
+
+        $items = $result->map(function ($item) {
+            return [
+                'item_name' => $item->item_name,
+                'unit_name' => $item->unit ? $item->unit->unit_name : null,
+                'item_id' => $item->id,
+                'unit_id' => $item->unit ? $item->unit->id : null,
+                'godown_quantity' => $item->godown ? $item->godown->quantity : 0,
+                'shop_quantity' => $item->shops ? $item->shops->quantity : 0,
+                'shop_ashaks_quantity' => $item->shopAshaks ? $item->shopAshaks->quantity : 0,
+                'shop_service' => $item->shopService ? $item->shopService->quantity : 0,
+
+            ];
+        });
         $units = Units::all();
         $customers = Customers::all();
 
@@ -219,6 +233,16 @@ if ($request->type == 'shop_service') {
             'details.*.quantity' => 'required|numeric|min:1',
             'details.*.price' => 'required|numeric|min:0',
             'details.*.total' => 'required|numeric|min:0',
+            'cash_number' => 'required|string|max:255',
+
+    'comment' => 'nullable|string|max:500',
+    'special_releif_number' => 'nullable|string|max:50', // Add this line
+    'discount' => 'nullable|numeric',
+    'lpo' => 'nullable|string|max:255',
+    'status' => 'required|string|max:50',
+
+
+    'lpo_date' => 'nullable|date',
         ]);
 
         $cash = Cash::findOrFail($id);
@@ -227,6 +251,13 @@ if ($request->type == 'shop_service') {
             'total_amount' => $validatedData['total_amount'],
             'updated_by' => auth()->user()->id,
              'type' => $validatedData['type'],
+             'comment'=>$request->comment,
+            'special_releif_number'=> $validatedData['special_releif_number'],
+            'discount' => $validatedData['discount'],
+            'lpo' => $validatedData['lpo'],
+            'status' =>$validatedData['status'],
+
+            'lpo_date' => $validatedData['lpo_date'],
         ]);
 
         foreach ($validatedData['details'] as $detail) {
@@ -237,6 +268,7 @@ if ($request->type == 'shop_service') {
                     'price' => $detail['price'],
                     'total' => $detail['total'],
                     'unit_id' => $detail['unit_id'],
+                    
                 ]
             );
         }

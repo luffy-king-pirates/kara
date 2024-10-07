@@ -98,7 +98,7 @@
                         <div class="form-group">
                             <label for="percent">Percentage</label>
                             <input type="number" class="form-control" id="percent" name="percent"
-                                placeholder="Enter Percentage" min="0" max="100" step="0.01" >
+                                placeholder="Enter Percentage" min="0" max="100" step="0.01">
                         </div>
                     </div>
                 </div>
@@ -130,40 +130,59 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
                                         <input type="text" class="form-control item-name"
-                                            value="{{ $detail->item->item_name }}"
+                                            value="{{ $detail->item->item_name }}" readonly
                                             name="details[{{ $loop->iteration }}][item_name]" required>
                                         <input type="hidden" class="form-control item-id"
-                                            value="{{ $detail->item_id }}"
+                                            value="{{ $detail->item_id }}" readonly
                                             name="details[{{ $loop->iteration }}][item_id]" required>
                                     </td>
+                                    <td>
+                                        <input type="text" class="form-control godown-quantity"
+                                            id="godown-quantity-{{ $loop->iteration }}" readonly required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control shop-quantity"
+                                            id="shop-quantity-{{ $loop->iteration }}" readonly required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control shop-ashak"
+                                            id="shop-ashak-{{ $loop->iteration }}" readonly required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control shop-service"
+                                            id="shop-service-{{ $loop->iteration }}" readonly required>
+                                    </td>
+
+
+
                                     <td>
 
                                         <input type="hidden" class="form-control unit_id"
                                             value="{{ $detail->unit->id }}"
-                                            name="details[{{ $loop->iteration }}][unit_id]" disabled>
+                                            name="details[{{ $loop->iteration }}][unit_id]" readonly>
 
                                         <input type="text" class="form-control unit"
                                             value="{{ $detail->unit->unit_name }}"
-                                            name="details[{{ $loop->iteration }}][unit]" disabled>
+                                            name="details[{{ $loop->iteration }}][unit]" readonly>
                                     </td>
 
                                     <td>
 
                                         <input type="number" class="form-control quantity"
                                             value="{{ $detail->quantity }}" min="1"
-                                            name="details[{{ $loop->iteration }}][quantity]" required>
+                                            name="details[{{ $loop->iteration }}][quantity]" readonly>
                                     </td>
                                     <td>
 
                                         <input type="number" class="form-control price" value="{{ $detail->price }}"
                                             min="0" step="0.01" name="details[{{ $loop->iteration }}][price]"
-                                            required>
+                                            readonly>
                                     </td>
                                     <td>
 
                                         <input type="number" class="form-control total" value="{{ $detail->total }}"
                                             min="0" step="0.01" name="details[{{ $loop->iteration }}][total]"
-                                            required readonly>
+                                            readonly>
                                     </td>
 
 
@@ -189,74 +208,80 @@
                     </tfoot>
                 </table>
 
-                <div class="container mt-5">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <!-- Comment Section -->
-                            <div class="mb-3">
-                                <label for="comment" class="form-label">Comment</label>
-                                <textarea name="comment" class="form-control" id="comment" rows="3"></textarea>
-                            </div>
+                <div class="row">
+                    <div class="col-md-4">
 
-                            <!-- Special Relief Number -->
-                            <div class="mb-3">
-                                <label for="special_releif_number" class="form-label">Special Relief Number</label>
-                                <input name="special_releif_number" type="text" class="form-control"
-                                    id="special_releif_number" placeholder="Enter special relief number">
-                            </div>
+
+                        <!-- Comment Section -->
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Comment</label>
+                            <textarea name="comment" class="form-control" id="comment" rows="3">{{ $proforma ? $proforma->comment : old('comment') }}</textarea>
+
                         </div>
 
-                        <div class="col-md-4">
+                        <!-- Special Relief Number -->
+                        <div class="mb-3">
+                            <label for="special_releif_number" class="form-label">Special Relief Number</label>
+                            <input name="special_releif_number" type="text" class="form-control"
+                                id="special_releif_number"
+                                value="{{ $proforma ? $proforma->special_releif_number : old('special_releif_number') }}"
+                                placeholder="Enter special relief number">
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
 
 
-                            <!-- Discount -->
-                            <div class="mb-3">
-                                <label for="discount" class="form-label">Discount</label>
-                                <input type="number" name="discount" class="form-control" id="discount"
-                                    placeholder="Enter discount">
-                            </div>
-
-                            <!-- Status -->
-                            <div class="mb-3">
-                                <label for="status" class="form-label">Status</label>
-                                <select class="form-select" name="status" id="status">
-                                    <option value="Incomplete">Incomplete</option>
-                                    <option value="Print">Print</option>
-                                </select>
-                            </div>
-
-                            <!-- LPO # -->
-                            <div class="mb-3">
-                                <label for="lpoNumber" class="form-label">LPO #</label>
-                                <input type="text" name="lpo" class="form-control" id="lpoNumber"
-                                    placeholder="Enter LPO number">
-                            </div>
-
-                            <!-- LPO Date -->
-                            <div class="mb-3">
-                                <label for="lpoDate" class="form-label">LPO Date</label>
-                                <input type="date" name="lpo_date" class="form-control" id="lpoDate"
-                                    max="<?php echo date('Y-m-d'); ?>">
-                            </div>
+                        <!-- Discount -->
+                        <div class="mb-3">
+                            <label for="discount" class="form-label">Discount</label>
+                            <input type="number" name="discount" class="form-control" id="discount"
+                                placeholder="Enter discount"
+                                value="{{ $proforma ? $proforma->discount : old('discount') }}">
                         </div>
 
-                        <div class="col-md-4">
-                            <!-- Summary Section -->
-                            <div class="">
-                                <div class="border p-3 bg-light">
-                                    <p><strong>Subtotal:</strong> <span id="subtotal">0</span></p>
-                                    <p><strong>Discount:</strong> <span id="summaryDiscount">0</span></p>
-                                    <p><strong>Total:</strong> <span id="total">0</span></p>
-                                    <p><strong>VAT:</strong> <span id="vat">0</span></p>
-                                    <p><strong>Grand Total:</strong> <span id="grandTotal">0</span></p>
-                                </div>
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" value="{{ $proforma ? $proforma->status : old('status') }}"
+                                name="status" id="status">
+                                <option value="Incomplete">Incomplete</option>
+                                <option value="Print">Print</option>
+                            </select>
+                        </div>
+
+                        <!-- LPO # -->
+                        <div class="mb-3">
+                            <label for="lpoNumber" class="form-label">LPO #</label>
+                            <input type="text" value="{{ $proforma ? $proforma->lpo : old('lpo') }}" name="lpo"
+                                class="form-control" id="lpoNumber" placeholder="Enter LPO number">
+                        </div>
+
+                        <!-- LPO Date -->
+                        <div class="mb-3">
+                            <label for="lpoDate" class="form-label">LPO Date</label>
+                            <input type="date" name="lpo_date" class="form-control" id="lpoDate"
+                                value="{{ $proforma ? $proforma->lpo_date : old('lpo_date') }}"
+                                max="<?php echo date('Y-m-d'); ?>">
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <!-- Summary Section -->
+                        <div class="">
+                            <div class="border p-3 bg-light">
+                                <p><strong>Subtotal:</strong> <span id="subtotal">0</span></p>
+                                <p><strong>Discount:</strong> <span id="summaryDiscount">0</span></p>
+                                <p><strong>Total:</strong> <span id="total">0</span></p>
+                                <p><strong>VAT:</strong> <span id="vat">0</span></p>
+                                <p><strong>Grand Total:</strong> <span id="grandTotal">0</span></p>
                             </div>
                         </div>
-                        <div id="alert-container"></div>
-                        <div class="text-right mb-3">
-                            <a href="{{ route('proforma.index') }}" class="btn btn-danger">Discard</a>
-                            <button type="button" class="btn btn-success" id="save_btn">Save</button>
-                        </div>
+                    </div>
+                    <div id="alert-container"></div>
+                    <div class="text-right mb-3">
+                        <a href="{{ route('proforma.index') }}" class="btn btn-danger">Discard</a>
+                        <button type="button" class="btn btn-success" id="save_btn">Save</button>
                     </div>
                 </div>
             </form>
@@ -301,6 +326,26 @@
 @section('js')
     @include('partials.import-cdn')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    @if (isset($proforma) && $proforma->details)
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                let itemId
+                @foreach ($proforma->details as $detail)
+                    itemId = {{ $detail->item_id }};
+                    // Update the input values using the JavaScript function
+                    document.getElementById(`godown-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'godown_quantity') || 0;
+                    document.getElementById(`shop-quantity-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_quantity') || 0;
+                    document.getElementById(`shop-ashak-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_ashak') || 0;
+                    document.getElementById(`shop-service-{{ $loop->iteration }}`).value = getGodwanShopValue(
+                        itemId, 'shop_service') || 0;
+                @endforeach
+            });
+        </script>
+    @endif
+
     <script>
         $(document).ready(function() {
             let rowCount = $('#proforma_table tbody tr').length;
@@ -607,6 +652,13 @@
 
 
             });
+
         });
+        const getGodwanShopValue = (item_id, type) => {
+            const items = @json($items);
+            const item = items.find(el => el.item_id === item_id);
+
+            return item[type] !== undefined ? item[type] : 0; // Returns undefined if the item is not found
+        };
     </script>
 @stop
