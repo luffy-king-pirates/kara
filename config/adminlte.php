@@ -386,16 +386,19 @@ return [
                 [
                     'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
                     'text' => 'Godown to Shop',
+
                     'submenu' => [
                         [
                             'icon' => 'fas fa-plus-circle', // Icon for Create Godown to Shop
                             'text' => 'Godown to Shop (Create)',
                             'url' => 'godownshop/create',
+                            'can' => 'manage-godwan-to-shop'
                         ],
                         [
                             'icon' => 'fas fa-box-open', // Icon for Existing Godown to Shop
                             'text' => 'Godown to Shop (View)',
                             'url' => 'godownshop',
+                            'can' => 'create-godwan-to-shop'
                         ]
                     ],
                 ],
