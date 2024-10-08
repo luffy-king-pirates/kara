@@ -463,6 +463,7 @@ return [
                     'icon' => 'fas fa-fw fa-box',
                     'text' => 'Existing Transfers',
                     'url' => 'existingTranfers',
+                    'can' =>'manage-existance-transfert'
                 ],
             ]
             ],
