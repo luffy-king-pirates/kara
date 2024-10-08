@@ -25,7 +25,7 @@
 <script>
     // Session timeout in seconds (example: 10 minutes session)
     var sessionLifetime = {{ config('session.lifetime') * 60 }};
-    var warningTime = 30; // Time before expiry to show warning modal
+    var warningTime = 60; // Time before expiry to show warning modal
     var sessionTimer, warningTimer;
 
     // Function to show the popup 30 seconds before session ends
@@ -62,7 +62,7 @@
             },
             error: function() {
                 // Handle failure case, possibly showing an error message
-              //  window.location.reload(); // Optionally redirect on error
+                //  window.location.reload(); // Optionally redirect on error
             }
         });
     });

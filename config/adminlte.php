@@ -605,6 +605,7 @@ return [
                                 Stock Adjustment
                                 ',
                             'url' => 'adjustments',
+                            'can'=> 'manage-adjustments'
                         ],
                         [
                             'icon' => 'fas fa-plus-circle',
@@ -612,6 +613,7 @@ return [
                                  Adjust Stock
                                 ',
                             'url' => 'adjustments/create',
+                            'can' => 'create-adjustments'
                         ],
                     ]
                     ],

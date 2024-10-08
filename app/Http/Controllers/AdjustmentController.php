@@ -110,14 +110,16 @@ class AdjustmentController extends Controller
                 })
                 ->make(true);
         }
-
-        // Pass necessary data to the view
         return view('adjustment.index', [
-            'users' => $users,
+            'canEditAdjustment' => auth()->user()->can('update-adjustments'),
+            'canDeleteAdjustment' => auth()->user()->can('delete-adjustments'),
+            'canExportAdjustment' => auth()->user()->can('export-details-adjustments'),
+           'users' => $users,
             'stockTypes' => $stockTypes,
             'items' => $items,
             'units' => $units
         ]);
+
     }
 
     public function create()
