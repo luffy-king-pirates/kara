@@ -10,30 +10,34 @@
     @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Filter and Export Buttons -->
-        <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
-        <a href="/credit/create" class="btn btn-success" id="addItemBtn">Add New Credit Transaction</a>
-
-        <!-- DataTable for Credit Transactions -->
-        <table class="table table-bordered" id="credit-table">
-            <thead>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th>ID</th>
-                    <th>Credit Number</th>
-                    <th>Creation Date</th>
-                    <th>Total Amount</th>
-                </tr>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                    <th><input type="text" id="filter-credit-number" class="form-control" placeholder="Credit Number">
-                    </th>
-                    <th><input type="date" id="filter-creation-date" class="form-control"></th>
-                    <th><input type="text" id="filter-total-amount" class="form-control" placeholder="Total Amount"></th>
-                </tr>
-            </thead>
-        </table>
-
+        @can('export-credit-sale')
+            <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
+        @endcan
+        @can('create-credit-sale')
+            <a href="/credit/create" class="btn btn-success" id="addItemBtn">Add New Credit Transaction</a>
+        @endcan
+        @can('read-credit-sale')
+            <!-- DataTable for Credit Transactions -->
+            <table class="table table-bordered" id="credit-table">
+                <thead>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th>ID</th>
+                        <th>Credit Number</th>
+                        <th>Creation Date</th>
+                        <th>Total Amount</th>
+                    </tr>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
+                        <th><input type="text" id="filter-credit-number" class="form-control" placeholder="Credit Number">
+                        </th>
+                        <th><input type="date" id="filter-creation-date" class="form-control"></th>
+                        <th><input type="text" id="filter-total-amount" class="form-control" placeholder="Total Amount"></th>
+                    </tr>
+                </thead>
+            </table>
+        @endcan
         <!-- Delete Confirmation Modal -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -67,6 +71,13 @@
 
 @section('js')
     @include('partials.import-cdn')
+    <script>
+        var canEditCredit = @json($canEditCredit);
+        var canDeleteCredit = @json($canDeleteCredit);
+        var canExportCredit = @json($canExportCredit);
+        var canCreditPdfWithHeaders = @json($canCreditPdfWithHeaders);
+        var canCreditPdfWithoutHeaders = @json($canCreditPdfWithoutHeaders);
+    </script>
     <script>
         $(function() {
             // DataTable with expandable rows
@@ -132,14 +143,14 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                                            <tr>
-                                                                <td>${item.item?.item_name}</td>
-                                                                <td>${item.quantity}</td>
-                                                                <td>${item.unit?.unit_name}</td>
-                                                                <td>${item.price}</td>
-                                                                <td>${item.total}</td>
-                                                            </tr>
-                                                        `).join('')}
+                                                                    <tr>
+                                                                        <td>${item.item?.item_name}</td>
+                                                                        <td>${item.quantity}</td>
+                                                                        <td>${item.unit?.unit_name}</td>
+                                                                        <td>${item.price}</td>
+                                                                        <td>${item.total}</td>
+                                                                    </tr>
+                                                                `).join('')}
                         </tbody>
                          <tfoot>
         <tr>
@@ -165,32 +176,50 @@
         </tr>
         </table>
                     <div class="btn-group" role="group" aria-label="Credit Transaction Actions">
-                        <!-- Edit Button -->
-                        <a href="/credit/${rowData.id}/edit" class="btn mr-4 btn-warning btn-sm">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
-                          <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
-    <i class="fas fa-trash-alt"></i> Delete
-</a>
-
-                        <!-- Export Button -->
-                        <a href="/export/credit/exportDetails/${rowData.id}" class="btn mr-4 btn-success btn-sm">
-                            <i class="fas fa-file-export"></i> Export
-                        </a>
 
 
-
-                        <a href="/credit/${rowData?.id}/pdf/true" class="btn btn-success mr-4 btn-sm">
-    <i class="fas fa-file-export"></i> Export PDF with headers
-</a>
-
-        <a href="/credit/${rowData?.id}/pdf/false" class="btn btn-success mr-4 btn-sm">
-    <i class="fas fa-file-export"></i> Export PDF no headers
-</a>
-                    </div>
                 `;
                 return detailTable;
             }
+
+            if (canEditCredit) {
+                detailTable += `
+ <a href="/credit/${rowData.id}/edit" class="btn mr-4 btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                    `
+            }
+            if (canDeleteCredit) {
+                detailTable += `
+  <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
+    <i class="fas fa-trash-alt"></i> Delete
+</a>
+                    `
+            }
+            if (canExportCredit) {
+                detailTable += `
+     <a href="/export/credit/exportDetails/${rowData.id}" class="btn mr-4 btn-success btn-sm">
+                            <i class="fas fa-file-export"></i> Export
+                        </a>
+        `
+            }
+
+            if (canCreditPdfWithHeaders) {
+                detailTable += `
+     <a href="/credit/${rowData?.id}/pdf/true" class="btn btn-success mr-4 btn-sm">
+    <i class="fas fa-file-export"></i> Export pdf with headers
+</a>
+        `
+            }
+
+            if (canCreditPdfWithoutHeaders) {
+                detailTable += `
+      <a href="/credit/${rowData?.id}/pdf/false" class="btn btn-success mr-4 btn-sm">
+    <i class="fas fa-file-export"></i> Export pdf no headers
+</a>
+        `
+            }
+            detailTable += "</div>"
 
             // Expand row on click
             $('#credit-table tbody').on('click', 'td.dt-control', function() {

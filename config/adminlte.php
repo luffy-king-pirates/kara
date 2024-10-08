@@ -497,11 +497,13 @@ return [
                         'icon' => 'fas fa-hand-holding-usd', // Icon for Credit Sales
                         'text' => 'Credit Sales',
                         'url' => 'credit/create',
+                        'can' => 'create-credit-sale'
                     ],
                     [
                         'icon' => 'fas fa-receipt', // Icon for Existing Credit Sale
                         'text' => 'Existing Credit Sale',
                         'url' => 'credit',
+                         'can' => 'manage-credit-sale'
                     ]
                 ],
             ],
