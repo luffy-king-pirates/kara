@@ -110,6 +110,21 @@
                                     <input class="form-check-input" type="checkbox" value="manage" id="manage-${row.id}-${row.page}" ${row.permissions.includes('manage') ? 'checked' : ''}>
                                     <label class="form-check-label" for="manage-${row.id}-${row.page}">Manage</label>
                                 </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="export-details" id="export-details-${row.id}-${row.page}" ${row.permissions.includes('export-details') ? 'checked' : ''}>
+                                    <label class="form-check-label" for="export-details-${row.id}-${row.page}">Export Details</label>
+                                </div>
+
+                                 <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="export-pdf" id="export-pdf-${row.id}-${row.page}" ${row.permissions.includes('export-pdf') ? 'checked' : ''}>
+                                    <label class="form-check-label" for="export-pdf-${row.id}-${row.page}">Export Pdf Details</label>
+                                </div>
+
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="approve" id="approve-${row.id}-${row.page}" ${row.permissions.includes('approve') ? 'checked' : ''}>
+                                    <label class="form-check-label" for="approve-${row.id}-${row.page}">Approve</label>
+                                </div>
                             `;
                         }
                     },
