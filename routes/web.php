@@ -57,6 +57,10 @@ use App\Http\Controllers\DashboardStockTransfertController;
 
 use App\Http\Controllers\LocalPurshaseController;
 
+use App\Http\Controllers\ImportsController;
+
+
+
 
 // Public route: accessible by everyone
 Route::get('/', function () {
@@ -126,6 +130,10 @@ Route::middleware(['auth',App\Http\Middleware\UserActionLogger::class])->group(f
 
         Route::get('/purchase', [App\Http\Controllers\LocalPurshaseController::class, 'export'])->name('purchase.export');
         Route::get('/purchase/exportDetails/{id}', [App\Http\Controllers\LocalPurshaseController::class, 'exportDetails'])->name('purchase.exportDetails');
+
+
+        Route::get('/imports', [App\Http\Controllers\ImportsController::class, 'export'])->name('imports.export');
+        Route::get('/imports/exportDetails/{id}', [App\Http\Controllers\ImportsController::class, 'exportDetails'])->name('imports.exportDetails');
 
     });
 
@@ -251,6 +259,12 @@ Route::middleware(['auth',App\Http\Middleware\UserActionLogger::class])->group(f
     Route::resource('purchase', LocalPurshaseController::class);
     Route::get('purchase/{id}/details', [LocalPurshaseController::class, 'details'])->name('purchase.details');
     Route::get('purchase/{id}/edit', [LocalPurshaseController::class, 'edit'])->name('purchase.edit');
+
+    Route::resource('imports', ImportsController::class);
+    Route::get('imports/{id}/details', [ImportsController::class, 'details'])->name('imports.details');
+    Route::get('imports/{id}/edit', [ImportsController::class, 'edit'])->name('imports.edit');
+
+
 
 
 
