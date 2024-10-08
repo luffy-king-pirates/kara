@@ -479,11 +479,13 @@ return [
                         'icon' => 'fas fa-cash-register', // Icon for Cash Sales
                         'text' => 'Cash Sales',
                         'url' => 'cash/create',
+                        'can' => 'create-cash-sale'
                     ],
                     [
                         'icon' => 'fas fa-receipt', // Icon for Existing Cash Sale
                         'text' => 'Existing Cash Sale',
                         'url' => 'cash',
+                           'can' => 'manage-cash-sale'
                     ]
                 ],
             ],

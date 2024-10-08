@@ -114,6 +114,19 @@ class AppServiceProvider extends ServiceProvider
                     $query->where('action', 'approve')->where('page', $entityCapitalized);
                 })->exists();
             });
+
+            Gate::define("export-pdf-with-header-$entity", function (User $user) use ($entityCapitalized) {
+                return $user->roles()->whereHas('permissions', function($query) use ($entityCapitalized) {
+                    $query->where('action', 'export-pdf-with-header')->where('page', $entityCapitalized);
+                })->exists();
+            });
+
+            Gate::define("export-pdf-without-header-$entity", function (User $user) use ($entityCapitalized) {
+                return $user->roles()->whereHas('permissions', function($query) use ($entityCapitalized) {
+                    $query->where('action', 'export-pdf-without-header-header')->where('page', $entityCapitalized);
+                })->exists();
+            });
+
         }
 
     }

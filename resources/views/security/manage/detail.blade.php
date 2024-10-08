@@ -125,6 +125,19 @@
                                     <input class="form-check-input" type="checkbox" value="approve" id="approve-${row.id}-${row.page}" ${row.permissions.includes('approve') ? 'checked' : ''}>
                                     <label class="form-check-label" for="approve-${row.id}-${row.page}">Approve</label>
                                 </div>
+
+                                   <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="export-pdf-with-header" id="export-pdf-with-header-${row.id}-${row.page}" ${row.permissions.includes('export-pdf-with-header') ? 'checked' : ''}>
+                                    <label class="form-check-label" for="export-pdf-with-header-${row.id}-${row.page}">Export pdf with header</label>
+                                </div>
+
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="export-pdf-without-header" id="export-pdf-without-header-${row.id}-${row.page}" ${row.permissions.includes('export-pdf-without-header') ? 'checked' : ''}>
+                                    <label class="form-check-label" for="export-pdf-without-header-${row.id}-${row.page}">Export pdf without header</label>
+                                </div>
+
+
+                                export-pdf-with-header
                             `;
                         }
                     },
