@@ -410,11 +410,13 @@ return [
                             'icon' => 'fas fa-truck-loading', // Icon for Create Godown to Shop
                             'text' => 'Godown to Shop (Ashok) (Create)',
                             'url' => 'godownShopAshok/create',
+                            'can'=> 'manage-godwan-to-shop-ashok'
                         ],
                         [
                             'icon' => 'fas fa-eye', // Icon for View Godown to Shop
                             'text' => 'Godown to Shop (Ashok) (View)',
                             'url' => 'godownShopAshok',
+                            'can' => 'create-godwan-to-shop-ashok'
                         ]
                     ],
                 ],
