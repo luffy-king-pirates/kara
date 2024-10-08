@@ -536,23 +536,44 @@ return [
 
 
     [
-        'text' => 'Purshase',
-        'icon' => 'fas fa-shopping-cart', // Icon for Sales
+        'text' => 'Purchase',
+        'icon' => 'fas fa-shopping-cart', // Icon for Purchase
         'submenu' => [
             [
-                'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
-                'text' => 'Local Purshase (Create)',
-                "url" => 'purchase/create'
+                'text' => 'Local Purchase',
+                'icon' => 'fas fa-shopping-cart', // Icon for Local Purchase
+                'submenu' => [
+                    [
+                        'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
+                        'text' => 'Local Purchase (Create)',
+                        'url' => 'purchase/create',
+                    ],
+                    [
+                        'icon' => 'fas fa-credit-card', // Icon for Credit submenu
+                        'text' => 'Local Purchase (View)',
+                        'url' => 'purchase',
+                    ],
+                ],
             ],
             [
-                'icon' => 'fas fa-credit-card', // Icon for Credit submenu
-                'text' => 'Local Purshase (View)',
-                "url" => 'purchase'
-
+                'text' => 'Imports',
+                'icon' => 'fas fa-shopping-cart', // Icon for Imports
+                'submenu' => [
+                    [
+                        'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
+                        'text' => 'Imports (Create)',
+                        'url' => 'imports/create',
+                    ],
+                    [
+                        'icon' => 'fas fa-credit-card', // Icon for Credit submenu
+                        'text' => 'Imports (View)',
+                        'url' => 'imports',
+                    ],
+                ],
             ],
-
-        ]
+        ],
     ],
+
 
 
 
