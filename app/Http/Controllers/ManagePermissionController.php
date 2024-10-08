@@ -51,7 +51,7 @@ class ManagePermissionController extends Controller
         'local-purchase' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf-purchase'],
         'imports' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf-purchase'],
         'adjustments' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf-with-header','export-pdf-without-header'],
-
+        'proforma'=>['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf-with-header','export-pdf-without-header']
 
     ];
 

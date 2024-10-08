@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
         'local-purchase' ,
         'imports' ,
         'adjustments',
-
+"proforma"
         ];
 
         // Loop through each entity and define gates for CRUD operations

@@ -515,11 +515,13 @@ return [
                         'icon' => 'fas fa-file-export', // Icon for Proforma Sales
                         'text' => 'Proforma Sales',
                         'url' => 'proforma/create',
+                        'can' => 'create-proforma'
                     ],
                     [
                         'icon' => 'fas fa-receipt', // Icon for Existing Proforma Sale
                         'text' => 'Existing Proforma Sale',
                         'url' => 'proforma',
+                        'can' => 'manage-proforma'
                     ]
                 ],
             ],

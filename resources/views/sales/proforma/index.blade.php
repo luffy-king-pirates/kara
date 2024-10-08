@@ -8,32 +8,37 @@
 
 @section('content')
     @include('partials.expiration.expire')
-    
+
     <div style="height: 700px; overflow-y: auto;">
         <!-- Filter and Export Buttons -->
-        <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
-        <a href="/proforma/create" class="btn btn-success" id="addItemBtn">Add New Proforma Transaction</a>
-
-        <!-- DataTable for Proforma Transactions -->
-        <table class="table table-bordered" id="proforma-table">
-            <thead>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th>ID</th>
-                    <th>Proforma Number</th>
-                    <th>Creation Date</th>
-                    <th>Total Amount</th>
-                </tr>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                    <th><input type="text" id="filter-proforma-number" class="form-control"
-                            placeholder="Proforma Number"></th>
-                    <th><input type="date" id="filter-creation-date" class="form-control"></th>
-                    <th><input type="text" id="filter-total-amount" class="form-control" placeholder="Total Amount"></th>
-                </tr>
-            </thead>
-        </table>
+        @can('delete-proforma')
+            <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
+        @endcan
+        @can('create-proforma')
+            <a href="/proforma/create" class="btn btn-success" id="addItemBtn">Add New Proforma Transaction</a>
+        @endcan
+        @can('read-proforma')
+            <!-- DataTable for Proforma Transactions -->
+            <table class="table table-bordered" id="proforma-table">
+                <thead>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th>ID</th>
+                        <th>Proforma Number</th>
+                        <th>Creation Date</th>
+                        <th>Total Amount</th>
+                    </tr>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
+                        <th><input type="text" id="filter-proforma-number" class="form-control"
+                                placeholder="Proforma Number"></th>
+                        <th><input type="date" id="filter-creation-date" class="form-control"></th>
+                        <th><input type="text" id="filter-total-amount" class="form-control" placeholder="Total Amount"></th>
+                    </tr>
+                </thead>
+            </table>
+        @endcan
 
         <!-- Delete Confirmation Modal -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -68,6 +73,14 @@
 
 @section('js')
     @include('partials.import-cdn')
+    <script>
+        var canEditProforma = @json($canEditProforma);
+        var canDeleteProforma = @json($canDeleteProforma);
+        var canExportProforma = @json($canExportProforma);
+        var canProformaPdfWithHeaders = @json($canProformaPdfWithHeaders);
+        var canProformaPdfWithoutHeaders = @json($canProformatPdfWithoutHeaders);
+    </script>
+
     <script>
         $(function() {
             // DataTable with expandable rows
@@ -133,14 +146,14 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                                    <tr>
-                                                        <td>${item.item?.item_name}</td>
-                                                        <td>${item.quantity}</td>
-                                                        <td>${item.unit?.unit_name}</td>
-                                                        <td>${item.price}</td>
-                                                        <td>${item.total}</td>
-                                                    </tr>
-                                                `).join('')}
+                                                        <tr>
+                                                            <td>${item.item?.item_name}</td>
+                                                            <td>${item.quantity}</td>
+                                                            <td>${item.unit?.unit_name}</td>
+                                                            <td>${item.price}</td>
+                                                            <td>${item.total}</td>
+                                                        </tr>
+                                                    `).join('')}
                         </tbody>
                          <tfoot>
         <tr>
@@ -166,27 +179,51 @@
         </tr>
         </table>
                     <div class="btn-group" role="group" aria-label="Proforma Transaction Actions">
-                        <!-- Edit Button -->
-                        <a href="/proforma/${rowData.id}/edit" class="btn mr-4 btn-warning btn-sm">
+
+                `;
+
+
+                if (canEditProforma) {
+                    detailTable += `
+ <a href="/proforma/${rowData.id}/edit" class="btn mr-4 btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-    <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
+                    `
+                }
+                if (canDeleteProforma) {
+                    detailTable += `
+  <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
     <i class="fas fa-trash-alt"></i> Delete
 </a>
-
-                        <!-- Export Button -->
-                        <a href="/export/proforma/exportDetails/${rowData.id}" class="btn mr-4 btn-success btn-sm">
+                    `
+                }
+                if (canExportProforma) {
+                    detailTable += `
+     <a href="/export/proforma/exportDetails/${rowData.id}" class="btn mr-4 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
+        `
+                }
 
-                        <a href="/proforma/${rowData?.id}/pdf/true" class="btn btn-success mr-4 btn-sm">
-    <i class="fas fa-file-export"></i> Export PDF with headers
+                if (canProformaPdfWithHeaders) {
+                    detailTable += `
+     <a href="/proforma/${rowData?.id}/pdf/true" class="btn btn-success mr-4 btn-sm">
+    <i class="fas fa-file-export"></i> Export pdf with headers
 </a>
-    <a href="/proforma/${rowData?.id}/pdf/false" class="btn btn-success btn-sm">
-    <i class="fas fa-file-export"></i> Export PDF no headers
+        `
+                }
+
+                if (canProformaPdfWithoutHeaders) {
+                    detailTable += `
+      <a href="/proforma/${rowData?.id}/pdf/false" class="btn btn-success mr-4 btn-sm">
+    <i class="fas fa-file-export"></i> Export pdf no headers
 </a>
-                    </div>
-                `;
+        `
+                }
+                detailTable += "</div>"
+                return detailTable;
+            }
+
                 return detailTable;
             }
 
