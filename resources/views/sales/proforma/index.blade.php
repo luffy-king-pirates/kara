@@ -221,8 +221,7 @@
         `
                 }
                 detailTable += "</div>"
-                return detailTable;
-            }
+            
 
                 return detailTable;
             }
