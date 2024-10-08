@@ -34,7 +34,20 @@ class AppServiceProvider extends ServiceProvider
         // Define all entities for which we want to set permissions
         $entities = [
             'brand', 'category', 'country', 'currency', 'customer','items',
-            'month', 'role', 'stock-type', 'supplier', 'unit', 'user', 'year', 'user-assigned-role'
+            'month', 'role', 'stock-type', 'supplier', 'unit', 'user', 'year', 'user-assigned-role',
+            'godwan-to-shop' ,
+        'godwan-to-shop-ashok' ,
+        'shop-to-godwan' ,
+        'shop-service-to-godwan',
+        'existance-transfert',
+        'cash-sale',
+        'credit-sale' ,
+        'dashboard' ,
+        'dashboard-sales',
+        'local-purchase' ,
+        'imports' ,
+        'adjustments',
+
         ];
 
         // Loop through each entity and define gates for CRUD operations

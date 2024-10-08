@@ -39,6 +39,20 @@ class ManagePermissionController extends Controller
         'year' => ['create', 'read', 'update', 'delete','export','manage'],
         'user-assigned-role' => ['create', 'read', 'update', 'delete','export','manage'],
         'items' => ['create', 'read', 'update', 'delete','export','manage'],
+        'godwan-to-shop' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf','Approve'],
+        'godwan-to-shop-ashok' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf','Approve'],
+        'shop-to-godwan' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf','Approve'],
+        'shop-service-to-godwan' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf','Approve'],
+        'existance-transfert' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf'],
+        'cash-sale' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf-with-header','export-pdf-without-header'],
+        'credit-sale' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf-with-header','export-pdf-without-header'],
+        'dashboard' => ['manage'],
+        'dashboard-sales' => ['manage'],
+        'local-purchase' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf-purchase'],
+        'imports' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf-purchase'],
+        'adjustments' => ['create', 'read', 'update', 'delete','export','manage','export-details','export-pdf-with-header','export-pdf-without-header'],
+
+
     ];
 
     // Prepare data for DataTables

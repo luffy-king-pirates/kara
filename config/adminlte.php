@@ -558,16 +558,19 @@ return [
             [
                 'text' => 'Imports',
                 'icon' => 'fas fa-shopping-cart', // Icon for Imports
+
                 'submenu' => [
                     [
                         'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
                         'text' => 'Imports (Create)',
                         'url' => 'imports/create',
+                        'can' => 'manage-imports'
                     ],
                     [
                         'icon' => 'fas fa-credit-card', // Icon for Credit submenu
                         'text' => 'Imports (View)',
                         'url' => 'imports',
+                        'can' => 'create-imports'
                     ],
                 ],
             ],
