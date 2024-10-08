@@ -77,8 +77,15 @@ class GodwanShopAshokController extends Controller
         }
 
         $users = User::all();
+        return view('stock-transfert.godown-to-shop-ashok.index', [
+            'canEditGodwanToShopAshok' => auth()->user()->can('update-godwan-to-shop-ashok'),
+            'canDeleteGodwanToShopAshok' => auth()->user()->can('delete-godwan-to-shop-ashok'),
+            'canExportGodwanToShopAshok' => auth()->user()->can('export-details-godwan-to-shop-ashok'),
+            'canExportPdfGodwanToShopAshok' => auth()->user()->can('export-pdf-godwan-to-shop-ashok'),
+            'canApprouveGodwanToShopAshok' => auth()->user()->can('approve-godwan-to-shop-ashok'),
+            'users' => $users
+        ]);
 
-        return view('stock-transfert.godown-to-shop-ashok.index', compact('users'));
     }
 
     public function create()

@@ -34,7 +34,20 @@ class AppServiceProvider extends ServiceProvider
         // Define all entities for which we want to set permissions
         $entities = [
             'brand', 'category', 'country', 'currency', 'customer','items',
-            'month', 'role', 'stock-type', 'supplier', 'unit', 'user', 'year', 'user-assigned-role'
+            'month', 'role', 'stock-type', 'supplier', 'unit', 'user', 'year', 'user-assigned-role',
+            'godwan-to-shop' ,
+        'godwan-to-shop-ashok' ,
+        'shop-to-godwan' ,
+        'shop-service-to-godwan',
+        'existance-transfert',
+        'cash-sale',
+        'credit-sale' ,
+        'dashboard' ,
+        'dashboard-sales',
+        'local-purchase' ,
+        'imports' ,
+        'adjustments',
+"proforma"
         ];
 
         // Loop through each entity and define gates for CRUD operations
@@ -83,6 +96,37 @@ class AppServiceProvider extends ServiceProvider
                     $query->where('action', 'manage')->where('page', $entityCapitalized);
                 })->exists();
             });
+            // Create Gate for manage operation
+            Gate::define("export-details-$entity", function (User $user) use ($entityCapitalized) {
+                return $user->roles()->whereHas('permissions', function($query) use ($entityCapitalized) {
+                    $query->where('action', 'export-details')->where('page', $entityCapitalized);
+                })->exists();
+            });
+            // Create Gate for manage operation
+            Gate::define("export-pdf-$entity", function (User $user) use ($entityCapitalized) {
+                return $user->roles()->whereHas('permissions', function($query) use ($entityCapitalized) {
+                    $query->where('action', 'export-pdf')->where('page', $entityCapitalized);
+                })->exists();
+            });
+            // Create Gate for manage operation
+            Gate::define("approve-$entity", function (User $user) use ($entityCapitalized) {
+                return $user->roles()->whereHas('permissions', function($query) use ($entityCapitalized) {
+                    $query->where('action', 'approve')->where('page', $entityCapitalized);
+                })->exists();
+            });
+
+            Gate::define("export-pdf-with-header-$entity", function (User $user) use ($entityCapitalized) {
+                return $user->roles()->whereHas('permissions', function($query) use ($entityCapitalized) {
+                    $query->where('action', 'export-pdf-with-header')->where('page', $entityCapitalized);
+                })->exists();
+            });
+
+            Gate::define("export-pdf-without-header-$entity", function (User $user) use ($entityCapitalized) {
+                return $user->roles()->whereHas('permissions', function($query) use ($entityCapitalized) {
+                    $query->where('action', 'export-pdf-without-header-header')->where('page', $entityCapitalized);
+                })->exists();
+            });
+
         }
 
     }

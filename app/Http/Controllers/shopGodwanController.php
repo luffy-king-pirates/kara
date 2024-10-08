@@ -77,8 +77,15 @@ class shopGodwanController extends Controller
         }
 
         $users = User::all();
+        return view('stock-transfert.shop-to-godown.index', [
+            'canEditShopToGodwan' => auth()->user()->can('update-shop-to-godwan'),
+            'canDeleteShopToGodwan' => auth()->user()->can('delete-shop-to-godwan'),
+            'canExportShopToGodwan' => auth()->user()->can('export-details-shop-to-godwan'),
+            'canExportPdfShopToGodwan' => auth()->user()->can('export-pdf-shop-to-godwan'),
+            'canApprouveShopToGodwan' => auth()->user()->can('approve-shop-to-godwan'),
+            'users' => $users
+        ]);
 
-        return view('stock-transfert.shop-to-godown.index', compact('users'));
     }
 
     public function create()

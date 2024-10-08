@@ -97,7 +97,13 @@ class ImportsController extends Controller
         $users = User::all();
         $suppliers = Suppliers::all();
 
-        return view('purshase.imports.index', compact('users', 'suppliers'));
+        return view('purshase.imports.index', [
+            'users' => $users,
+            'suppliers' => $suppliers,
+            'canEditImports' => auth()->user()->can('update-imports'),
+            'canDeleteImports' => auth()->user()->can('delete-imports'),
+            'canExportImports' => auth()->user()->can('export-details-imports')
+        ]);
     }
 
     public function create()

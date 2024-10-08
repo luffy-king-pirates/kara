@@ -98,7 +98,16 @@ class ProformaController extends Controller
 
         $users = User::all();
         $customers = Customers::all();
+        return view('sales.proforma.index', [
+            'canEditProforma' => auth()->user()->can('update-proforma'),
+            'canDeleteProforma' => auth()->user()->can('delete-proforma'),
+            'canExportProforma' => auth()->user()->can('export-details-proforma'),
+            'canProformaPdfWithHeaders'=>auth()->user()->can('export-pdf-with-header-proforma'),
+            'canProformatPdfWithoutHeaders'=>auth()->user()->can('export-pdf-without-header-proforma'),
+            'users' => $users,
+            'customers'=>$customers,
 
+        ]);
         return view('sales.proforma.index', compact('users', 'customers'));
     }
 
@@ -124,6 +133,7 @@ class ProformaController extends Controller
         $units = Units::all();
         $proforma = null;
         $customers = Customers::all();
+
         return view('sales.proforma.create', compact('stockTypes', 'items', 'units', 'customers', 'proforma'));
     }
 

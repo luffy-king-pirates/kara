@@ -97,8 +97,17 @@ class CreditController extends Controller
 
         $users = User::all();
         $customers = Customers::all();
+        return view('sales.credit.index', [
+            'canEditCredit' => auth()->user()->can('update-credit-sale'),
+            'canDeleteCredit' => auth()->user()->can('delete-credit-sale'),
+            'canExportCredit' => auth()->user()->can('export-details-credit-sale'),
+            'canCreditPdfWithHeaders'=>auth()->user()->can('export-pdf-with-header-credit-sale'),
+            'canCreditPdfWithoutHeaders'=>auth()->user()->can('export-pdf-without-header-credit-sale'),
+            'users' => $users,
+            'customers'=>$customers
+        ]);
 
-        return view('sales.credit.index', compact('users', 'customers'));
+
     }
 
     public function create()

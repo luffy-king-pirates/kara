@@ -10,27 +10,32 @@
     @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Filter and Export Buttons -->
-        <button id="apply-filter" class="btn btn-success">Export d Results in Excel</button>
-        <a href="/adjustments/create" class="btn btn-success" id="addItemBtn">Adjust Stock</a>
-
-        <!-- DataTable for Adjustments -->
-        <table class="table table-bordered" id="adjustments-table">
-            <thead>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th>ID</th>
-                    <th>Adjustment Number</th>
-                    <th>Adjustment Date</th>
-                </tr>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                    <th><input type="text" id="filter-adjustment-number" class="form-control"
-                            placeholder="Adjustment Number"></th>
-                    <th><input type="date" id="filter-adjustment-date" class="form-control"></th>
-                </tr>
-            </thead>
-        </table>
+        @can('export-adjustments')
+            <button id="apply-filter" class="btn btn-success">Export d Results in Excel</button>
+        @endcan
+        @can('create-adjustments')
+            <a href="/adjustments/create" class="btn btn-success" id="addItemBtn">Adjust Stock</a>
+        @endcan
+        @can('read-adjustments')
+            <!-- DataTable for Adjustments -->
+            <table class="table table-bordered" id="adjustments-table">
+                <thead>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th>ID</th>
+                        <th>Adjustment Number</th>
+                        <th>Adjustment Date</th>
+                    </tr>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
+                        <th><input type="text" id="filter-adjustment-number" class="form-control"
+                                placeholder="Adjustment Number"></th>
+                        <th><input type="date" id="filter-adjustment-date" class="form-control"></th>
+                    </tr>
+                </thead>
+            </table>
+        @endcan
         <!-- Delete Confirmation Modal -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -64,6 +69,13 @@
 
 @section('js')
     @include('partials.import-cdn')
+    <script>
+        var canEditAdjustment = @json($canEditAdjustment);
+        var canDeleteAdjustment = @json($canDeleteAdjustment);
+        var canExportAdjustment = @json($canExportAdjustment);
+    
+    </script>
+
     <script>
         $(function() {
             // DataTable with expandable rows
@@ -125,35 +137,49 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                                            <tr>
-                                                                <td>${item.item?.item_name}</td>
-                                                                <td>${item.stock_type?.stock_type_name}</td>
-                                                                <td>${item.godown || 0}</td>
-                                                                <td>${item.shop || 0}</td>
-                                                                <td>${item.quantity}</td>
-                                                                <td>${item.unit ? item.unit.unit_name : ''}</td>
+                                                                            <tr>
+                                                                                <td>${item.item?.item_name}</td>
+                                                                                <td>${item.stock_type?.stock_type_name}</td>
+                                                                                <td>${item.godown || 0}</td>
+                                                                                <td>${item.shop || 0}</td>
+                                                                                <td>${item.quantity}</td>
+                                                                                <td>${item.unit ? item.unit.unit_name : ''}</td>
 
-                                                            </tr>
-                                                        `).join('')}
+                                                                            </tr>
+                                                                        `).join('')}
                         </tbody>
 
                  <div class="btn-group " role="group" aria-label="Adjustment Actions">
-    <!-- Edit Button -->
-    <a href="/adjustments/${rowData.id}/edit" class="btn  mr-3 btn-warning btn-sm">
-        <i class="fas fa-edit"></i> Edit
-    </a>
 
-    <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
-    <i class="fas fa-trash-alt"></i> Delete
-</a>
+
     <!-- Export Button -->
-    <a href="/export/adjustments/exportDetails/${rowData.id}" class="btn  mr-3 btn-success btn-sm">
-        <i class="fas fa-file-export"></i> Export
-    </a>
+
 </div>
 
                     </table>
                 `;
+                if (canEditAdjustment) {
+                    detailTable += `
+  <a href="/adjustments/${rowData.id}/edit" class="btn  mr-3 btn-warning btn-sm">
+        <i class="fas fa-edit"></i> Edit
+    </a>
+                    `
+                }
+                if(canDeleteAdjustment){
+                    detailTable+=`
+  <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
+    <i class="fas fa-trash-alt"></i> Delete
+</a>
+                    `
+                }
+                if(canExportAdjustment){
+                    detailTable+=`
+  <a href="/export/adjustments/exportDetails/${rowData.id}" class="btn  mr-3 btn-success btn-sm">
+        <i class="fas fa-file-export"></i> Export
+    </a>
+                    `
+                }
+                detailTable+="</div>"
                 return detailTable;
             }
 

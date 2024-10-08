@@ -10,31 +10,35 @@
     @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Filter and Export Buttons -->
-        <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
-        <a href="/imports/create" class="btn btn-success" id="addItemBtn">Add New Inport Transaction</a>
-
+        @can('export-imports')
+            <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
+        @endcan
+        @can('create-imports')
+            <a href="/imports/create" class="btn btn-success" id="addItemBtn">Add New Inport Transaction</a>
+        @endcan
         <!-- DataTable for Purchase Transactions -->
-        <table class="table table-bordered" id="purchase-table">
-            <thead>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th>ID</th>
-                    <th>Import Number</th>
-                    <th>Supplier</th>
-                    <th>Creation Date</th>
+        @can('read-imports')
+            <table class="table table-bordered" id="purchase-table">
+                <thead>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th>ID</th>
+                        <th>Import Number</th>
+                        <th>Supplier</th>
+                        <th>Creation Date</th>
 
-                </tr>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                    <th><input type="text" id="filter-import-number" class="form-control" placeholder="Import Number">
-                    </th>
-                    <th><input type="text" id="filter-supplier" class="form-control" placeholder="Supplier"></th>
-                    <th><input type="date" id="filter-creation-date" class="form-control"></th>
-                </tr>
-            </thead>
-        </table>
-
+                    </tr>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
+                        <th><input type="text" id="filter-import-number" class="form-control" placeholder="Import Number">
+                        </th>
+                        <th><input type="text" id="filter-supplier" class="form-control" placeholder="Supplier"></th>
+                        <th><input type="date" id="filter-creation-date" class="form-control"></th>
+                    </tr>
+                </thead>
+            </table>
+        @endcan
 
         <!-- Delete Confirmation Modal -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -69,6 +73,11 @@
 
 @section('js')
     @include('partials.import-cdn')
+    <script>
+        var canEditImports = @json($canEditImports);
+        var canDeleteImports = @json($canDeleteImports);
+        var canExportImports = @json($canExportImports);
+    </script>
     <script>
         $(function() {
             // DataTable with expandable rows for Purchase
@@ -136,14 +145,14 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                            <tr>
-                                                <td>${item.item?.item_name}</td>
-                                                <td>${item.quantity}</td>
-                                                <td>${item.unit?.unit_name}</td>
-                                                <td>${item.cost}</td>
-                                                <td>${item.total}</td>
-                                            </tr>
-                                        `).join('')}
+                                                                    <tr>
+                                                                        <td>${item.item?.item_name}</td>
+                                                                        <td>${item.quantity}</td>
+                                                                        <td>${item.unit?.unit_name}</td>
+                                                                        <td>${item.cost}</td>
+                                                                        <td>${item.total}</td>
+                                                                    </tr>
+                                                                `).join('')}
                         </tbody>
                          <tfoot>
                             <tr>
@@ -158,18 +167,33 @@
 
                     <div class="btn-group" role="group" aria-label="Purchase Transaction Actions">
                         <!-- Edit Button -->
-                        <a href="/imports/${rowData.id}/edit" class="btn btn-warning btn-sm mr-3">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
+  ${canEditImports &&
+                    `
+                                  <a href="/imports/${rowData.id}/edit" class="btn btn-warning btn-sm mr-3">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                `
+                    }
+${canDeleteImports &&
+`
+                    <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
+            <i class="fas fa-trash-alt"></i> Delete
+        </a>
+        `
+}
 
-                <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
-    <i class="fas fa-trash-alt"></i> Delete
-</a>
+${
+canExportImports
+ &&
+ `
+          <a href="/export/imports/exportDetails/${rowData.id}" class="btn mr-3 btn-success btn-sm">
+                                    <i class="fas fa-file-export"></i> Export
+                                </a>
 
-                        <!-- Export Button -->
-                        <a href="/export/imports/exportDetails/${rowData.id}" class="btn mr-3 btn-success btn-sm">
-                            <i class="fas fa-file-export"></i> Export
-                        </a>
+        `
+
+}
+
 
 
 

@@ -10,27 +10,33 @@
     @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Filter and Export Buttons -->
-        <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
-        <a href="/godownShopAshok/create" class="btn btn-success" id="addItemBtn">Add New Godown to Shop Transfer</a>
 
-        <!-- DataTable for Godown to Shop Transactions -->
-        <table class="table table-bordered" id="godownshop-table">
-            <thead>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th>ID</th>
-                    <th>Transfer Number</th>
-                    <th>Transfert Date</th>
-                </tr>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                    <th><input type="text" id="filter-transfert-number" class="form-control"
-                            placeholder="Transfer Number"></th>
-                    <th><input type="date" id="filter-creation-date" class="form-control"></th>
-                </tr>
-            </thead>
-        </table>
+        @can('create-godwan-to-shop-ashok')
+            <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
+        @endcan
+        @can('create-godwan-to-shop-ashok')
+            <a href="/godownShopAshok/create" class="btn btn-success" id="addItemBtn">Add New Godown to Shop Transfer</a>
+        @endcan
+        @can('read-godwan-to-shop-ashok')
+            <!-- DataTable for Godown to Shop Transactions -->
+            <table class="table table-bordered" id="godownshop-table">
+                <thead>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th>ID</th>
+                        <th>Transfer Number</th>
+                        <th>Transfert Date</th>
+                    </tr>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
+                        <th><input type="text" id="filter-transfert-number" class="form-control"
+                                placeholder="Transfer Number"></th>
+                        <th><input type="date" id="filter-creation-date" class="form-control"></th>
+                    </tr>
+                </thead>
+            </table>
+        @endcan
         <!-- Delete Confirmation Modal -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -63,7 +69,18 @@
 @stop
 
 @section('js')
+
     @include('partials.import-cdn')
+
+
+    <script>
+        var canEditGodwanToShopAshok = @json($canEditGodwanToShopAshok);
+        var canDeleteGodwanToShopAshok = @json($canDeleteGodwanToShopAshok);
+        var canExportGodwanToShopAshok = @json($canExportGodwanToShopAshok);
+        var canExportPdfGodwanToShopAshok = @json($canExportPdfGodwanToShopAshok);
+        var canApprouveGodwanToShopAshok = @json($canApprouveGodwanToShopAshok);
+    </script>
+
     <script>
         $(function() {
             // DataTable with expandable rows
@@ -121,34 +138,63 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                                            <tr>
-                                                                <td>${item.item?.item_name}</td>
-                                                                <td>${item.quantity}</td>
-                                                                <td>${item.unit?.unit_name}</td>
-                                                            </tr>
-                                                        `).join('')}
+                                                                                <tr>
+                                                                                    <td>${item.item?.item_name}</td>
+                                                                                    <td>${item.quantity}</td>
+                                                                                    <td>${item.unit?.unit_name}</td>
+                                                                                </tr>
+                                                                            `).join('')}
                         </tbody>
                     </table>
 
                     <div class="btn-group  " role="group" aria-label="Godown to Shop Transaction Actions">
-                        <!-- Edit Button -->
+
+
+
+
+
+
+
+
+                `;
+
+                if (canEditGodwanToShopAshok) {
+                    detailTable += `
+ <!-- Edit Button -->
                         <a href="/godownShopAshok/${rowData.id}/edit" class="btn mr-3 btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-
-         <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
+                 `
+                }
+                if (canDeleteGodwanToShopAshok) {
+                    detailTable += `
+ <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
     <i class="fas fa-trash-alt"></i> Delete
 </a>
-                        <!-- Export Button -->
+                    `
+                }
+
+                if (canExportGodwanToShopAshok) {
+                    detailTable += `
+ <!-- Export Button -->
                         <a href="/export/godownShopAshok/exportDetails/${rowData.id}" class="btn  mr-3 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
+
+                        `
+                }
+
+                if (canExportPdfGodwanToShopAshok) {
+                    detailTable += `
+
                              <a href="/godownShopAshok/${rowData.id}/pdf/true" class="btn btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export pdf
                         </a>
+                    `
+                }
 
-                    </div>
-                `;
+                detailTable += "</div>"
+
                 return detailTable;
             }
 

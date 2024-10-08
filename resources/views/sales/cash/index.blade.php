@@ -10,30 +10,33 @@
     @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Filter and Export Buttons -->
-        <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
-        <a href="/cash/create" class="btn btn-success" id="addItemBtn">Add New Cash Transaction</a>
-
-        <!-- DataTable for Cash Transactions -->
-        <table class="table table-bordered" id="cash-table">
-            <thead>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th>ID</th>
-                    <th>Cash Number</th>
-                    <th>Creation Date</th>
-                    <th>Total Amount</th>
-                </tr>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                    <th><input type="text" id="filter-cash-number" class="form-control" placeholder="Cash Number"></th>
-                    <th><input type="date" id="filter-creation-date" class="form-control"></th>
-                    <th><input type="text" id="filter-total-amount" class="form-control" placeholder="Total Amount"></th>
-                </tr>
-            </thead>
-        </table>
-
-
+        @can('export-cash-sale')
+            <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
+        @endcan
+        @can('create-cash-sale')
+            <a href="/cash/create" class="btn btn-success" id="addItemBtn">Add New Cash Transaction</a>
+        @endcan
+        @can('read-cash-sale')
+            <!-- DataTable for Cash Transactions -->
+            <table class="table table-bordered" id="cash-table">
+                <thead>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th>ID</th>
+                        <th>Cash Number</th>
+                        <th>Creation Date</th>
+                        <th>Total Amount</th>
+                    </tr>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
+                        <th><input type="text" id="filter-cash-number" class="form-control" placeholder="Cash Number"></th>
+                        <th><input type="date" id="filter-creation-date" class="form-control"></th>
+                        <th><input type="text" id="filter-total-amount" class="form-control" placeholder="Total Amount"></th>
+                    </tr>
+                </thead>
+            </table>
+        @endcan
         <!-- Delete Confirmation Modal -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -68,6 +71,13 @@
 
 @section('js')
     @include('partials.import-cdn')
+    <script>
+        var canEditCashSale = @json($canEditCashSale);
+        var canDeleteCashSale = @json($canDeleteCashSale);
+        var canExportCashSale = @json($canExportCashSale);
+        var canCashSalePdfWithHeaders = @json($canCashSalePdfWithHeaders);
+        var canCashSalePdfWithoutHeaders = @json($canCashSalePdfWithoutHeaders);
+    </script>
     <script>
         $(function() {
             // DataTable with expandable rows
@@ -134,14 +144,14 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                                                                        <tr>
-                                                                                            <td>${item.item?.item_name}</td>
-                                                                                            <td>${item.quantity}</td>
-                                                                                            <td>${item.unit?.unit_name}</td>
-                                                                                            <td>${item.price}</td>
-                                                                                            <td>${item.total}</td>
-                                                                                        </tr>
-                                                                                    `).join('')}
+                                                                                                        <tr>
+                                                                                                            <td>${item.item?.item_name}</td>
+                                                                                                            <td>${item.quantity}</td>
+                                                                                                            <td>${item.unit?.unit_name}</td>
+                                                                                                            <td>${item.price}</td>
+                                                                                                            <td>${item.total}</td>
+                                                                                                        </tr>
+                                                                                                    `).join('')}
                         </tbody>
                          <tfoot>
         <tr>
@@ -169,28 +179,48 @@
         </table>
         <br>
                     <div class="btn-group" role="group" aria-label="Cash Transaction Actions">
-                        <!-- Edit Button -->
-                        <a href="/cash/${rowData.id}/edit" class="btn mr-4 btn-warning btn-sm">
+
+                `;
+
+                if (canEditCashSale) {
+                    detailTable += `
+ <a href="/cash/${rowData.id}/edit" class="btn mr-4 btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-
-                <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
+                    `
+                }
+                if (canDeleteCashSale) {
+                    detailTable += `
+  <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
     <i class="fas fa-trash-alt"></i> Delete
 </a>
-                        <!-- Export Button -->
-                        <a href="/export/cash/exportDetails/${rowData.id}" class="btn mr-4 btn-success btn-sm">
+                    `
+                }
+    if(canExportCashSale){
+        detailTable+= `
+     <a href="/export/cash/exportDetails/${rowData.id}" class="btn mr-4 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
+        `
+    }
 
-                        <a href="/cash/${rowData?.id}/pdf/true" class="btn btn-success mr-4 btn-sm">
+    if(canCashSalePdfWithHeaders){
+        detailTable+=`
+     <a href="/cash/${rowData?.id}/pdf/true" class="btn btn-success mr-4 btn-sm">
     <i class="fas fa-file-export"></i> Export pdf with headers
 </a>
+        `
+    }
 
-                        <a href="/cash/${rowData?.id}/pdf/false" class="btn btn-success mr-4 btn-sm">
+    if(canCashSalePdfWithoutHeaders){
+        detailTable+=`
+      <a href="/cash/${rowData?.id}/pdf/false" class="btn btn-success mr-4 btn-sm">
     <i class="fas fa-file-export"></i> Export pdf no headers
 </a>
-                    </div>
-                `;
+        `
+    }
+    detailTable+="</div>"
+
                 return detailTable;
             }
 

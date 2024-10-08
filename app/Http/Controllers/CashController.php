@@ -100,8 +100,16 @@ class CashController extends Controller
 
         $users = User::all();
         $customers = Customers::all();
+        return view('sales.cash.index', [
+            'canEditCashSale' => auth()->user()->can('update-cash-sale'),
+            'canDeleteCashSale' => auth()->user()->can('delete-cash-sale'),
+            'canExportCashSale' => auth()->user()->can('export-details-cash-sale'),
+            'canCashSalePdfWithHeaders'=>auth()->user()->can('export-pdf-with-header-cash-sale'),
+            'canCashSalePdfWithoutHeaders'=>auth()->user()->can('export-pdf-without-header-cash-sale'),
+            'users' => $users,
+            'customers'=>$customers
+        ]);
 
-        return view('sales.cash.index', compact('users', 'customers'));
     }
 
     public function create()
