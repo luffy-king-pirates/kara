@@ -446,11 +446,13 @@ return [
                             'icon' => 'fas fa-arrow-circle-up', // Icon for Create Shop to Godown
                             'text' => 'Shop (Sevices) to Godown (Create)',
                             'url' => 'services/create',
+                            'can'=> 'create-shop-service-to-godwan'
                         ],
                         [
                             'icon' => 'fas fa-list-alt', // Icon for View Shop to Godown
                             'text' => 'Shop (Sevices) to Godown (View)',
                             'url' => 'services',
+                             'can'=> 'manage-shop-service-to-godwan'
                         ]
                     ],
                 ],
