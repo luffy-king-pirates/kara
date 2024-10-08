@@ -429,11 +429,13 @@ return [
                             'icon' => 'fas fa-truck-loading', // Icon for Create Godown to Shop
                             'text' => 'Shop to Godown (Create)',
                             'url' => 'shopGodown/create',
+                            'can'=>'create-shop-to-godwan'
                         ],
                         [
                             'icon' => 'fas fa-eye', // Icon for View Godown to Shop
                             'text' => 'Shop to Godown (View)',
                             'url' => 'shopGodown',
+                            'can'=> 'manage-shop-to-godwan'
                         ]
                     ],
                 ],
