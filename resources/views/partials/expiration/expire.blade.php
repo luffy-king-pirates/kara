@@ -62,7 +62,7 @@
             },
             error: function() {
                 // Handle failure case, possibly showing an error message
-                window.location.reload(); // Optionally redirect on error
+              //  window.location.reload(); // Optionally redirect on error
             }
         });
     });

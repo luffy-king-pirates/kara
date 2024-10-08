@@ -96,8 +96,15 @@ class LocalPurshaseController extends Controller
 
         $users = User::all();
         $suppliers = Suppliers::all();
+        return view('purshase.localPurshase.index', [
+            'canEditLocalPurchase' => auth()->user()->can('update-local-purchase'),
+            'canDeleteLocalPurchase' => auth()->user()->can('delete-local-purchase'),
+            'canExportLocalPurchase' => auth()->user()->can('export-details-local-purchase'),
+            'canExportPdfLocalPurchase'=>auth()->user()->can('export-pdf-purchase-local-purchase'),
+            'users' => $users,
+            'suppliers'=>$suppliers
+        ]);
 
-        return view('purshase.localPurshase.index', compact('users', 'suppliers'));
     }
 
     public function create()

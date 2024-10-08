@@ -78,6 +78,7 @@
         var canCreditPdfWithHeaders = @json($canCreditPdfWithHeaders);
         var canCreditPdfWithoutHeaders = @json($canCreditPdfWithoutHeaders);
     </script>
+
     <script>
         $(function() {
             // DataTable with expandable rows
@@ -143,14 +144,14 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                                                    <tr>
-                                                                        <td>${item.item?.item_name}</td>
-                                                                        <td>${item.quantity}</td>
-                                                                        <td>${item.unit?.unit_name}</td>
-                                                                        <td>${item.price}</td>
-                                                                        <td>${item.total}</td>
-                                                                    </tr>
-                                                                `).join('')}
+                                                                        <tr>
+                                                                            <td>${item.item?.item_name}</td>
+                                                                            <td>${item.quantity}</td>
+                                                                            <td>${item.unit?.unit_name}</td>
+                                                                            <td>${item.price}</td>
+                                                                            <td>${item.total}</td>
+                                                                        </tr>
+                                                                    `).join('')}
                         </tbody>
                          <tfoot>
         <tr>
@@ -179,47 +180,48 @@
 
 
                 `;
-                return detailTable;
-            }
 
-            if (canEditCredit) {
-                detailTable += `
+                if (canEditCredit) {
+                    detailTable += `
  <a href="/credit/${rowData.id}/edit" class="btn mr-4 btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
                     `
-            }
-            if (canDeleteCredit) {
-                detailTable += `
+                }
+                if (canDeleteCredit) {
+                    detailTable += `
   <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
     <i class="fas fa-trash-alt"></i> Delete
 </a>
                     `
-            }
-            if (canExportCredit) {
-                detailTable += `
+                }
+                if (canExportCredit) {
+                    detailTable += `
      <a href="/export/credit/exportDetails/${rowData.id}" class="btn mr-4 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
         `
-            }
+                }
 
-            if (canCreditPdfWithHeaders) {
-                detailTable += `
+                if (canCreditPdfWithHeaders) {
+                    detailTable += `
      <a href="/credit/${rowData?.id}/pdf/true" class="btn btn-success mr-4 btn-sm">
     <i class="fas fa-file-export"></i> Export pdf with headers
 </a>
         `
-            }
+                }
 
-            if (canCreditPdfWithoutHeaders) {
-                detailTable += `
+                if (canCreditPdfWithoutHeaders) {
+                    detailTable += `
       <a href="/credit/${rowData?.id}/pdf/false" class="btn btn-success mr-4 btn-sm">
     <i class="fas fa-file-export"></i> Export pdf no headers
 </a>
         `
+                }
+                detailTable += "</div>"
+                return detailTable;
             }
-            detailTable += "</div>"
+
 
             // Expand row on click
             $('#credit-table tbody').on('click', 'td.dt-control', function() {

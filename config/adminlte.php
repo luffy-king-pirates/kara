@@ -560,11 +560,13 @@ return [
                         'icon' => 'fas fa-money-bill-wave', // Icon for Cash submenu
                         'text' => 'Local Purchase (Create)',
                         'url' => 'purchase/create',
+                        'can'=>'create-local-purchase'
                     ],
                     [
                         'icon' => 'fas fa-credit-card', // Icon for Credit submenu
                         'text' => 'Local Purchase (View)',
                         'url' => 'purchase',
+                         'can'=>'manage-local-purchase'
                     ],
                 ],
             ],

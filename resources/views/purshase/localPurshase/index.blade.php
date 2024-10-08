@@ -10,30 +10,35 @@
     @include('partials.expiration.expire')
     <div style="height: 700px; overflow-y: auto;">
         <!-- Filter and Export Buttons -->
-        <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
-        <a href="/purchase/create" class="btn btn-success" id="addItemBtn">Add New Purchase Transaction</a>
+        @can('export-local-purchase')
+            <button id="apply-filter" class="btn btn-success">Export Results in Excel</button>
+        @endcan
+        @can('create-local-purchase')
+            <a href="/purchase/create" class="btn btn-success" id="addItemBtn">Add New Purchase Transaction</a>
+        @endcan
+        @can('read-local-purchase')
+            <!-- DataTable for Purchase Transactions -->
+            <table class="table table-bordered" id="purchase-table">
+                <thead>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th>ID</th>
+                        <th>Receipt Number</th>
+                        <th>Supplier</th>
+                        <th>Creation Date</th>
 
-        <!-- DataTable for Purchase Transactions -->
-        <table class="table table-bordered" id="purchase-table">
-            <thead>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th>ID</th>
-                    <th>Receipt Number</th>
-                    <th>Supplier</th>
-                    <th>Creation Date</th>
-
-                </tr>
-                <tr>
-                    <th></th> <!-- Expand button -->
-                    <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
-                    <th><input type="text" id="filter-receipt-number" class="form-control" placeholder="Receipt Number">
-                    </th>
-                    <th><input type="text" id="filter-supplier" class="form-control" placeholder="Supplier"></th>
-                    <th><input type="date" id="filter-creation-date" class="form-control"></th>
-                </tr>
-            </thead>
-        </table>
+                    </tr>
+                    <tr>
+                        <th></th> <!-- Expand button -->
+                        <th><input type="text" id="filter-id" class="form-control" placeholder="ID"></th>
+                        <th><input type="text" id="filter-receipt-number" class="form-control" placeholder="Receipt Number">
+                        </th>
+                        <th><input type="text" id="filter-supplier" class="form-control" placeholder="Supplier"></th>
+                        <th><input type="date" id="filter-creation-date" class="form-control"></th>
+                    </tr>
+                </thead>
+            </table>
+        @endcan
 
 
         <!-- Delete Confirmation Modal -->
@@ -69,6 +74,12 @@
 
 @section('js')
     @include('partials.import-cdn')
+    <script>
+        var canEditLocalPurchase = @json($canEditLocalPurchase);
+        var canDeleteLocalPurchase = @json($canDeleteLocalPurchase);
+        var canExportLocalPurchase = @json($canExportLocalPurchase);
+        var canExportPdfLocalPurchase = @json($canExportPdfLocalPurchase);
+    </script>
     <script>
         $(function() {
             // DataTable with expandable rows for Purchase
@@ -136,14 +147,14 @@
                         </thead>
                         <tbody>
                             ${rowData.details.map(item => `
-                                            <tr>
-                                                <td>${item.item?.item_name}</td>
-                                                <td>${item.quantity}</td>
-                                                <td>${item.unit?.unit_name}</td>
-                                                <td>${item.cost}</td>
-                                                <td>${item.total}</td>
-                                            </tr>
-                                        `).join('')}
+                                                                <tr>
+                                                                    <td>${item.item?.item_name}</td>
+                                                                    <td>${item.quantity}</td>
+                                                                    <td>${item.unit?.unit_name}</td>
+                                                                    <td>${item.cost}</td>
+                                                                    <td>${item.total}</td>
+                                                                </tr>
+                                                            `).join('')}
                         </tbody>
                          <tfoot>
                             <tr>
@@ -157,29 +168,45 @@
                     </table>
 
                     <div class="btn-group" role="group" aria-label="Purchase Transaction Actions">
-                        <!-- Edit Button -->
-                        <a href="/purchase/${rowData.id}/edit" class="btn btn-warning btn-sm mr-3">
+
+                `;
+                if (canEditLocalPurchase) {
+                    detailTable += `
+ <a href="/purchase/${rowData.id}/edit" class="btn btn-warning btn-sm mr-3">
                             <i class="fas fa-edit"></i> Edit
                         </a>
+                    `
+                }
+                if (canDeleteLocalPurchase) {
+                    detailTable += `
 
                 <a href="javascript:void(0)" class="btn mr-4 btn-danger btn-sm" onclick="openDeleteModal(${rowData.id})">
     <i class="fas fa-trash-alt"></i> Delete
 </a>
+                    `
+                }
 
-                        <!-- Export Button -->
-                        <a href="/export/purchase/exportDetails/${rowData.id}" class="btn mr-3 btn-success btn-sm">
+                if (canExportLocalPurchase) {
+                    detailTable += `
+ <a href="/export/purchase/exportDetails/${rowData.id}" class="btn mr-3 btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export
                         </a>
+                    `
+                }
 
-                         <a href="/storage/${rowData?.pdf}" download class="btn btn-success btn-sm">
+                if (canExportPdfLocalPurchase) {
+                    detailTable += `
+     <a href="/storage/${rowData?.pdf}" download class="btn btn-success btn-sm">
                             <i class="fas fa-file-export"></i> Export purchase pdf
                         </a>
+                    `
+                }
 
-
-                    </div>
-                `;
+                detailTable += "</div>"
                 return detailTable;
             }
+
+
 
             // Expand row on click
             $('#purchase-table tbody').on('click', 'td.dt-control', function() {

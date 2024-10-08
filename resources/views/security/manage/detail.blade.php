@@ -136,8 +136,15 @@
                                     <label class="form-check-label" for="export-pdf-without-header-${row.id}-${row.page}">Export pdf without header</label>
                                 </div>
 
+  <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="export-pdf-purchase" id="export-pdf-purchase-${row.id}-${row.page}" ${row.permissions.includes('export-pdf-purchase') ? 'checked' : ''}>
+                                    <label class="form-check-label" for="export-pdf-purchase-${row.id}-${row.page}">Export pdf Purchase</label>
+                                </div>
 
-                                export-pdf-with-header
+
+
+
+
                             `;
                         }
                     },
