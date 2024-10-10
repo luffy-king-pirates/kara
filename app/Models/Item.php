@@ -29,7 +29,13 @@ class Item extends Model
         'is_deleted',
         'created_at',
         'updated_at',
-        'item_unit'
+        'item_unit',
+        'mfg_code',
+       'inclusive',
+        'exclusive',
+       'item_description',
+       'specification',
+       'image_url'
     ];
 
     // Relationships

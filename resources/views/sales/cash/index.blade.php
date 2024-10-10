@@ -130,7 +130,6 @@
 
             // Row detail format function to show details
             function formatDetails(rowData) {
-                console.log(rowData)
                 var detailTable = `
                     <table class="table table-bordered">
                         <thead>

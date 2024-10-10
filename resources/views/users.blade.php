@@ -319,7 +319,7 @@
                 e.preventDefault();
 
                 let formData = new FormData(this);
-                console.log(formData.get('profile_picture'))
+             
                 // Include _method field for PUT requests if updating a user
                 let userId = $('#user-id').val();
                 if (userId) {

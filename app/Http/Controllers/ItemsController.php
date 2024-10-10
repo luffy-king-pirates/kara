@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item; // Your item model
 use App\Models\User;
-use App\Models\categories;
+use App\Models\Categories;
 use App\Models\Brand;
 use App\Models\Units;
 
@@ -13,25 +13,36 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Support\Facades\Log;
 class ItemsController extends Controller
 {
     // Show the Items view
     public function index(Request $request)
     {
         $users = User::all();
-        $categories = categories::all();
+        $categories = Categories::all();
         $brands = Brand::all();
         $units = Units::all();
         if ($request->ajax()) {
             $items = Item::with(['category:id,categorie_name', 'brand:id,brand_name',
             'unit:id,unit_name',
-           'createdByUser:id,name', 'updatedByUser:id,name'])
-                ->select(['id', 'item_code', 'item_name', 'item_category', 'item_brand', 'item_size', 'created_at', 'updated_at', 'created_by', 'updated_by', 'is_active'])
+           'createdByUser:id,name', 'updatedByUser:id,name',
+
+           'godown:id,item_id,quantity', // Include godown quantity
+           'shops:id,item_id,quantity'    // Include shop quantity
+           ])
+                ->select(['id','image_url','inclusive','exclusive','specification', 'item_code', 'item_name', 'item_category', 'item_brand', 'item_size', 'created_at', 'updated_at', 'created_by', 'updated_by', 'is_active'])
                 ->where('is_deleted', false);
 
             return DataTables::of($items)
             ->addColumn('created_at', function ($row) {
                 return Carbon::parse($row->created_at)->format('M d, Y h:i A');
+            })
+            ->addColumn('godown_quantity', function ($row) {
+                return $row->godown ? $row->godown->quantity : 'N/A';
+            })
+            ->addColumn('shop_quantity', function ($row) {
+                return $row->shops ? $row->shops->quantity : 'N/A';
             })
             ->addColumn('updated_at', function ($row) {
                 return $row->updated_at ? Carbon::parse($row->updated_at)->format('M d, Y h:i A') : 'Not updated';
@@ -79,9 +90,7 @@ class ItemsController extends Controller
                     if ($request->has('item_code') && $request->item_code != '') {
                         $query->where('item_code', 'like', "%" . $request->item_code . "%");
                     }
-                    if ($request->has('item_category') && $request->item_category != '') {
-                        $query->where('item_category', $request->item_category);
-                    }
+
                     if ($request->has('item_unit') && $request->item_unit != '') {
                         $query->where('item_unit', $request->item_unit);
                     }
@@ -100,7 +109,7 @@ class ItemsController extends Controller
                     if ($request->filled('updated_by')) {
                         $query->where('updated_by', $request->updated_by);
                     }
-                    $query->where('is_active', true);
+                    $query->where('is_deleted', false);
                 })
                 ->make(true);
         }
@@ -243,15 +252,46 @@ public function export(Request $request)
         $item->item_unit = $request->input('item_unit');
         $item->item_brand = $request->input('item_brand');
         $item->item_size = $request->input('item_size');
+
+        $item->mfg_code = $request->input('mfg_code');
+        $item->inclusive = $request->input('inclusive');
+        $item->exclusive = $request->input('exclusive');
+        $item->item_description = $request->input('item_description');
+        $item->specification = $request->input('specification');
+
+
+
         $item->created_by = auth()->user()->id;
         $item->updated_by = auth()->user()->id;
         $item->is_active = true;
         $item->is_deleted = false;
+        if ($request->hasFile('image_url')) {
+            // Delete old profile picture if exists
+            if ($item->image_url) {
+                Storage::delete('public/' . $item->image_url);
+            }
+
+            // Store new profile picture
+            $path = $request->file('image_url')->store('items', 'public');
+            $item->image_url = $path;
+        }else {
+            // Set profile picture to null if no file is uploaded
+            $item->image_url = null;
+        }
+
+
+
+
         $item->save();
 
         return response()->json(['success' => true]);
     }
 
+    public function details($id)
+    {
+        $items = Item::findOrFail($id);
+        return response()->json($items);
+    }
     // Update existing item
     public function update(Request $request, $id)
     {
@@ -273,6 +313,31 @@ public function export(Request $request)
         $item->item_size = $request->input('item_size');
         $item->item_unit = $request->input('item_unit');
         $item->updated_by = auth()->user()->id;
+        $item->mfg_code = $request->input('mfg_code');
+        $item->inclusive = $request->input('inclusive');
+        $item->exclusive = $request->input('exclusive');
+        $item->item_description = $request->input('item_description');
+        $item->specification = $request->input('specification');
+
+     // Handle item picture upload
+     if ($request->hasFile('image_url')) {
+        // Delete old profile picture if exists
+        if ($item->image_url) {
+            Storage::delete('public/' . $item->image_url);
+        }
+
+        // Store new profile picture
+        $path = $request->file('image_url')->store('items', 'public');
+        $item->image_url = $path;
+    }else {
+        // Set profile picture to null if no file is uploaded
+        $item->image_url = null;
+    }
+
+
+
+
+
         $item->save();
 
         return response()->json(['success' => true]);
@@ -283,6 +348,12 @@ public function export(Request $request)
     {
         $item = Item::findOrFail($id);
         $item->is_deleted = true;
+
+        if ($item->image_url) {
+            Storage::delete('public/' . $item->image_url);
+        }
+
+
         $item->save();
 
         return response()->json(['success' => true]);

@@ -67,6 +67,7 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
+
 // Authentication routes (Login, Register, etc.)
 Auth::routes();
 
@@ -179,6 +180,7 @@ Route::middleware(['auth',App\Http\Middleware\UserActionLogger::class])->group(f
     Route::post('managePermissions/save', [ManagePermissionController::class, 'savePermissions'])->name('managePermissions.save');
 
     Route::resource('items', ItemsController::class);
+    Route::get('items/{id}/details', [ItemsController::class, 'details'])->name('items.details');
 
 
     //transfert in progress
